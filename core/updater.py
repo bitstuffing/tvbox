@@ -29,8 +29,12 @@ def update():
     #unzip
     unzipper = ziptools.ziptools()
     logger.info("org.harddevelop.kodi.tv destpathname=%s" % ROOT_DIR)
-    addons_dir = ROOT_DIR[:ROOT_DIR.find('/org.harddevelop.kodi.tv')]
-    unzipper.extract(localfile,addons_dir)
+    addons_dir = ROOT_DIR[:ROOT_DIR.rfind('/')+1]
+    current_plugin_dir = ROOT_DIR[ROOT_DIR.rfind('/')+1:]
+    logger.debug("using dir: "+addons_dir+" to extract content")
+
+    unzipper.extractReplacingMainFolder(localfile,addons_dir,current_plugin_dir) #github issues
+    #unzipper.extract(localfile,ROOT_DIR)
 
     #clean downloaded zip file
     logger.info("org.harddevelop.kodi.tv clean zip file...")

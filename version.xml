@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<plugin>
+	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
+	<tag>0.0.2</tag>
+	<version>7</version>
+	<date>11/11/2015</date>
+	<changes>Development update. Code uploaded to github.com, now the main server is github.com</changes>
+</plugin>

@@ -1,0 +1,6 @@
+<settings>
+	<category label="General">
+		<setting id="remote_repository" type="text" label="Remote repository list" value="http://harddevelop.x10.bz/channels/channels_spain" default="http://harddevelop.x10.bz/channels/channels_spain" enable="true"/>
+		<setting id="remote_updater" type="text" label="Remote xml for update" value="https://github.com/harddevelop/tvbox/raw/master/version.xml" default="https://github.com/harddevelop/tvbox/raw/master/version.xml" enable="true"/>
+	</category>
+</settings>

@@ -1,0 +1,9 @@
+<strings><!-- plugin title -->
+    <string id="10001">Browser remote channel list</string>
+    <string id="10002">Downloading...</string>
+    <string id="10003">%.2fMB/%.2fMB (%d%%) %.2f Kb/s %s left </string>
+    <string id="10004">Its not possible download the file</string>
+
+    <string id="10010">Browse web pages</string>
+    <string id="10011">¡Update available!</string>
+</strings>

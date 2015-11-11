@@ -1,0 +1,9 @@
+<strings><!-- plugin title -->
+    <string id="10001">Listas de canales detectados</string>
+    <string id="10002">Descargando...</string>
+    <string id="10003">%.2fMB/%.2fMB (%d%%) %.2f Kb/s %s quedan </string>
+    <string id="10004">No es posible descargar el fichero</string>
+
+    <string id="10010">Navegar por páginas web</string>
+    <string id="10011">¡Actualización disponible!</string>
+</strings>

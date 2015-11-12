@@ -70,7 +70,7 @@ class Decoder():
                         finalCookie += "; "
                     finalCookie+= cookie
 
-            print 'Extracted cookie: '+finalCookie
+            logger.info('Extracted cookie: '+finalCookie)
 
             #build form
             op = Decoder.extract('type="hidden" name="op" value="','"',data)
@@ -137,10 +137,10 @@ class Decoder():
             #i = 0
             for splittedHtml in html.split('<input type="hidden" id="'):
                 if splittedHtml.find("DOCTYPE html PUBLIC")==-1 and splittedHtml.find(' value=""')==-1:
-                    print "processing hidden: "+splittedHtml
+                    #logger.info("processing hidden: "+splittedHtml)
                     extracted = splittedHtml[splittedHtml.find('value="')+len('value="'):]
                     extracted = extracted[0:extracted.find('"')]
-                    print "extracted hidden value: "+extracted
+                    logger.info("extracted hidden value: "+extracted)
                     if playPath == "":
                         playPath = base64.standard_b64decode(extracted)
                     else:
@@ -179,7 +179,7 @@ class Decoder():
     def decodeStreamin(link):
         html = Decoder.getFinalHtmlFromLink(link,5)
         mp4File = Decoder.extract("config:{file:'","'",html)
-        print 'found link: '+mp4File
+        logger.info('found link: '+mp4File)
         return mp4File
 
     @staticmethod
@@ -188,7 +188,8 @@ class Decoder():
         try:
             encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
         except:
-            print html
+            pass
+            #print html
         mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
         ip = Decoder.extract("http://",'/',mp4File)
         #port = Decoder.extract(":","/",ip)
@@ -224,7 +225,8 @@ class Decoder():
         try:
             encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
         except:
-            print html
+            pass
+            #print html
         mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
         mp4File = Decoder.extractWithRegex("http://play.",".mp4",mp4File)
         return mp4File
@@ -235,11 +237,12 @@ class Decoder():
         try:
             encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
         except:
-            print html
+            pass
+            #print html
         mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
         mp4File = Decoder.rExtractWithRegex("http://",".mp4",mp4File)
         mp4File = mp4File.replace("\\","")
-        print 'found mp4: '+mp4File
+        logger.info('found mp4: '+mp4File)
         return mp4File
 
 
@@ -255,12 +258,12 @@ class Decoder():
 
     @staticmethod
     def getContent(url,data="",referer="",cookie="",dnt=True):
-        print 'Using url: '+url
+        logger.info('Using url: '+url)
         request = urllib2.Request(url)
         host = url[url.find("://")+3:]
         if host.find("/")>-1:
             host = host[:host.find("/")]
-        print "Host: "+host
+        logger.info("Host: "+host)
         request.add_header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36")
         if len(referer)>0:
             request.add_header("Referer", referer)

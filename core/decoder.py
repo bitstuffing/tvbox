@@ -4,6 +4,7 @@ import urllib
 import time
 import re
 import base64
+from core import logger
 
 from core import jsunpack
 
@@ -127,8 +128,9 @@ class Decoder():
             #print "decoded{"+decodedssx1+","+decodedssx4+"} unescaped: "+unescaped
             app = decodedssx4[decodedssx4.find("vod/?token="):]
             iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
-            response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token=@@stop-stole@@ flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer ##TODO, extract token from code "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js", last line
-            print "to player: "+response
+            token = Decoder.extractBusinessappToken(iframeReferer)
+            response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
+            logger.info("to player: "+response)
         else:
             playPath = ""
             rtmpValue = ""
@@ -143,26 +145,34 @@ class Decoder():
                         playPath = base64.standard_b64decode(extracted)
                     else:
                         rtmpValue = base64.standard_b64decode(extracted)
-                    print "original: "+extracted+", extracted: "+base64.standard_b64decode(extracted)
+                    logger.info("original: "+extracted+", extracted: "+base64.standard_b64decode(extracted))
                 #i+=1
             if rtmpValue.find("vod/?token=")>-1:
                 app = rtmpValue[rtmpValue.find("vod/?token="):]
                 iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
-                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token=@@stop-stole@@ flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer ##TODO, extract token from code "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js", last line
+                token = Decoder.extractBusinessappToken(iframeReferer)
+                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
             else:
                 app = "redirect"+rtmpValue[rtmpValue.find("?token=play@"):]
-                #response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token=@@stop-stole@@ flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
-                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf flashver=WIN/2019,0,0,226 token=@@stop-stole@@ live=true timeout=15 pageUrl="+iframeReferer
-                #response = rtmpValue+" playpath="+playPath+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
+                token = Decoder.extractBusinessappToken(iframeReferer)
+                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
         return response
 
+    @staticmethod
+    def extractBusinessappToken(iframeReferer):
+        token = "@@stop-stole@@" #some pages changes this token, so it depends on
+        javascriptContent = Decoder.getContent("http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js","",iframeReferer).read()
+        extracted = Decoder.rExtract('["','"];',javascriptContent)
+        token = extracted.replace("\\x","").decode("hex")
+        logger.info("Extracted token: "+token)
+        return token
 
     @staticmethod
     def decodeThevideo(link):
         html = Decoder.getFinalHtmlFromLink(link,5,True)
         mp4Link = Decoder.rExtract(", file: '","'",html) #there are more qualities, so I get the last one which is the best of
         mp4Link = mp4Link[0:mp4Link.find("'")]
-        print "found link: "+mp4Link
+        logger.info("found link: "+mp4Link)
         return mp4Link
 
     @staticmethod
@@ -204,7 +214,7 @@ class Decoder():
         html = Decoder.getContent(link2,'','http://www.nowvideo.sx/player/cloudplayer.swf').read()
         mp4File = Decoder.extract("=","&",html)
 
-        print 'found link: '+mp4File
+        logger.info('found link: '+mp4File)
         return mp4File
 
 
@@ -239,7 +249,7 @@ class Decoder():
         html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with powvideo and others
         #print 'html returned: '+html
         mp4File = Decoder.extract('file: "','"',html)
-        print 'found mp4: '+mp4File
+        logger.info('found mp4: '+mp4File)
         return mp4File
         #return html
 
@@ -248,7 +258,8 @@ class Decoder():
         print 'Using url: '+url
         request = urllib2.Request(url)
         host = url[url.find("://")+3:]
-        host = host[:host.find("/")]
+        if host.find("/")>-1:
+            host = host[:host.find("/")]
         print "Host: "+host
         request.add_header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36")
         if len(referer)>0:
@@ -262,7 +273,7 @@ class Decoder():
         request.add_header("Host", host)
 
         form = urllib.urlencode(data)
-        print "form: "+form
+        logger.info("form: "+form)
         if len(form)>0:
             response = urllib2.urlopen(request,form)
         else:

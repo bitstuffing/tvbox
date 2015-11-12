@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+
 import httplib
 import urllib
 from core.decoder import Decoder
+from core import logger
 
 class Cineestrenostv():
 
@@ -12,9 +15,10 @@ class Cineestrenostv():
         print "starting with page from cineestrenos section: "+page
         if str(page) == '0':
             page = Cineestrenostv.MAIN_URL+'/carrusel/tv.html'
+            #page = Cineestrenostv.MAIN_URL
         html = Cineestrenostv.getContentFromUrl(page,"","",Cineestrenostv.MAIN_URL)
         x = []
-        print "page is: "+page#+", html is: "+html
+        print "page is: "+page+", html is: "+html
         if page.find("/carrusel/tv.html")>-1:
             table = Decoder.extract('<div class="container">',"</div></div></div></div></div>",html)
             for fieldHtml in table.split('<div class="content">'):
@@ -22,8 +26,31 @@ class Cineestrenostv():
                 element["link"] = Cineestrenostv.MAIN_URL+Decoder.extract("<div><a href=\"javascript:popUp('..","')",fieldHtml)
                 element["title"] = Decoder.rExtract("/",".html",element["link"])
                 element["thumbnail"] = Decoder.extract(' src="','"',fieldHtml)
-                print "found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"]
+                logger.info("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
                 if element["thumbnail"].find("http")==0:
+                    x.append(element)
+        elif page == Cineestrenostv.MAIN_URL:
+            table = Decoder.extract('<center><table>','</td></tr></table></center>',html)
+            for fieldHtml in table.split('<td>'):
+                element = {}
+                element["link"] = Cineestrenostv.MAIN_URL+"/"+Decoder.extract("<a href=\"/",'"',fieldHtml)
+                if element["link"].find('"')>-1:
+                    element["link"] = element["link"][0:element["link"].find('"')]
+                element["title"] = Decoder.extract('" title="','" target',fieldHtml)
+                if element["title"].find('"')>-1:
+                    element["title"] = element["title"][0:element["title"].find('"')]
+                if element["title"].find(" online en directo")>-1:
+                    element["title"] = element["title"][0:element["title"].find(" online")]
+                if element["title"].find(" Online")>-1:
+                    element["title"] = element["title"][0:element["title"].find(" Online")]
+                if element["title"].find(" en directo")>-1:
+                    element["title"] = element["title"][0:element["title"].find(" en directo")]
+                #element["title"] = element["title"].decode('utf-8')
+                element["thumbnail"] = Decoder.extract('<img src="','" height',fieldHtml)
+                if element["thumbnail"].find('"')>-1:
+                    element["thumbnail"] = element["thumbnail"][0:element["thumbnail"].find('"')]
+                if element["thumbnail"].find("http")==0:
+                    logger.info("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
                     x.append(element)
         else:
             print 'extracting channel from: '+page
@@ -37,6 +64,8 @@ class Cineestrenostv():
         if html.find('.php')>-1:
             print "proccessing level 1, cookie: "+Cineestrenostv.cookie
             iframeUrl = Decoder.extractWithRegex('http://','.php',html)
+            if iframeUrl.find('"')>-1:
+                iframeUrl = iframeUrl[0:iframeUrl.find('"')]
             html2 = Cineestrenostv.getContentFromUrl(iframeUrl,"",Cineestrenostv.cookie,referer)
             if html2.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="400" src="')>-1:
                 element = Cineestrenostv.extractIframeChannel(html2,iframeUrl)
@@ -112,13 +141,13 @@ class Cineestrenostv():
             
         elif html3.find('file: "')>-1 and html3.find('.m3u8')>-1: #direct link, not needed any logic
             link = Decoder.extract('file: "','",',html3)
-            print "detected direct link: "+link
+            logger.info("detected direct link: "+link)
             element["title"] = "Watching direct link"
             element["permalink"] = True
             element["link"] = link
         else: #tries to decode the bussinesslink, TODO, review this part
             playerUrl = Decoder.decodeBussinessApp(html3,iframeUrl2)
-            print "player url is: "+playerUrl
+            logger.info("player url is: "+playerUrl)
             element["title"] = "Watch streaming"
             element["permalink"] = True
             element["link"] = playerUrl
@@ -128,7 +157,7 @@ class Cineestrenostv():
     @staticmethod
     def extractScriptVerdirectotv(htmlContent,referer):
         element = {}
-        print "proccessing level 3, cookie: "+Cineestrenostv.cookie
+        logger.info("proccessing level 3, cookie: "+Cineestrenostv.cookie)
         scriptUrl = Decoder.extractWithRegex("http://tv.verdirectotv.org/channel.php?file=",'"',htmlContent)
         scriptUrl = scriptUrl[0:len(scriptUrl)-1]
 
@@ -136,11 +165,11 @@ class Cineestrenostv():
         finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
         finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
 
-        print "proccessing level 4, cookie: "+Cineestrenostv.cookie
+        logger.info("proccessing level 4, cookie: "+Cineestrenostv.cookie)
 
         finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
-        print "final level5 html: "+finalHtml
-        print "proccessing level 5, cookie: "+Cineestrenostv.cookie
+        #print "final level5 html: "+finalHtml
+        logger.info("proccessing level 5, cookie: "+Cineestrenostv.cookie)
         playerUrl = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
         #print "player url is: "+playerUrl
         element["title"] = "Watch streaming"
@@ -152,16 +181,14 @@ class Cineestrenostv():
     @staticmethod
     def extractDinostreamPart(url,referer):
         element = {}
-        print "url: "+url+", referer: "+referer
+        logger.info("url: "+url+", referer: "+referer)
         html4 = Cineestrenostv.getContentFromUrl(url,"",Cineestrenostv.cookie,referer)
         finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
         finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
 
-        print "proccessing level 4, cookie: "+Cineestrenostv.cookie
+        logger.info("proccessing level 4, cookie: "+Cineestrenostv.cookie)
 
         finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
-
-        print finalHtml
 
         print "final level5 html: "+finalHtml
         print "proccessing level 5, cookie: "+Cineestrenostv.cookie

@@ -152,7 +152,7 @@ class Decoder():
             else:
                 app = "redirect"+rtmpValue[rtmpValue.find("?token=play@"):]
                 #response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token=@@stop-stole@@ flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
-                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
+                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf flashver=WIN/2019,0,0,226 token=@@stop-stole@@ live=true timeout=15 pageUrl="+iframeReferer
                 #response = rtmpValue+" playpath="+playPath+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
         return response
 

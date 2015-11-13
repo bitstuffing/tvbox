@@ -73,7 +73,6 @@ class Cricfreetv():
             file = Decoder.extract('file: "','"',html)
             securetoken = Decoder.extract('securetoken: "','"',html)
             flashPlayer = 'http://p.jwpcdn.com/6/12/jwplayer.flash.swf'
-            #rtmp://31.220.0.195:80/live/ playpath=eurozddd token=%Zrey(nKa@#Z swfUrl=http://p.jwpcdn.com/6/12/jwplayer.flash.swf live=1 timeout=13 pageUrl=http://reytv.co/
             rtmpUrl = file[0:file.rfind('/')+1]+" playpath="+file[file.rfind('/')+1:]+" token="+securetoken+" swfUrl=http://p.jwpcdn.com/6/12/jwplayer.flash.swf live=1 timeout=13 pageUrl="+iframeUrl
             logger.info("found final link: "+rtmpUrl)
             file = rtmpUrl

@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 
 import CommonFunctions as common
 import urllib
@@ -13,6 +13,7 @@ from providers.filmoncom import Filmoncom
 from providers.hdfulltv import HdfullTv
 from providers.vigoalnet import Vigoal
 from providers.cinestrenostv import Cineestrenostv
+from providers.cricfreetv import Cricfreetv
 from core.decoder import Decoder
 import re
 
@@ -51,8 +52,9 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	#print page
 
 	#name = re.sub('[^A-Za-z0-9]+', '',name)
-
-	u=sys.argv[0]+"?url="+urllib.quote_plus(url.encode('utf-8'))+"&mode="+str(mode)+"&page="
+	#print page
+	u=sys.argv[0]+"?url="+urllib.quote_plus(url.decode('utf-8').encode('iso-8859-1'))
+	u+="&mode="+str(mode)+"&page="
 	try:
 		u+=str(page)
 	except:
@@ -66,7 +68,7 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	liz=xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
 	liz.setInfo(type='Video', infoLabels={'Title': name})
 
-	if mode == 2 or mode == 100 or mode==101 or mode==102: #playable, not browser call, needs decoded to be playable or rtmp to be obtained
+	if mode == 2 or mode == 100 or mode==101 or mode==102 or mode==103: #playable, not browser call, needs decoded to be playable or rtmp to be obtained
 		liz.setProperty("IsPlayable", "true")
 		liz.setPath(url)
 		ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False) #Playable
@@ -132,6 +134,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	add_dir("HDFull.tv", 'hdfulltv', 4, "http://hdfull.tv/templates/hdfull/images/logo.png", 'hdfulltv' , 0)
 	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0)
 	add_dir("Cineestrenostv.tv", 'cineestrenos', 4, "http://i.imgur.com/z3CINCU.jpg", 'cineestrenos' , 0)
+	add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree' , 0)
 
 def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	if provider == "filmoncom":
@@ -147,7 +150,7 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 					i+=1
 					add_dir(item["title"],"http://www.filmon.com/tv/"+item["alias"],5,item["logo"],"filmoncom",item["title"])
 			else:
-				print "no channel: "+page
+				logger.info("no channel: "+page)
 	elif provider== "hdfulltv":
 		#print "hdfulltv found"
 		#print page
@@ -205,7 +208,6 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		jsonChannels = Vigoal.getChannels(page)
 		i = 0
 		for item in jsonChannels:
-			#TODO, change by other has_key
 			title = item["title"]
 			link = item["link"]
 			#if item.has_key("permalink"):
@@ -221,7 +223,6 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		jsonChannels = Cineestrenostv.getChannels(page)
 		i = 0
 		for item in jsonChannels:
-			#TODO, change by other has_key
 			title = item["title"]
 			link = item["link"]
 			#if item.has_key("permalink"):
@@ -233,7 +234,22 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			else:
 				image = icon
 			add_dir(title,link,mode,image,"cineestrenos",link)
-	print provider
+	elif provider == "cricfree":
+		jsonChannels = Cricfreetv.getChannels(page)
+		i = 0
+		for item in jsonChannels:
+			title = item["title"]
+			link = item["link"]
+			#if item.has_key("permalink"):
+			mode = 103 #next step returns a final link
+			#else:
+			#	mode = 4 #continue browsing
+			if item.has_key("thumbnail"):
+				image = item["thumbnail"]
+			else:
+				image = icon
+			add_dir(title,link,mode,image,"cricfree",link)
+	logger.info(provider)
 
 def open_channel(url,page,provider=""):
 	finalUrls = Filmoncom.getChannelUrl(url)
@@ -287,20 +303,24 @@ def init():
 		updater.update()
 		get_main_dirs()
 	elif mode == 100: #decode provider link
-		print "decoding: "+url
+		logger.info("decoding: "+url)
 		link = Decoder.decodeLink(url)
-		print "decoded: "+link
+		logger.info("decoded: "+link)
 		open(link,page)
 	elif mode == 101:
 		jsonChannels = Vigoal.getChannels(page)
 		url = jsonChannels[0]["link"]
-		print "found rtmp: "+url+", launching..."
+		logger.info("found rtmp: "+url+", launching...")
 		open(url,page) #same that 2, but reserved for rtmp
 	elif mode == 102:
 		jsonChannels = Cineestrenostv.getChannels(page)
 		url = jsonChannels[0]["link"]
-		print "found rtmp: "+url+", launching..."
+		logger.info("found rtmp: "+url+", launching...")
 		open(url,page) #same that 2, but reserved for rtmp
+	elif mode == 103:
+		channel = Cricfreetv.getChannels(page)
+		logger.info("found rtmp: "+channel[0]["link"]+", launching...")
+		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 init()

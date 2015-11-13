@@ -185,13 +185,9 @@ class Cineestrenostv():
         html4 = Cineestrenostv.getContentFromUrl(url,"",Cineestrenostv.cookie,referer)
         finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
         finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
-
         logger.info("proccessing level 4, cookie: "+Cineestrenostv.cookie)
-
         finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
-
-        print "final level5 html: "+finalHtml
-        print "proccessing level 5, cookie: "+Cineestrenostv.cookie
+        logger.info("proccessing level 5, cookie: "+Cineestrenostv.cookie)
         playerUrl = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
         #print "player url is: "+playerUrl
         element["title"] = "Watch streaming"
@@ -204,11 +200,11 @@ class Cineestrenostv():
     def getContentFromUrl(url,data="",cookie="",referer=""):
 
         response = Decoder.getContent(url,data,referer,cookie,True)
-        #print response.info()
+        #logger.info(response.info())
         rValue = response.info().getheader('Set-Cookie')
         cfduid = ""
         if rValue!=None:
-            print "header value: "+rValue
+            logger.info("header value: "+rValue)
             if rValue.find("__cfduid=")>-1:
                 cfduid = rValue[rValue.find("__cfduid="):]
                 if cfduid.find(";")>-1:

@@ -26,3 +26,9 @@ An XML list must have this syntax:
 </lists>
 ```
 A list could be refereed to other list (for browse with a structure)
+
+This addon has two main options:
+
+	1) Static content (your list described before or an url to standard .m3u list)
+	
+	2) Web browsing by list

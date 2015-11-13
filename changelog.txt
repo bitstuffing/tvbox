@@ -4,3 +4,4 @@ Added support for multilanguage
 
 0.0.2 Added support for more servers
 This version will use github content by default (the free server has some limited problems)
+Added more streaming providers

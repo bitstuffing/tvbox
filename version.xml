@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>9</version>
+	<version>10</version>
 	<date>11/11/2015</date>
-	<changes>Development update. Code uploaded to github.com, now the main server is github.com</changes>
+	<changes>Development update. Added a new provider for web browsing</changes>
 </plugin>

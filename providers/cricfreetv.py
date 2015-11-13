@@ -26,7 +26,7 @@ class Cricfreetv():
                         element["title"] = title
                         element["link"] = link
                         logger.info("found element: "+title+", url: "+link)
-                        if title != 'ch1toch20' or title != 'No Stream':
+                        if title != 'ch1toch20' and title != 'No Stream':
                             x.append(element)
         else:
             response = Decoder.getContent(page)

@@ -91,6 +91,15 @@ class Cineestrenostv():
         html3 = Cineestrenostv.getContentFromUrl(iframeUrl2,"","",referer)
         if html3.find('<script type="text/javascript" src="http://tv.verdirectotv.org/channel.php?file=')>-1:
             element = Cineestrenostv.extractScriptVerdirectotv(html3,iframeUrl2)
+        elif html3.find("http://vercanalestv.com/tv/")>-1: #vercanalestv
+            iframeUrl = Decoder.extractWithRegex("http://vercanalestv.com/tv/",'"',html3)
+            logger.info("obtained iframeUrl: "+iframeUrl)
+            html2 = Cineestrenostv.getContentFromUrl(iframeUrl[0:len(iframeUrl)-1],"",Cineestrenostv.cookie,iframeUrl2)
+            if html2.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="400" src="')>-1:
+                element = Cineestrenostv.extractIframeChannel(html2,iframeUrl)
+            else:
+                logger.error("Something unexpected happened with url: "+iframeUrl)
+                #print "ERROR: "+html2
         elif html3.find("http://www.dinostream.pw/channel.php?file=")>-1: #dinostream.pw has an iframe inside, so get iframe content and proccess it
             logger.info("proccessing level 3, cookie: "+Cineestrenostv.cookie)
             scriptUrl = Decoder.extractWithRegex("http://www.dinostream.pw/channel.php?file=",'"',html3)
@@ -110,6 +119,30 @@ class Cineestrenostv():
             element["title"] = "Watch streaming"
             element["permalink"] = True
             element["link"] = playerUrl
+        elif html3.find("<script type='text/javascript' src='http://www.embeducaster.com/static/scripts/ucaster.js'></script>")>-1: #ucaster cases
+            channel = Decoder.extract("<script type='text/javascript'> width=650, height=400, channel='","'",html3)
+            logger.info("ucaster channel: "+channel)
+            if html3.find('<script type="text/javascript" src="http://tv.verdirectotv.org/channel.php?file=')>-1:
+                element = Cineestrenostv.extractScriptVerdirectotv(html3,iframeUrl2)
+            else:
+                ucasterUrl = 'http://www.embeducaster.com/embedplayer/'+channel+'/1/620/430'
+                html4 = Cineestrenostv.getContentFromUrl(ucasterUrl,"",Cineestrenostv.cookie,iframeUrl2)
+                playerUrl = Decoder.decodeUcaster(html4,iframeUrl2)
+                logger.info("lifeflash - player url is: "+playerUrl)
+                element["title"] = "Watch streaming"
+                element["permalink"] = True
+                element["link"] = playerUrl
+            logger.info(channel+", "+element["link"])
+        elif html3.find('http://www.mipsplayer.com/content/scripts/mipsEmbed.js')>-1: #before verdirectotv.com, if not is always called
+            channel = Decoder.extract("channel='","'",html3)
+            mipsUrl = 'http://www.mipsplayer.com/embedplayer/'+channel+'/1/650/400'
+            logger.info("mips url is: "+mipsUrl)
+            html4 = Cineestrenostv.getContentFromUrl(mipsUrl,"",Cineestrenostv.cookie,iframeUrl2)
+            playerUrl = Decoder.decodeMipsplayer(html4,iframeUrl2)
+            logger.info("mipsplayer - player url is: "+playerUrl)
+            element["title"] = "Watch streaming"
+            element["permalink"] = True
+            element["link"] = playerUrl
         elif html3.find("http://verdirectotv.com/tv")>-1:
             logger.info("proccessing level 3, cookie: "+Cineestrenostv.cookie)
             scriptUrl = Decoder.extractWithRegex("http://verdirectotv.com/tv",'"',html3)
@@ -125,11 +158,37 @@ class Cineestrenostv():
                 channel = Decoder.extract("<script type='text/javascript'> width=650, height=400, channel='","'",html4)
                 if html4.find('<script type="text/javascript" src="http://tv.verdirectotv.org/channel.php?file=')>-1:
                     element = Cineestrenostv.extractScriptVerdirectotv(html4,scriptUrl)
+                else:
+                    ucasterUrl = 'http://www.embeducaster.com/embedplayer/'+channel+'/1/620/430'
+                    html4 = Cineestrenostv.getContentFromUrl(ucasterUrl,"",Cineestrenostv.cookie,scriptUrl)
+                    playerUrl = Decoder.decodeUcaster(html4,iframeUrl2)
+                    logger.info("lifeflash - player url is: "+playerUrl)
+                    element["title"] = "Watch streaming"
+                    element["permalink"] = True
+                    element["link"] = playerUrl
                 logger.info(channel+", "+element["link"])
             elif html4.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="400" src="')>-1: #retry the same logic
                 element = Cineestrenostv.extractIframeChannel(html4,iframeUrl2)
             elif html4.find('<script type="text/javascript" src="http://tv.verdirectotv.org/channel.php?file=')>-1:
                 element = Cineestrenostv.extractScriptVerdirectotv(html4,scriptUrl)
+            elif html4.find("<script type='text/javascript' src='http://www.liveflashplayer.net/resources/scripts/")>-1:
+                channel = Decoder.extract("channel='","'",html4)
+                mipsUrl = 'http://www.liveflashplayer.net/embedplayer/'+channel+'/1/620/430'
+                html4 = Cineestrenostv.getContentFromUrl(mipsUrl,"",Cineestrenostv.cookie,scriptUrl)
+                playerUrl = Decoder.decodeLiveFlash(html4,iframeUrl2)
+                logger.info("lifeflash - player url is: "+playerUrl)
+                element["title"] = "Watch streaming"
+                element["permalink"] = True
+                element["link"] = playerUrl
+            elif html4.find('http://www.mipsplayer.com/content/scripts/mipsEmbed.js')>-1:
+                channel = Decoder.extract("channel='","'",html4)
+                mipsUrl = 'http://www.mipsplayer.com/embedplayer/'+channel+'/1/650/400'
+                html4 = Cineestrenostv.getContentFromUrl(mipsUrl,"",Cineestrenostv.cookie,scriptUrl)
+                playerUrl = Decoder.decodeMipsplayer(html4,iframeUrl2)
+                logger.info("mipsplayer - player url is: "+playerUrl)
+                element["title"] = "Watch streaming"
+                element["permalink"] = True
+                element["link"] = playerUrl
             #else:
             #    print "big data"+html4
         elif html3.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="653" height="403" src="')>-1:
@@ -147,11 +206,10 @@ class Cineestrenostv():
             element["link"] = link
         else: #tries to decode the bussinesslink, TODO, review this part
             playerUrl = Decoder.decodeBussinessApp(html3,iframeUrl2)
-            logger.info("player url is: "+playerUrl)
+            logger.info("bussinessapp - player url is: "+playerUrl)
             element["title"] = "Watch streaming"
             element["permalink"] = True
             element["link"] = playerUrl
-
         return element
 
     @staticmethod

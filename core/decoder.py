@@ -116,6 +116,35 @@ class Decoder():
         return html
 
     @staticmethod
+    def decodeMipsplayer(html,referer):
+        newParam = Decoder.extractParams(html)
+        finalUrl = "rtmp://46.165.220.232/live playPath="+newParam+" swfVfy=1 timeout=15 live=true conn=S:OK swfUrl=http://www.mipsplayer.com/content/scripts/fplayer.swf flashver=WIN/2019,0,0,226 ccommand=false pageUrl="+referer
+        return finalUrl
+
+    @staticmethod
+    def extractParams(html):
+        param = Decoder.extract("so.addParam('FlashVars', '","');",html) #brute params, needs a sort
+        logger.info("brute params are: "+param)
+        firstArgument = Decoder.extract('s=','&',param)
+        id = Decoder.extract('id=','&',param)
+        pk = param[param.find('pk=')+len('pk='):]
+        newParam = firstArgument+"?id="+id+"&pk="+pk #format param
+        logger.info("param is now: "+newParam)
+        return newParam
+
+    @staticmethod
+    def decodeLiveFlash(html,referer):
+        newParam = Decoder.extractParams(html)
+        finalUrl = "rtmp://46.165.196.40/stream playPath="+newParam+" swfVfy=1 timeout=10 conn=S:OK live=true swfUrl=http://www.liveflashplayer.net/resources/scripts/fplayer.swf flashver=WIN/2019,0,0,226 pageUrl="+referer
+        return finalUrl
+
+    @staticmethod
+    def decodeUcaster(html,referer):
+        newParam = Decoder.extractParams(html)
+        finalUrl = "rtmp://46.28.50.116/live/ playPath="+newParam+" swfVfy=1 timeout=10 conn=S:OK live=true swfUrl=http://www.embeducaster.com/static/scripts/fplayer.swf flashver=WIN/2019,0,0,226 pageUrl="+referer
+        return finalUrl
+
+    @staticmethod
     def decodeBussinessApp(html,iframeReferer):
         response = ""
         if html.find('<input type="hidden" id="ssx1" value="')>-1:

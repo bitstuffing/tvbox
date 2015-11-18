@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>10</version>
+	<version>11</version>
 	<date>11/11/2015</date>
-	<changes>Development update. Added a new provider for web browsing</changes>
+	<changes>Development update. Added new video providers from use with other webpages. Removed deprecated page vipgoal.net</changes>
 </plugin>

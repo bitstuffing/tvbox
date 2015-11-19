@@ -2,7 +2,6 @@ import httplib
 import urllib
 import os
 import binascii
-import xbmcaddon
 from core.decoder import Decoder
 from core import logger
 
@@ -64,14 +63,12 @@ class Zoptvcom():
                             if m3u8File[0] == "/":
                                 logger.info("converting a partial link: "+m3u8File)
                                 host = Decoder.extract("://","/",link)
-                                #m3u8File = "/1/"+m3u8File
                             link = "http://"+host+m3u8File
                         else:
                             link = m3u8File
                         logger.info("new link is: "+link)
                     element = {}
-                    addon = xbmcaddon.Addon(id='org.harddevelop.kodi.tv')
-                    element["title"] = addon.getLocalizedString(10005)
+                    element["title"] = ""
                     element["permalink"] = True
                     element["link"] = link+"|User-Agent=Mozilla/5.0 (Windows NT 6.3; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0,Cookie="+Zoptvcom.cookie+",Referer=http://www.juhe.ml/player/grindplayer/GrindPlayer.swf" #in some cases there are GET HEADERS checks, it fix issues
                     logger.info("link used will be: "+element["link"])

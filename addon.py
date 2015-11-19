@@ -69,7 +69,7 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	liz=xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
 	liz.setInfo(type='Video', infoLabels={'Title': name})
 
-	if mode == 2 or mode == 100 or mode==101 or mode==102 or mode==103: #playable, not browser call, needs decoded to be playable or rtmp to be obtained
+	if mode == 2 or mode == 100 or mode==101 or mode==102 or mode==103 or mode==104: #playable, not browser call, needs decoded to be playable or rtmp to be obtained
 		liz.setProperty("IsPlayable", "true")
 		liz.setPath(url)
 		ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False) #Playable
@@ -257,12 +257,10 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		for item in jsonChannels:
 			title = item["title"]
 			link = item["link"]
-			if item.has_key("permalink"):
-				mode = 2
-			else:
-				mode = 4
+			mode = 4
 			if item.has_key("thumbnail"):
 				image = item["thumbnail"]
+				mode = 104
 			else:
 				image = icon
 			add_dir(title,link,mode,image,"zoptv",link)
@@ -327,16 +325,20 @@ def init():
 	elif mode == 101:
 		jsonChannels = Vigoal.getChannels(page)
 		url = jsonChannels[0]["link"]
-		logger.info("found rtmp: "+url+", launching...")
+		logger.info("found link: "+url+", launching...")
 		open(url,page) #same that 2, but reserved for rtmp
 	elif mode == 102:
 		jsonChannels = Cineestrenostv.getChannels(page)
 		url = jsonChannels[0]["link"]
-		logger.info("found rtmp: "+url+", launching...")
+		logger.info("found link: "+url+", launching...")
 		open(url,page) #same that 2, but reserved for rtmp
 	elif mode == 103:
 		channel = Cricfreetv.getChannels(page)
-		logger.info("found rtmp: "+channel[0]["link"]+", launching...")
+		logger.info("found link: "+channel[0]["link"]+", launching...")
+		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
+	elif mode == 104:
+		channel = Zoptvcom.getChannels(page)
+		logger.info("found link: "+channel[0]["link"]+", launching...")
 		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 

@@ -14,6 +14,7 @@ from providers.hdfulltv import HdfullTv
 from providers.vigoalnet import Vigoal
 from providers.cinestrenostv import Cineestrenostv
 from providers.cricfreetv import Cricfreetv
+from providers.zoptvcom import Zoptvcom
 from core.decoder import Decoder
 import re
 
@@ -133,6 +134,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	add_dir("Filmon.com", 'filmon', 4, "http://static.filmon.com/theme/img/filmon_small_logo.png", 'filmoncom', 0)
 	add_dir("HDFull.tv", 'hdfulltv', 4, "http://hdfull.tv/templates/hdfull/images/logo.png", 'hdfulltv' , 0)
 	#add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0) #this page is down, TODO: it will replace with the new version of this page verliga.net
+	add_dir("Zoptv.com", 'zoptv', 4, "http://www.zoptv.com/images/logo.png", 'zoptv' , 0)
 	add_dir("Cineestrenostv.tv", 'cineestrenos', 4, "http://i.imgur.com/z3CINCU.jpg", 'cineestrenos' , 0)
 	add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree' , 0)
 
@@ -249,6 +251,21 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			else:
 				image = icon
 			add_dir(title,link,mode,image,"cricfree",link)
+	elif provider == 'zoptv':
+		jsonChannels = Zoptvcom.getChannels(page)
+		i = 0
+		for item in jsonChannels:
+			title = item["title"]
+			link = item["link"]
+			if item.has_key("permalink"):
+				mode = 2
+			else:
+				mode = 4
+			if item.has_key("thumbnail"):
+				image = item["thumbnail"]
+			else:
+				image = icon
+			add_dir(title,link,mode,image,"zoptv",link)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):

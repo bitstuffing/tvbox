@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>11</version>
-	<date>11/11/2015</date>
-	<changes>Development update. Added new video providers from use with other webpages. Removed deprecated page vipgoal.net</changes>
+	<version>12</version>
+	<date>19/11/2015</date>
+	<changes>Development update. Added new tv streaming provider zoptv.com</changes>
 </plugin>

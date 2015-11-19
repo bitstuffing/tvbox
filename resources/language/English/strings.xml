@@ -3,6 +3,7 @@
     <string id="10002">Downloading...</string>
     <string id="10003">%.2fMB/%.2fMB (%d%%) %.2f Kb/s %s left </string>
     <string id="10004">Its not possible download the file</string>
+    <string id="10005">Watch streaming</string>
 
     <string id="10010">Browse web pages</string>
     <string id="10011">¡Update available!</string>

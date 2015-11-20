@@ -4,6 +4,9 @@
     <string id="10003">%.2fMB/%.2fMB (%d%%) %.2f Kb/s %s quedan </string>
     <string id="10004">No es posible descargar el fichero</string>
     <string id="10005">Ver canal</string>
+    <string id="10006">Mostrar por evento</string>
+    <string id="10007">Mostrar por País</string>
+    <string id="10008">Mostrar por Género</string>
 
     <string id="10010">Navegar por páginas web</string>
     <string id="10011">¡Actualización disponible!</string>

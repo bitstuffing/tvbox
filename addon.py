@@ -211,11 +211,13 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		i = 0
 		for item in jsonChannels:
 			title = item["title"]
+			if title=='Display by event':
+				title = addon.getLocalizedString(10006)
 			link = item["link"]
-			#if item.has_key("permalink"):
-			mode = 101 #next step returns a final link
-			#else:
-			#	mode = 4 #continue browsing
+			if link != '1':
+				mode = 101 #next step returns a final link
+			else:
+				mode = 4 #continue browsing
 			if item.has_key("thumbnail"):
 				image = item["thumbnail"]
 			else:
@@ -256,6 +258,10 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		i = 0
 		for item in jsonChannels:
 			title = item["title"]
+			if title=='Browse by Country':
+				title = addon.getLocalizedString(10007)
+			elif title=='Browse by Genre':
+				title = addon.getLocalizedString(10008)
 			link = item["link"]
 			mode = 4
 			if item.has_key("thumbnail"):

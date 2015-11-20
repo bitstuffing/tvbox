@@ -1,6 +1,7 @@
 import httplib
 import urllib
 from core.decoder import Decoder
+from core import logger
 
 class Vigoal():
 
@@ -8,14 +9,13 @@ class Vigoal():
 
     @staticmethod
     def getChannels(page):
-        #print "original page: "+page
-        #print "original page: "+page
+
         if str(page) == '0':
             page="http://www.vipgoal.net/"
-        html = Vigoal.getContentFromUrl(page)
+        html = Vigoal.getContentFromUrl(page,"",Vigoal.cookie,"")
         x = []
         if page.find(".html")==-1:
-            table = Decoder.extract("<center>","</center>",html)
+            table = Decoder.extract("<center><table><tbody><tr>","</center>",html)
             for fieldHtml in table.split('<a href="'):
                 element = {}
                 element["link"] = fieldHtml[0:fieldHtml.find('"')]
@@ -23,7 +23,7 @@ class Vigoal():
                 element["title"] = element["title"][0:element["title"].find('"')]
                 element["thumbnail"] = fieldHtml[fieldHtml.find('<img src="')+len('<img src="'):]
                 element["thumbnail"] = element["thumbnail"][0:element["thumbnail"].find('"')]
-                print "found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"]
+                logger.info("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
                 if element["link"].find("http")==0:
                     x.append(element)
         else:
@@ -33,22 +33,18 @@ class Vigoal():
     @staticmethod
     def extractChannel(html):
         element = {}
-        #http://www.playerapp1.pw/channel.php?file=120&width=590&height=400&autostart=true
         if html.find('<script type="text/javascript" src="http://www.playerapp1.pw/channel.php?file=')>-1:
             scriptUrl = Decoder.extractWithRegex('http://www.playerapp1.pw/channel.php?file=','"',html)
             html2 = Vigoal.getContentFromUrl(scriptUrl)
-            print html2
             lastUrl = Decoder.extractWithRegex('http://','" ',html2)
             lastUrl = lastUrl.replace('"',"")
-            print "last url: "+lastUrl+", cookie="+Vigoal.cookie
+            logger.info("last url: "+lastUrl+", cookie="+Vigoal.cookie)
             html3 = Vigoal.getContentFromUrl(lastUrl,"",Vigoal.cookie,lastUrl)
-            print "last html: "+html3
             playerUrl = Decoder.decodeBussinessApp(html3,lastUrl)
-            print "player url is: "+playerUrl
+            logger.info("player url is: "+playerUrl)
             element["title"] = "Watch streaming"
             element["permalink"] = True
             element["link"] = playerUrl
-
         return element
 
     @staticmethod
@@ -81,6 +77,7 @@ class Vigoal():
 
         headersReturned = r.getheaders()
         cfduid = ""
+        location = ""
         for returnedHeader,rValue in headersReturned:
             if returnedHeader == 'set-cookie':
                 #print "header1: "+returnedHeader+", value1: "+rValue
@@ -88,7 +85,16 @@ class Vigoal():
                     cfduid = rValue[rValue.find("__cfduid="):]
                     if cfduid.find(";")>-1:
                         cfduid = cfduid[0:cfduid.find(";")]
+            elif returnedHeader == 'location':
+                logger.info("Location detected: using location: "+rValue)
+                location = rValue
+            else:
+                logger.info("rejected cookie: "+returnedHeader+", "+rValue)
         if cfduid!= '':
             Vigoal.cookie = cfduid
+        logger.info("cookie was updated to: "+Vigoal.cookie)
         html = r.read()
+        if location != '':
+            logger.info("launching redirection to: "+location)
+            html = Vigoal.getContentFromUrl(location,data,Vigoal.cookie,url)
         return html

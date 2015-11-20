@@ -4,6 +4,9 @@
     <string id="10003">%.2fMB/%.2fMB (%d%%) %.2f Kb/s %s left </string>
     <string id="10004">Its not possible download the file</string>
     <string id="10005">Watch streaming</string>
+    <string id="10006">Display by event</string>
+    <string id="10007">Browse by Country</string>
+    <string id="10008">Browse by Genre</string>
 
     <string id="10010">Browse web pages</string>
     <string id="10011">¡Update available!</string>

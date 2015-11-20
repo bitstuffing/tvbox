@@ -42,14 +42,10 @@ class Zoptvcom():
                 table = Decoder.extract('<div class="zp-channel-list">','</a>\n</div>',html)
                 x = Zoptvcom.extractElements(table)
             else:
-                #print html
                 while (html.find("decodeURIComponent") > -1):
                     extracted = Decoder.extract("eval(decodeURIComponent(atob('","')));",html)
-                    print extracted
-                    print len(extracted)
                     html = binascii.a2b_base64(extracted)
-                    print html
-                    print len(html)
+                    logger.info("decoded proccess has converted brute code to: "+html)
                 if html.find('var streams =[{"src":"')>-1:
                     link = Decoder.extract('var streams =[{"src":"','","',html)
                     logger.info("has been detected a link: "+link)

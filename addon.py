@@ -54,7 +54,7 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 
 	#name = re.sub('[^A-Za-z0-9]+', '',name)
 	#print page
-	u=sys.argv[0]+"?url="+urllib.quote_plus(url.decode('utf-8').encode('iso-8859-1'))
+	u=sys.argv[0]+"?url="+urllib.quote_plus(url.decode('utf-8', 'replace').encode('iso-8859-1', 'replace'))
 	u+="&mode="+str(mode)+"&page="
 	try:
 		u+=str(page)

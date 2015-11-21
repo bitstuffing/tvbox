@@ -146,7 +146,20 @@ class Decoder():
 
     @staticmethod
     def decodeBussinessApp(html,iframeReferer):
+
         response = ""
+
+        jsFile = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js"
+        if html.find("jwplayer5/addplayer/jwplayer.js")>-1:
+            jsFile = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.js",html)
+            logger.info("updated js player to: "+jsFile)
+
+        token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
+        swfUrl = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf"
+        if html.find("jwplayer5/addplayer/jwplayer.flash.swf")>-1:
+            swfUrl = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.js",html)
+            logger.info("updated swf player to: "+swfUrl)
+
         if html.find('<input type="hidden" id="ssx1" value="')>-1:
             ssx1 = Decoder.extract('<input type="hidden" id="ssx1" value="','"',html)
             ssx4 = Decoder.extract('<input type="hidden" id="ssx4" value="','"',html)
@@ -157,8 +170,7 @@ class Decoder():
             #print "decoded{"+decodedssx1+","+decodedssx4+"} unescaped: "+unescaped
             app = decodedssx4[decodedssx4.find("vod/?token="):]
             iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
-            token = Decoder.extractBusinessappToken(iframeReferer)
-            response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
+            response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=13 pageUrl="+iframeReferer
             logger.info("to player: "+response)
         else:
             playPath = ""
@@ -179,18 +191,18 @@ class Decoder():
             if rtmpValue.find("vod/?token=")>-1:
                 app = rtmpValue[rtmpValue.find("vod/?token="):]
                 iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
-                token = Decoder.extractBusinessappToken(iframeReferer)
-                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
+                token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
+                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=13 pageUrl="+iframeReferer
             else:
                 app = "redirect"+rtmpValue[rtmpValue.find("?token=play@"):]
-                token = Decoder.extractBusinessappToken(iframeReferer)
-                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl=http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=15 pageUrl="+iframeReferer
+                token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
+                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=13 pageUrl="+iframeReferer
         return response
 
     @staticmethod
-    def extractBusinessappToken(iframeReferer):
+    def extractBusinessappToken(iframeReferer,jsUrl="http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js"):
         token = "@@stop-stole@@" #some pages changes this token, so it depends on
-        javascriptContent = Decoder.getContent("http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js","",iframeReferer).read()
+        javascriptContent = Decoder.getContent(jsUrl,"",iframeReferer).read()
         extracted = Decoder.rExtract('["','"];',javascriptContent)
         token = extracted.replace("\\x","").decode("hex")
         logger.info("Extracted token: "+token)

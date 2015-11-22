@@ -145,6 +145,50 @@ class Decoder():
         return finalUrl
 
     @staticmethod
+    def decodeSawliveUrl(encryptedHtml):
+        #first extract var values and append it to an array
+        varPart = encryptedHtml[0:encryptedHtml.find(';document.write')]
+        vars = {}
+        for varElement in varPart.split('var '): #loop each var
+            if varElement.find('=')>-1:
+                bruteElement = varElement.split('=')
+                extractedElement = Decoder.extract("'","'",bruteElement[1])
+                #logger.info("obtained key: "+bruteElement[0]+", with value: "+extractedElement)
+                vars[bruteElement[0]] = extractedElement
+        #second extract src part for a diagnostic
+        bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
+        finalUrl = ""
+        if bruteSrc.find("+")>-1:
+            for bruteUrlPart in bruteSrc.split("+"):
+                if bruteUrlPart.find("unescape")>-1:
+                    extractedValue = Decoder.extract("(",")",bruteUrlPart)
+                    if extractedValue.find("'")>-1: #it means encoded html
+                        extractedValue = Decoder.extract("'","'",extractedValue)
+                        finalUrl += urllib.unquote(extractedValue)
+                    else: #it means a var, seek it
+                        if vars.has_key(extractedValue):
+                            finalUrl += vars[extractedValue]
+                else:
+                    if bruteUrlPart.find("'")==0:#there is a var
+                        if vars.has_key(bruteUrlPart):
+                            finalUrl += vars[bruteUrlPart]
+                        else:
+                            bruteUrlPart = bruteUrlPart.replace("'","")
+                            finalUrl+=bruteUrlPart
+                            #logger.info("brute text included1: "+bruteUrlPart)
+                    else: #brute text, paste it without the final "'" if it contains that character
+                        bruteUrlPart = bruteUrlPart.replace("'","")
+                        if vars.has_key(bruteUrlPart):
+                            finalUrl += vars[bruteUrlPart]
+                        else:
+                            finalUrl+=bruteUrlPart
+                            #logger.info("brute text included2: "+bruteUrlPart)
+                #logger.info("now finalUrl is: "+urllib.unquote(finalUrl))
+        finalUrl = urllib.unquote(finalUrl) #finally translate to good url
+        logger.info("Decrypted url is: "+finalUrl)
+        return finalUrl
+
+    @staticmethod
     def decodeBussinessApp(html,iframeReferer):
 
         response = ""

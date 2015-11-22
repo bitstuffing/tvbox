@@ -33,12 +33,7 @@ class Live9net():
                     scriptSrc = Decoder.extractWithRegex('http://www3.sawlive','"></script>',html2).replace('"></script>',"")
                 encryptedHtml = Live9net.getContentFromUrl(scriptSrc,"",Live9net.cookie,iframeUrl)
                 #print encryptedHtml
-                firstIframeUrl = urllib.unquote(Decoder.extract("unescape('","')+'/'+",encryptedHtml))
-                secondIframeUrl = urllib.unquote(Decoder.extract("'/'+unescape('","')+'/'+",encryptedHtml))
-                thirdIframeUrl = urllib.unquote(Decoder.extract("var chz='","';var",encryptedHtml))
-                fourthIframeUrl = Decoder.extract("var za3='","';",encryptedHtml)
-                decryptedUrl = "http://"+firstIframeUrl+"/"+secondIframeUrl+"/"+thirdIframeUrl+"/"+fourthIframeUrl
-                logger.info("Decrypted url is: "+decryptedUrl)
+                decryptedUrl = Decoder.decodeSawliveUrl(encryptedHtml)
                 html3 = Live9net.getContentFromUrl(decryptedUrl,"",Live9net.cookie,scriptSrc)
                 #ok, now extract flash script content
                 flashContent = Decoder.extract("var so = new SWFObject('","</script>",html3)

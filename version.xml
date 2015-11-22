@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>15</version>
+	<version>16</version>
 	<date>21/11/2015</date>
-	<changes>Development update. Added new provider live9.net</changes>
+	<changes>Development update. Fixed code related to live9.net provider</changes>
 </plugin>

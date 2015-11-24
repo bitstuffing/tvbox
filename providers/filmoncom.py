@@ -1,6 +1,9 @@
 import urllib2
 import re
 
+from core.decoder import Decoder
+from core import logger
+
 try:
     import json
 except:
@@ -17,7 +20,7 @@ class Filmoncom():
         response = urllib2.urlopen(request)
         html=response.read()
         response.close()
-        #THIS CODE IS NOT USED BECAUSE IT'S THE TESTS CHANNELS
+        #THIS CODE IS NOT USED BECAUSE IT'S FOR TESTS CHANNELS
         #script = re.search('(?si)<script type="text/javascript">(.*?)"is_free_sd_mode"(.*?)</script>', html) #short list, only 42 channels
         #bruteScript = script.group(0);
         #jsonContent = bruteScript[(bruteScript.find("var featured = ")+len("var featured = ")):]
@@ -30,6 +33,28 @@ class Filmoncom():
         jsonContent = jsonContent[:(jsonContent.find("}];")+len("}]"))]
         jsonList2 = json.loads(jsonContent)
         return jsonList2
+
+
+    @staticmethod
+    def launchScriptLogic(url,referer):
+
+        id = url[url.find('channel_id=')+len('channel_id='):] #could be used last index of '=' but... I'm boried about this provider
+
+        ajaxUrl = "http://www.filmon.com/api-v2/channel/"
+        ajaxUrl = ajaxUrl+id #update with the channel id
+
+        request = urllib2.Request(ajaxUrl, "", {"X-Requested-With":"XMLHttpRequest"})
+        request.add_header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0")
+
+        logger.info("launching ajax request: "+ajaxUrl)
+
+        #response = urllib2.urlopen(request)
+        response = Decoder.getContent(ajaxUrl,"",referer,"",True)
+        html=response.read()
+        response.close()
+
+        jsonList = json.loads(html)
+        return jsonList["data"]["streams"]
 
     @staticmethod
     def getChannelUrl(url):

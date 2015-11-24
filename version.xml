@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>16</version>
-	<date>21/11/2015</date>
-	<changes>Development update. Fixed code related to live9.net provider</changes>
+	<version>17</version>
+	<date>24/11/2015</date>
+	<changes>Development update. Added new provider sports4u.tv and improves related to an old provider.</changes>
 </plugin>

@@ -16,6 +16,7 @@ from providers.cinestrenostv import Cineestrenostv
 from providers.cricfreetv import Cricfreetv
 from providers.zoptvcom import Zoptvcom
 from providers.live9net import Live9net
+from providers.sports4u import Sports4u
 from core.decoder import Decoder
 import re
 
@@ -70,7 +71,7 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	liz=xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
 	liz.setInfo(type='Video', infoLabels={'Title': name})
 
-	if mode == 2 or mode == 100 or mode==101 or mode==102 or mode==103 or mode==104 or mode==105: #playable, not browser call, needs decoded to be playable or rtmp to be obtained
+	if mode == 2 or (mode >=100 and mode<=106): #playable, not browser call, needs decoded to be playable or rtmp to be obtained
 		liz.setProperty("IsPlayable", "true")
 		liz.setPath(url)
 		ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False) #Playable
@@ -137,6 +138,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	add_dir("Zoptv.com", 'zoptv', 4, "http://www.zoptv.com/images/logo.png", 'zoptv' , 0)
 	add_dir("Cineestrenostv.tv", 'cineestrenos', 4, "http://i.imgur.com/z3CINCU.jpg", 'cineestrenos' , 0)
 	add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree' , 0)
+	add_dir("Sports4u.tv", 'sports4u', 4, "http://live.sports4u.tv/wp-content/uploads/logo3.png", 'sports4u' , 0)
 	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
 	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0) #this page was down, TODO: it will be replaced with the new version of this page: verliga.net
 
@@ -287,6 +289,21 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			else:
 				image = icon
 			add_dir(title,link,mode,image,"live9",link)
+	elif provider == 'sports4u':
+		jsonChannels = Sports4u.getChannels(page)
+		i = 0
+		for item in jsonChannels:
+			title = item["title"]
+			link = item["link"]
+			#if item.has_key("permalink"):
+			mode = 106 #next step returns a final link
+			#else:
+			#	mode = 4 #continue browsing
+			if item.has_key("thumbnail"):
+				image = item["thumbnail"]
+			else:
+				image = icon
+			add_dir(title,link,mode,image,"sports4u",link)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):
@@ -365,6 +382,10 @@ def init():
 		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
 	elif mode == 105:
 		channel = Live9net.getChannels(page)
+		logger.info("found link: "+channel[0]["link"]+", launching...")
+		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
+	elif mode == 106:
+		channel = Sports4u.getChannels(page)
 		logger.info("found link: "+channel[0]["link"]+", launching...")
 		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))

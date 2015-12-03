@@ -94,7 +94,6 @@ class Cineestrenostv():
         elif html3.find("http://vercanalestv.com/tv/")>-1: #vercanalestv
             iframeUrl = Decoder.extractWithRegex("http://vercanalestv.com/tv/",'"',html3)
             logger.info("obtained iframeUrl: "+iframeUrl)
-            print html3
             html2 = Cineestrenostv.getContentFromUrl(iframeUrl[0:len(iframeUrl)-1],"",Cineestrenostv.cookie,"")
             if html2.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="400" src="')>-1:
                 element = Cineestrenostv.extractIframeChannel(html2,iframeUrl)

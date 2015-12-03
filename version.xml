@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>17</version>
-	<date>24/11/2015</date>
-	<changes>Development update. Added new provider sports4u.tv and improves related to an old provider.</changes>
+	<version>18</version>
+	<date>03/12/2015</date>
+	<changes>Development update. Improves about some links from a provider.</changes>
 </plugin>

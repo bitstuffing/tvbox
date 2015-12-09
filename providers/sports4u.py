@@ -6,10 +6,10 @@ from core.decoder import Decoder
 from core import jsunpack
 from core import logger
 from providers.cricfreetv import Cricfreetv
+from core.downloader import Downloader
 
-class Sports4u():
+class Sports4u(Downloader):
 
-    cookie = ""
     MAIN_URL = "http://live.sports4u.tv/"
 
     @staticmethod
@@ -53,55 +53,3 @@ class Sports4u():
                     x.append(element)
 
         return x
-
-    @staticmethod
-    def getContentFromUrl(url,data="",cookie="",referer=""):
-        form = urllib.urlencode(data)
-        host = url[url.find("://")+len("://"):]
-        subUrl = ""
-        print "url is: "+host
-        if host.find("/")>-1:
-            host = host[0:host.find("/")]
-            subUrl = url[url.find(host)+len(host):]
-        print "host: "+host+":80 , subUrl: "+subUrl
-        headers = {
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0",
-            "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
-            #"Accept-Encoding" : "gzip, deflate",
-            "Conection" : "keep-alive",
-            "Host":host,
-            "DNT":"1",
-            #"Content-Type" : "application/x-www-form-urlencoded; charset=UTF-8",
-            "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Host":host
-        }
-        if referer!="":
-            headers["Referer"] = referer
-
-        h = httplib.HTTPConnection(host+":80")
-        h.request('POST', subUrl, data, headers)
-        r = h.getresponse()
-
-        headersReturned = r.getheaders()
-        cfduid = ""
-        location = ""
-        for returnedHeader,rValue in headersReturned:
-            if returnedHeader == 'set-cookie':
-                #print "header1: "+returnedHeader+", value1: "+rValue
-                if rValue.find("__cfduid=")>-1:
-                    cfduid = rValue[rValue.find("__cfduid="):]
-                    if cfduid.find(";")>-1:
-                        cfduid = cfduid[0:cfduid.find(";")]
-            elif returnedHeader == 'location':
-                logger.info("Location detected: using location: "+rValue)
-                location = rValue
-            else:
-                logger.info("rejected cookie: "+returnedHeader+", "+rValue)
-        if cfduid!= '':
-            Sports4u.cookie = cfduid
-        logger.info("cookie was updated to: "+Sports4u.cookie)
-        html = r.read()
-        if location != '':
-            logger.info("launching redirection to: "+location)
-            html = Sports4u.getContentFromUrl(location,data,Sports4u.cookie,url)
-        return html

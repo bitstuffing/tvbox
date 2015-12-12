@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>18</version>
-	<date>03/12/2015</date>
-	<changes>Development update. Improves about some links from a provider.</changes>
+	<version>19</version>
+	<date>12/12/2015</date>
+	<changes>Development update. Added new provider, but this last provider is not a good idea.</changes>
 </plugin>

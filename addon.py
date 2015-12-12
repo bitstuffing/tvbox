@@ -17,6 +17,7 @@ from providers.cricfreetv import Cricfreetv
 from providers.zoptvcom import Zoptvcom
 from providers.live9net import Live9net
 from providers.sports4u import Sports4u
+from providers.vipracinginfo import Vipracinginfo
 from core.decoder import Decoder
 import re
 
@@ -71,7 +72,7 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	liz=xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
 	liz.setInfo(type='Video', infoLabels={'Title': name})
 
-	if mode == 2 or (mode >=100 and mode<=106): #playable, not browser call, needs decoded to be playable or rtmp to be obtained
+	if mode == 2 or (mode >=100 and mode<=107): #playable, not browser call, needs decoded to be playable or rtmp to be obtained
 		liz.setProperty("IsPlayable", "true")
 		liz.setPath(url)
 		ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False) #Playable
@@ -141,11 +142,12 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	add_dir("Sports4u.tv", 'sports4u', 4, "http://live.sports4u.tv/wp-content/uploads/logo3.png", 'sports4u' , 0)
 	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
 	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0) #this page was down, TODO: it will be replaced with the new version of this page: verliga.net
+	add_dir("Vipracing.info", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
 
 def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
+	i = 0
 	if provider == "filmoncom":
 		jsonChannels = Filmoncom.getChannelsJSON()
-		i=0
 		for itemFirst in jsonChannels:
 			#print itemFirst
 			if page == "0":
@@ -163,7 +165,6 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		mode = 4 #continue browsing
 		jsonChannels = HdfullTv.getChannels(page)
 		#print jsonChannels
-		i=0
 		for itemFirst in jsonChannels:
 			#print itemFirst
 			if itemFirst.has_key("permalink"):
@@ -212,7 +213,6 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			add_dir(title,link,mode,image,"hdfulltv",link)
 	elif provider == "vigoal":
 		jsonChannels = Vigoal.getChannels(page)
-		i = 0
 		for item in jsonChannels:
 			title = item["title"]
 			if title=='Display by event':
@@ -229,7 +229,6 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			add_dir(title,link,mode,image,"vigoal",link)
 	elif provider == "cineestrenos":
 		jsonChannels = Cineestrenostv.getChannels(page)
-		i = 0
 		for item in jsonChannels:
 			title = item["title"]
 			link = item["link"]
@@ -244,7 +243,6 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			add_dir(title,link,mode,image,"cineestrenos",link)
 	elif provider == "cricfree":
 		jsonChannels = Cricfreetv.getChannels(page)
-		i = 0
 		for item in jsonChannels:
 			title = item["title"]
 			link = item["link"]
@@ -259,7 +257,6 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			add_dir(title,link,mode,image,"cricfree",link)
 	elif provider == 'zoptv':
 		jsonChannels = Zoptvcom.getChannels(page)
-		i = 0
 		for item in jsonChannels:
 			title = item["title"]
 			if title=='Browse by Country':
@@ -276,7 +273,6 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			add_dir(title,link,mode,image,"zoptv",link)
 	elif provider == 'live9':
 		jsonChannels = Live9net.getChannels(page)
-		i = 0
 		for item in jsonChannels:
 			title = item["title"]
 			link = item["link"]
@@ -291,7 +287,6 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			add_dir(title,link,mode,image,"live9",link)
 	elif provider == 'sports4u':
 		jsonChannels = Sports4u.getChannels(page)
-		i = 0
 		for item in jsonChannels:
 			title = item["title"]
 			link = item["link"]
@@ -304,6 +299,15 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			else:
 				image = icon
 			add_dir(title,link,mode,image,"sports4u",link)
+	elif provider == 'vipracinginfo':
+		jsonChannels = Vipracinginfo.getChannels(page)
+		i = 0
+		mode = 107
+		for item in jsonChannels:
+			title = item["title"]
+			link = item["link"]
+			mode = 107
+			add_dir(title,link,mode,icon,"vipracinginfo",link)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):
@@ -371,23 +375,27 @@ def init():
 		jsonChannels = Cineestrenostv.getChannels(page)
 		url = jsonChannels[0]["link"]
 		logger.info("found link: "+url+", launching...")
-		open(url,page) #same that 2, but reserved for rtmp
+		open(url,page)
 	elif mode == 103:
 		channel = Cricfreetv.getChannels(page)
 		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
+		open(channel[0]["link"],page)
 	elif mode == 104:
 		channel = Zoptvcom.getChannels(page)
 		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
+		open(channel[0]["link"],page)
 	elif mode == 105:
 		channel = Live9net.getChannels(page)
 		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
+		open(channel[0]["link"],page)
 	elif mode == 106:
 		channel = Sports4u.getChannels(page)
 		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page) #same that 2, but reserved for rtmp
+		open(channel[0]["link"],page)
+	elif mode == 107:
+		channel = Vipracinginfo.getChannels(page)
+		logger.info("found link: "+channel[0]["link"]+", launching...")
+		open(channel[0]["link"],page)
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 init()

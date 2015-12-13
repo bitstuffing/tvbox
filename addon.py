@@ -18,6 +18,7 @@ from providers.zoptvcom import Zoptvcom
 from providers.live9net import Live9net
 from providers.sports4u import Sports4u
 from providers.vipracinginfo import Vipracinginfo
+from providers.hdfullhdeu import Hdfullhdeu
 from core.decoder import Decoder
 import re
 
@@ -143,6 +144,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
 	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0) #this page was down, TODO: it will be replaced with the new version of this page: verliga.net
 	add_dir("Vipracing.info", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
+	add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
 
 def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	i = 0
@@ -301,13 +303,20 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			add_dir(title,link,mode,image,"sports4u",link)
 	elif provider == 'vipracinginfo':
 		jsonChannels = Vipracinginfo.getChannels(page)
-		i = 0
 		mode = 107
 		for item in jsonChannels:
 			title = item["title"]
 			link = item["link"]
-			mode = 107
 			add_dir(title,link,mode,icon,"vipracinginfo",link)
+	elif provider == 'hdfullhdeu':
+		jsonChannels = Hdfullhdeu.getChannels(page)
+		mode = 4
+		for item in jsonChannels:
+			title = item["title"]
+			link = item["link"]
+			if item.has_key("permaLink"):
+				mode = 2
+			add_dir(title,link,mode,icon,"hdfullhdeu",link)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):

@@ -19,6 +19,7 @@ from providers.live9net import Live9net
 from providers.sports4u import Sports4u
 from providers.vipracinginfo import Vipracinginfo
 from providers.hdfullhdeu import Hdfullhdeu
+from providers.skylinewebcamscom import Skylinewebcamscom
 from core.decoder import Decoder
 import re
 
@@ -73,7 +74,7 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	liz=xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
 	liz.setInfo(type='Video', infoLabels={'Title': name})
 
-	if mode == 2 or (mode >=100 and mode<=107): #playable, not browser call, needs decoded to be playable or rtmp to be obtained
+	if mode == 2 or (mode >=100 and mode<=108): #playable, not browser call, needs decoded to be playable or rtmp to be obtained
 		liz.setProperty("IsPlayable", "true")
 		liz.setPath(url)
 		ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False) #Playable
@@ -144,6 +145,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
 	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0) #this page was down, TODO: it will be replaced with the new version of this page: verliga.net
 	add_dir("Vipracing.info", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
+	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
 	add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
 
 def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
@@ -317,6 +319,21 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			if item.has_key("permaLink"):
 				mode = 2
 			add_dir(title,link,mode,icon,"hdfullhdeu",link)
+
+	elif provider == 'skylinewebcams':
+		jsonChannels = Skylinewebcamscom.getChannels(page)
+		mode = 4
+		for item in jsonChannels:
+			title = item["title"]
+			link = item["link"]
+			if item.has_key("thumbnail"):
+				image = item["thumbnail"]
+				logger.info("detected img: "+image)
+			else:
+				image = icon
+			if item.has_key("permaLink"):
+				mode = 108
+			add_dir(title,link,mode,image,"skylinewebcams",link)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):
@@ -403,6 +420,10 @@ def init():
 		open(channel[0]["link"],page)
 	elif mode == 107:
 		channel = Vipracinginfo.getChannels(page)
+		logger.info("found link: "+channel[0]["link"]+", launching...")
+		open(channel[0]["link"],page)
+	elif mode == 108:
+		channel = Skylinewebcamscom.getChannels(page)
 		logger.info("found link: "+channel[0]["link"]+", launching...")
 		open(channel[0]["link"],page)
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))

@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>20</version>
-	<date>13/12/2015</date>
-	<changes>Development update. Added new provider, somebody has doing a similar work in txt format so this addon will use that.</changes>
+	<version>21</version>
+	<date>14/12/2015</date>
+	<changes>Development update. Added new provider for world-webcams.</changes>
 </plugin>

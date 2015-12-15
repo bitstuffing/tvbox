@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>21</version>
-	<date>14/12/2015</date>
-	<changes>Development update. Added new provider for world-webcams.</changes>
+	<version>22</version>
+	<date>15/12/2015</date>
+	<changes>Development update. Added new provider, but probably needs some review in one case. Now it works fine.</changes>
 </plugin>

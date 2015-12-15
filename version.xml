@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>22</version>
+	<version>23</version>
 	<date>15/12/2015</date>
-	<changes>Development update. Added new provider, but probably needs some review in one case. Now it works fine.</changes>
+	<changes>Development update. Improved decoderLink from Decoder (streamplay, vidxtreme and streame providers).</changes>
 </plugin>

@@ -29,6 +29,9 @@ class Downloader():
         if referer!="":
             headers["Referer"] = referer
 
+        if cookie !="":
+            headers["Cookie"] = cookie
+
         h = httplib.HTTPConnection(host+":80")
         h.request('GET', subUrl, data, headers)
         r = h.getresponse()
@@ -40,6 +43,7 @@ class Downloader():
             if returnedHeader == 'set-cookie':
                 #print "header1: "+returnedHeader+", value1: "+rValue
                 if rValue.find("__cfduid=")>-1:
+                    logger.info("detected cfduid: "+rValue)
                     cfduid = rValue[rValue.find("__cfduid="):]
                     if cfduid.find(";")>-1:
                         cfduid = cfduid[0:cfduid.find(";")]

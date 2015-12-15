@@ -26,6 +26,12 @@ class Decoder():
             link = Decoder.decodeStreamin(link)
         elif link.find("http://thevideo.me")>-1:
             link = Decoder.decodeThevideo(link)
+        elif link.find("http://streamplay.to")>-1:
+            link = Decoder.decodeStreamplay(link)
+        elif link.find("http://vidxtreme.to")>-1:
+            link = Decoder.decodeVidXtreme(link)
+        elif link.find("http://streame.net")>-1:
+            link = Decoder.decodeStreame(link)
         return link
 
     @staticmethod
@@ -251,6 +257,19 @@ class Decoder():
         token = extracted.replace("\\x","").decode("hex")
         logger.info("Extracted token: "+token)
         return token
+
+    @staticmethod
+    def decodeStreame(link):
+        html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with powvideo and others
+        return Decoder.extract('[{file:"','"',html)
+
+    @staticmethod
+    def decodeVidXtreme(link):
+        return Decoder.decodePowvideo(link)
+
+    @staticmethod
+    def decodeStreamplay(link):
+        return Decoder.decodePowvideo(link)
 
     @staticmethod
     def decodeThevideo(link):

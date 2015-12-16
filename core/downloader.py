@@ -6,7 +6,7 @@ class Downloader():
     cookie = ""
 
     @staticmethod
-    def getContentFromUrl(url,data="",cookie="",referer=""):
+    def getContentFromUrl(url,data="",cookie="",referer="",ajax=False):
         form = urllib.urlencode(data)
         host = url[url.find("://")+len("://"):]
         subUrl = ""
@@ -31,6 +31,9 @@ class Downloader():
 
         if cookie !="":
             headers["Cookie"] = cookie
+        if ajax:
+            headers["X-Requested-With"] = "XMLHttpRequest"
+            headers["Accept"] = "*/*"
 
         h = httplib.HTTPConnection(host+":80")
         h.request('GET', subUrl, data, headers)

@@ -21,6 +21,7 @@ from providers.vipracinginfo import Vipracinginfo
 from providers.hdfullhdeu import Hdfullhdeu
 from providers.skylinewebcamscom import Skylinewebcamscom
 from providers.zonasportsme import Zonasportsme
+from providers.sportstream365com import Sportstream365com
 from core.decoder import Decoder
 import re
 
@@ -33,7 +34,7 @@ MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "remote_repository")
 
 ##CONSTANTS PARTS##
 BROWSE_CHANNELS = "browse_channels"
-MAX = 109
+MAX = 110
 
 def get_params():
 	param=[]
@@ -113,7 +114,7 @@ def get_dirs(url,name,page):
 			value = item[item.find("\n")+1:]
 			value = value[:value.find("\n")]
 			#print "detected channel: "+name+" with url: "+value
-			if name <> "" and value <> "": ##check for empty channels, we don't want it in our list
+			if name != "" and value != "": ##check for empty channels, we don't want it in our list
 				add_dir(name, value, 2, icon, '', name)
 	
 def open(url,page):
@@ -147,6 +148,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
 	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0) #this page was down, TODO: it will be replaced with the new version of this page: verliga.net
 	add_dir("Vipracing.info", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
+	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
 	add_dir("Zonasport.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme' , 0)
 	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
 	add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
@@ -345,6 +347,14 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			link = item["link"]
 			image = icon
 			add_dir(title,link,mode,image,"zonasportsme",link)
+	elif provider == 'sportstream365com':
+		mode = 110
+		jsonChannels = Sportstream365com.getChannels(page)
+		for item in jsonChannels:
+			title = item["title"]
+			link = item["link"]
+			image = icon
+			add_dir(title,link,mode,image,"sportstream365com",link)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):
@@ -439,6 +449,10 @@ def init():
 		open(channel[0]["link"],page)
 	elif mode == 109:
 		channel = Zonasportsme.getChannels(url)
+		logger.info("found link: "+channel[0]["link"]+", launching...")
+		open(channel[0]["link"],page)
+	elif mode == 110:
+		channel = Sportstream365com.getChannels(url)
 		logger.info("found link: "+channel[0]["link"]+", launching...")
 		open(channel[0]["link"],page)
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))

@@ -36,7 +36,11 @@ class Zonasportsme(Downloader):
             url = ""
             if html.find('var t="')>-1:
                 content = Decoder.extract('var t="','";',html)
-                content = bytearray.fromhex(content).decode() #now decode hexadecima string to plain text
+                #content = bytearray.fromhex(content).decode() #now decode hexadecima string to plain text
+                try: #this fix is for an issue related to Android port
+                    x = bytearray.fromhex(content)
+                except TypeError:  # Work-around for Python 2.6 bug
+                    x = bytearray.fromhex(unicode(content))
                 url = Decoder.extract("'file': '","'",content)
                 logger.info("found a link: "+url)
                 if url.find(".m3u8")==-1:

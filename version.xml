@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>23</version>
-	<date>15/12/2015</date>
-	<changes>Development update. Improved decoderLink from Decoder (streamplay, vidxtreme and streame providers).</changes>
+	<version>24</version>
+	<date>16/12/2015</date>
+	<changes>Development update. Fix a bug related to hex conversions into Android ports, probably because it's used a older python version.</changes>
 </plugin>

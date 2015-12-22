@@ -18,6 +18,22 @@ def sec_to_hms(seconds):
     h,m = divmod(m, 60)
     return ("%02d:%02d:%02d" % ( h , m ,s ))
 
+def buildMusicDownloadHeaders(host,cookie='',referer=''):
+    headers = {"Accept":"audio/webm,audio/ogg,audio/wav,audio/*;q=0.9,application/ogg;q=0.7,video/*;q=0.6,*/*;q=0.5",
+        "Accept-Encoding":"gzip, deflate",
+        "Accept-Language":"en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
+        "Connection":"keep-alive",
+        "DNT":"1",
+        "Host":host,
+        "Range":"bytes=0-",
+        "User-Agent":"Mozilla/5.0 (X11; Linux x86_64; rv:42.0) Gecko/20100101 Firefox/42.0"
+    }
+    if cookie!='':
+        headers["Cookie"] = cookie
+    if referer!='':
+        headers["Referer"] = referer
+    return headers
+
 def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
     logger.info("[downloadtools.py] downloadfile: url="+url)
     logger.info("[downloadtools.py] downloadfile: fileName="+fileName)
@@ -58,28 +74,49 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
         socket.setdefaulttimeout(30) #Timeout
     
         h=urllib2.HTTPHandler(debuglevel=0)
+        remoteFile = url
+        params = None
+        '''
+        if remoteFile.find("?"):
+            remoteFile = url[:url.find("?")]
+        request = urllib2.Request(remoteFile, params, headers)
+        logger.info("request created to "+url)
+        '''
         request = urllib2.Request(url)
-        for header in headers:
-            logger.info("[downloadtools.py] Header="+header[0]+": "+header[1])
-            request.add_header(header[0],header[1])
-    
-        if existSize > 0:
+        logger.info("checking headers...")
+        logger.info("type: "+str(type(headers)))
+        if len(headers)>0:
+            logger.info("adding headers...")
+            for key in headers.keys():
+                logger.info("[downloadtools.py] Header="+key+": "+headers.get(key))
+                request.add_header(key,headers.get(key))
+        else:
+            logger.info("headers are 0")
+
+        logger.info("checking resume...")
+        if existSize > 0: #restart
+            logger.info("resume is detected")
             request.add_header('Range', 'bytes=%d-' % (existSize, ))
     
         opener = urllib2.build_opener(h)
         urllib2.install_opener(opener)
         try:
+            logger.info("opening request...")
             connection = opener.open(request)
         except: # End
+            logger.error("something fatal happened")
+            logger.error("ERROR: "+traceback.format_exc())
             f.close()
             if not silent:
                 progressDialog.close()
-
+        logger.info("detecting download size...")
     
         try:
             totalFileSize = int(connection.headers["Content-Length"])
         except:
             totalFileSize = 1
+
+        logger.info("total file size: "+str(totalFileSize))
                 
         if existSize > 0:
             totalFileSize = totalFileSize + existSize
@@ -152,7 +189,7 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
                 return -2
 
     except:
-        xbmcgui.Dialog().ok(addon.getLocalizedString(10004))
+        pass
 
     try:
         f.close()
@@ -166,147 +203,3 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
             pass
 
     logger.info("Finished download proccess")
-
-def downloadfileGzipped(url,filePath):
-    logger.info("[downloadtools.py] downloadfileGzipped: url="+url)
-    logger.info("[downloadtools.py] downloadfileGzipped: filePath="+filePath)
-
-    fileName = xbmc.makeLegalFilename(filePath)
-    logger.info("[downloadtools.py] downloadfileGzipped: fileName="+fileName)
-    pattern = "(http://[^/]+)/.+" #seek for url
-    matches = re.compile(pattern,re.DOTALL).findall(url)
-    
-    if len(matches):
-        logger.info("[downloadtools.py] MAIN URL :"+matches[0])
-        refererUrl= matches[0]
-    else:
-        refererUrl = url
-    
-    headers =  {"User-Agent":"Mozilla/5.0 (X11; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0",
-                  "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                  "Accept-Language":"en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
-                  "Accept-Encoding":"gzip,deflate",
-                  "Accept-Charset":"ISO-8859-1,utf-8;q=0.7,*;q=0.7",
-                  "Cache-Control":"max-age=0",
-                  "Connection":"keep-alive",
-                  "Referer":refererUrl} #TODO, append Host and Cookie support
-        
-    progressDialog = xbmcgui.DialogProgress()
-    progressDialog.create( "addon" , addon.getLocalizedString(10002), url , fileName )
-
-    # Timeout del socket a 60 segundos
-    socket.setdefaulttimeout(10)
-
-    handler=urllib2.HTTPHandler(debuglevel=0) #TODO remove this handler
-    request = urllib2.Request(url, '', headers) #TODO, replace "" by list or json array
-
-    opener = urllib2.build_opener(handler)
-    urllib2.install_opener(opener)
-    try:
-        connection = opener.open(request)
-    except:
-        progressDialog.close()
-    baseFileName = os.path.basename(fileName)
-    if len(baseFileName) == 0:
-        logger.info("extracting filename from response")
-        baseName = connection.headers["Content-Disposition"]
-        logger.info(baseName)
-        pattern = 'filename="([^"]+)"' #replace the other pattern, now seeking for filename
-        matches = re.compile(pattern,re.DOTALL).findall(baseName)
-        if len(matches)>0:
-            title = matches[0]
-            fileName = os.path.join(filePath,title)
-        else:
-            logger.info("filename not found, replacing with noname.txt")
-            title = "noname.txt"
-            fileName = os.path.join(filePath,title)
-    totalFileSize = int(connection.headers["Content-Length"])
-
-    f = open(fileName, 'w')
-    
-    existSize = 0
-    
-    logger.info("[downloadtools.py] downloadfileGzipped: new file opened")
-
-    saved = 0
-    logger.info("Content-Length=%s" % totalFileSize)
-
-    bufferSize = 100*1024
-
-    bufferReaded = connection.read(bufferSize)
-    
-    try:
-        compressedStream = StringIO.StringIO(bufferReaded)
-        gzippedFile = gzip.GzipFile(fileobj=compressedStream)
-        data = gzippedFile.read()
-        gzippedFile.close()
-        xbmc.log("Starting gzipped download file, readed=%s" % len(bufferReaded))
-    except:
-        xbmc.log( "ERROR : The GZIP file could not been downloaded")
-        f.close()
-        progressDialog.close()
-        return -2
-        
-    maxRetries = 5
-    
-    while len(bufferReaded)>0:
-        try:
-            f.write(data)
-            saved = saved + len(bufferReaded)
-            percent = int(float(saved)*100/float(totalFileSize))
-            totalMB = float(float(totalFileSize)/(1024*1024))
-            sizeMB = float(float(saved)/(1024*1024))
-
-            retries = 0
-            while retries <= maxRetries:
-                try:
-                    before = time.time()
-                    bufferReaded = connection.read(bufferSize)
-
-                    compressedStream = StringIO.StringIO(bufferReaded)
-                    gzippedFile = gzip.GzipFile(fileobj=compressedStream)
-                    data = gzippedFile.read()
-                    gzippedFile.close()
-                    after = time.time()
-                    if (after - before) > 0:
-                        speed=len(bufferReaded)/((after - before))
-                        remaining=totalFileSize-saved
-                        if speed>0:
-                            remainingTime=remaining/speed
-                        else:
-                            remainingTime=0
-                        logger.info(sec_to_hms(remainingTime))
-                        progressDialog.update( percent , addon.getLocalizedString(10003) % ( sizeMB , totalMB , percent , speed/1024 , sec_to_hms(remainingTime)))
-                    break
-                except:
-                    retries = retries + 1
-                    logger.info("ERROR downloading buffer, retring %d" % retries)
-                    for line in sys.exc_info():
-                        logger.error( "%s" % line )
-
-            if progressDialog.iscanceled():
-                logger.info("User stop download proccess (GZIP)")
-                f.close()
-                progressDialog.close()
-                return -1
-
-            if retries > maxRetries:
-                logger.info("ERROR, something happened in download proccess. Stopped!")
-                f.close()
-                progressDialog.close()
-
-                return -2
-
-        except:
-            logger.info("ERROR, something happened in download proccess.")
-            for line in sys.exc_info():
-                logger.error( "%s" % line )
-            f.close()
-            progressDialog.close()
-            
-            return -2
-    f.close()
-
-    progressDialog.close()
-    logger.info("Finished GZIP download proccess")
-    return fileName

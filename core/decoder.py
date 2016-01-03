@@ -191,6 +191,9 @@ class Decoder():
                             #logger.info("brute text included2: "+bruteUrlPart)
                 #logger.info("now finalUrl is: "+urllib.unquote(finalUrl))
         finalUrl = urllib.unquote(finalUrl) #finally translate to good url
+        if finalUrl.find("unezcapez(")>-1:
+            logger.info("replacing url new encoding...")
+            finalUrl = finalUrl.replace("unezcapez(","").replace(')','') #little fix for new coding, it will be included in the previews revision
         logger.info("Decrypted url is: "+finalUrl)
         return finalUrl
 
@@ -206,8 +209,11 @@ class Decoder():
 
         token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
         swfUrl = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf"
-        if html.find("jwplayer5/addplayer/jwplayer.flash.swf")>-1:
-            swfUrl = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.js",html)
+        if html.find("jwplayer5/addplayer/jwplayer.flash.swf")>-1: #http://www.playerapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf
+            swfUrl = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.flash.swf",html)
+            logger.info("updated swf player to: "+swfUrl)
+        elif jsFile.find("businessapp1.pw")==-1:
+            swfUrl = "http://"+Decoder.extract('//',"/",jsFile)+"/jwplayer5/addplayer/jwplayer.flash.swf"
             logger.info("updated swf player to: "+swfUrl)
 
         if html.find('<input type="hidden" id="ssx1" value="')>-1:
@@ -218,9 +224,13 @@ class Decoder():
             decodedssx1 = base64.standard_b64decode(ssx1)
             decodedssx4 = base64.standard_b64decode(ssx4)
             #print "decoded{"+decodedssx1+","+decodedssx4+"} unescaped: "+unescaped
-            app = decodedssx4[decodedssx4.find("vod/?token="):]
             iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
-            response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=13 pageUrl="+iframeReferer
+            if decodedssx4.find("vod/?token=")>-1:
+                app = decodedssx4[decodedssx4.find("vod/?token="):]
+                response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=13 pageUrl="+iframeReferer
+            else:
+                app = decodedssx4[decodedssx4.find("redirect/?token="):]
+                response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=12 pageUrl="+iframeReferer
             logger.info("to player: "+response)
         else:
             playPath = ""
@@ -242,11 +252,11 @@ class Decoder():
                 app = rtmpValue[rtmpValue.find("vod/?token="):]
                 iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
                 token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
-                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=13 pageUrl="+iframeReferer
+                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=10 pageUrl="+iframeReferer
             else:
                 app = "redirect"+rtmpValue[rtmpValue.find("?token=play@"):]
                 token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
-                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=13 pageUrl="+iframeReferer
+                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=11 pageUrl="+iframeReferer
         return response
 
     @staticmethod

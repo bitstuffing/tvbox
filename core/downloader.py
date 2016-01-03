@@ -14,7 +14,10 @@ class Downloader():
         if host.find("/")>-1:
             host = host[0:host.find("/")]
             subUrl = url[url.find(host)+len(host):]
-        logger.info("host: "+host+":80 , subUrl: "+subUrl)
+        if host.find(":")==-1:
+            logger.info("host: "+host+":80 , subUrl: "+subUrl)
+        else:
+            logger.info("host: "+host+" , subUrl: "+subUrl)
         headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0",
             "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
@@ -34,8 +37,10 @@ class Downloader():
         if ajax:
             headers["X-Requested-With"] = "XMLHttpRequest"
             headers["Accept"] = "*/*"
-
-        h = httplib.HTTPConnection(host+":80")
+        if host.find(":")==-1:
+            h = httplib.HTTPConnection(host+":80")
+        else:
+            h = httplib.HTTPConnection(host)
         h.request('GET', subUrl, data, headers)
         r = h.getresponse()
 

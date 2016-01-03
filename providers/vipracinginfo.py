@@ -47,6 +47,23 @@ class Vipracinginfo(Downloader):
                 element["title"] = Decoder.extract("<title>","</title>",html2)
                 element["permalink"] = True
                 x.append(element)
+            elif html.find("http://www.janjua.tv")!=-1:
+                channel = Decoder.extract(" width=653, height=410, channel='","'",html)
+                url2 = "http://www.janjuaplayer.com/embedplayer/"+channel+"/1/653/410"
+                html2 = Vipracinginfo.getContentFromUrl(url2,"",Vipracinginfo.cookie,page)
+                bruteContent = Decoder.extract("so.addParam('FlashVars', '","');",html2)
+                #extract id and pk
+                id = bruteContent[0:bruteContent.find("&")]
+                pk = bruteContent[bruteContent.find('pk='):]
+                # loadbalancer is http://www.janjuapublisher.com:1935/loadbalancer?53346
+                ip = Vipracinginfo.getContentFromUrl("http://www.janjuapublisher.com:1935/loadbalancer?"+(id[id.find("=")+1:]),"","","http://www.janjuaplayer.com/resources/scripts/eplayer.swf").replace('redirect=','')
+                link = "rtmp://"+ip+"/live"+" swfUrl=http://www.janjuaplayer.com/resources/scripts/eplayer.swf pageUrl="+url2+" flashver=WIN/2019,0,0,226 live=true timeout=11 playpath="+channel+"?"+id+"&"+pk
+                link = "rtmp://"+ip+"/live"+channel+"?"+id+"&"+pk+" app=live pageUrl="+url2+" swfUrl=http://www.janjuaplayer.com/resources/scripts/eplayer.swf tcUrl=rtmp://"+ip+"/live playPath="+channel+"?"+id+"&"+pk+" conn=S:OK live=1 flashver=WIN/2019,0,0,226"
+                element = {}
+                element["link"] = link
+                element["title"] = channel
+                element["permalink"] = True
+                x.append(element)
             else:
                 logger.info("launching Vipracing else ELSE logic (other provider embed - max-deportv)")
                 iframeUrl = Decoder.extract(' SRC="','"',html)

@@ -36,14 +36,20 @@ class Live9net(Downloader):
                 decryptedUrl = Decoder.decodeSawliveUrl(encryptedHtml)
                 html3 = Live9net.getContentFromUrl(decryptedUrl,"",Live9net.cookie,scriptSrc)
                 #ok, now extract flash script content
+
                 flashContent = Decoder.extract("var so = new SWFObject('","</script>",html3)
                 file = Decoder.extract("'file', '","');",flashContent)
-                rtmpUrl = Decoder.extract("'streamer', '","');",flashContent)
+                rtmpUrl = ""
+                if flashContent.find("'streamer', '")>.1:
+                    rtmpUrl = Decoder.extract("'streamer', '","');",flashContent)
                 swfUrl = "http://static3.sawlive.tv/player.swf" #default
                 #update swf url
                 swfUrl = flashContent[:flashContent.find("'")]
                 logger.info("updated swf player to: "+swfUrl)
-                finalRtmpUrl = rtmpUrl+" playpath="+file+" swfUrl="+swfUrl+" live=1 conn=S:OK pageUrl="+decryptedUrl+" timeout=12"
+                if rtmpUrl=='' and file.find("http://")>-1:
+                    finalRtmpUrl = file #it's a redirect with an .m3u8, so it's used
+                else:
+                    finalRtmpUrl = rtmpUrl+" playpath="+file+" swfUrl="+swfUrl+" live=1 conn=S:OK pageUrl="+decryptedUrl+" timeout=12"
                 element = {}
                 element["link"] = finalRtmpUrl
                 element["title"] = "Watch channel"

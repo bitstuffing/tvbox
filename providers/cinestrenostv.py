@@ -24,10 +24,17 @@ class Cineestrenostv(Downloader):
             for fieldHtml in table.split('<div class="content">'):
                 element = {}
                 element["link"] = Cineestrenostv.MAIN_URL+Decoder.extract("<div><a href=\"javascript:popUp('..","')",fieldHtml)
-                element["title"] = Decoder.rExtract("/",".html",element["link"])
+                if element["link"].find('/multi')!=-1:
+                    logger.info("found multi link: "+element["link"])
+                    element["title"] = Decoder.extract("/multi","/",element["link"])
+                else:
+                    element["title"] = Decoder.rExtract("/",".html",element["link"])
+                    if element["title"].find(".")>-1:
+                        element["title"] = element["title"][:element["title"].rfind(".")]
                 element["thumbnail"] = Decoder.extract(' src="','"',fieldHtml)
+                element["title"] = element["title"].replace("-"," ")
                 logger.info("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
-                if element["thumbnail"].find("http")==0:
+                if element["thumbnail"].find("http")==0 and not(element["title"]=="1" or element["title"]=="venus"):
                     x.append(element)
         elif page == Cineestrenostv.MAIN_URL:
             table = Decoder.extract('<center><table>','</td></tr></table></center>',html)
@@ -36,15 +43,21 @@ class Cineestrenostv(Downloader):
                 element["link"] = Cineestrenostv.MAIN_URL+"/"+Decoder.extract("<a href=\"/",'"',fieldHtml)
                 if element["link"].find('"')>-1:
                     element["link"] = element["link"][0:element["link"].find('"')]
-                element["title"] = Decoder.extract('" title="','" target',fieldHtml)
-                if element["title"].find('"')>-1:
-                    element["title"] = element["title"][0:element["title"].find('"')]
-                if element["title"].find(" online en directo")>-1:
-                    element["title"] = element["title"][0:element["title"].find(" online")]
-                if element["title"].find(" Online")>-1:
-                    element["title"] = element["title"][0:element["title"].find(" Online")]
-                if element["title"].find(" en directo")>-1:
-                    element["title"] = element["title"][0:element["title"].find(" en directo")]
+                if element["link"].find('/multi')!=-1:
+                    logger.info("found multi link: "+element["link"])
+                    element["title"] = Decoder.extract("/multi","/",element["link"])
+                else:
+                    logger.info("found normal link, continue... "+ element["link"])
+                    element["title"] = Decoder.extract('" title="','" target',fieldHtml)
+                    if element["title"].find('"')>-1:
+                        element["title"] = element["title"][0:element["title"].find('"')]
+                    if element["title"].find(" online en directo")>-1:
+                        element["title"] = element["title"][0:element["title"].find(" online")]
+                    if element["title"].find(" Online")>-1:
+                        element["title"] = element["title"][0:element["title"].find(" Online")]
+                    if element["title"].find(" en directo")>-1:
+                        element["title"] = element["title"][0:element["title"].find(" en directo")]
+
                 #element["title"] = element["title"].decode('utf-8')
                 element["thumbnail"] = Decoder.extract('<img src="','" height',fieldHtml)
                 if element["thumbnail"].find('"')>-1:
@@ -61,7 +74,7 @@ class Cineestrenostv(Downloader):
     def extractChannel(html,referer):
         element = {}
         logger.info('processing html...')
-        if html.find('.php')>-1:
+        if html.find('.php')>-1 and referer.find(".php")==-1:
             logger.info("proccessing level 1, cookie: "+Cineestrenostv.cookie)
             iframeUrl = Decoder.extractWithRegex('http://','.php',html)
             if iframeUrl.find('"')>-1:
@@ -78,6 +91,9 @@ class Cineestrenostv(Downloader):
                 html3 = Cineestrenostv.getContentFromUrl(completeLink,"",Cineestrenostv.cookie,iframeUrl)
                 if html3.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="400" src="')>-1:
                     element = Cineestrenostv.extractIframeChannel(html3,completeLink)
+        elif referer.find("php")!=-1:
+            html2 = Cineestrenostv.getContentFromUrl(referer,"",Cineestrenostv.cookie,Cineestrenostv.MAIN_URL)
+            element = Cineestrenostv.extractIframeChannel(html2,referer)
         return element
 
     @staticmethod
@@ -204,6 +220,11 @@ class Cineestrenostv(Downloader):
             element["title"] = "Watching direct link"
             element["permalink"] = True
             element["link"] = link
+            '''
+        elif html3.find("http://tutvgratis.tv/embed/")>-1:
+            newUrl = Decoder.extractWithRegex('http://tutvgratis.tv/embed/','"',html3).replace('"',"")
+            #TODO, redo with other player supports (same algorithm)
+            '''
         else: #tries to decode the bussinesslink, TODO, review this part
             playerUrl = Decoder.decodeBussinessApp(html3,iframeUrl2)
             logger.info("bussinessapp - player url is: "+playerUrl)

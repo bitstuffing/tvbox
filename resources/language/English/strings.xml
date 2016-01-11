@@ -10,4 +10,11 @@
 
     <string id="10010">Browse web pages</string>
     <string id="10011">¡Update available!</string>
+
+    <string id="30000">Settings</string>
+    <string id="30001">Remote channel list</string>
+    <string id="30002">XML remote for updates</string>
+    <string id="30003">Enable alternative channels (more channels)</string>
+
+    <string id="30010">Development</string>
 </strings>

@@ -198,6 +198,19 @@ class Decoder():
         return finalUrl
 
     @staticmethod
+    def decodeLetonTv(html,referer):
+        rtmpUrl = "rtmp://31.200.0.186"
+        logger.info("trying to get playpath from html...")
+        if html.find("var v_part = '")>-1:
+            logger.info("detected playpath...")
+            playPath = Decoder.extract("var v_part = '","';",html)
+            swfUrl = "http://files.leton.tv/jwplayer.flash.swf"
+            rtmpUrl = rtmpUrl+playPath+" playPath="+playPath+" swfUrl="+swfUrl+" live=1 timeout=12 pageUrl="+referer
+        else:
+            logger.info("nothing detected, returning incomplete link :(")
+        return rtmpUrl
+
+    @staticmethod
     def decodeBussinessApp(html,iframeReferer):
 
         response = ""
@@ -206,6 +219,8 @@ class Decoder():
         if html.find("jwplayer5/addplayer/jwplayer.js")>-1:
             jsFile = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.js",html)
             logger.info("updated js player to: "+jsFile)
+        elif html.find("http://www.playerhd1.pw")>-1:
+            jsFile = "http://www.playerhd1.pw/jwplayer5/addplayer/jwplayer.js"
 
         token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
         swfUrl = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf"
@@ -215,6 +230,8 @@ class Decoder():
         elif jsFile.find("businessapp1.pw")==-1:
             swfUrl = "http://"+Decoder.extract('//',"/",jsFile)+"/jwplayer5/addplayer/jwplayer.flash.swf"
             logger.info("updated swf player to: "+swfUrl)
+        elif html.find("http://www.playerhd1.pw")>-1:
+            swfUrl = "http://www.playerhd1.pw/jwplayer5/addplayer/jwplayer.flash.swf"
 
         if html.find('<input type="hidden" id="ssx1" value="')>-1:
             ssx1 = Decoder.extract('<input type="hidden" id="ssx1" value="','"',html)
@@ -227,10 +244,10 @@ class Decoder():
             iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
             if decodedssx4.find("vod/?token=")>-1:
                 app = decodedssx4[decodedssx4.find("vod/?token="):]
-                response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=13 pageUrl="+iframeReferer
+                response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
             else:
                 app = decodedssx4[decodedssx4.find("redirect/?token="):]
-                response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=12 pageUrl="+iframeReferer
+                response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
             logger.info("to player: "+response)
         else:
             playPath = ""
@@ -252,11 +269,11 @@ class Decoder():
                 app = rtmpValue[rtmpValue.find("vod/?token="):]
                 iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
                 token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
-                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=10 pageUrl="+iframeReferer
+                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
             else:
                 app = "redirect"+rtmpValue[rtmpValue.find("?token=play@"):]
                 token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
-                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=11 pageUrl="+iframeReferer
+                response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
         return response
 
     @staticmethod

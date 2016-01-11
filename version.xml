@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.2</tag>
-	<version>26</version>
+	<version>27</version>
 	<date>11/01/2016</date>
-	<changes>Development update. Improves in code related to changes into a provider.</changes>
+	<changes>Development update. Increment channels from a provider, now an user can choose if it can be selected or not.</changes>
 </plugin>

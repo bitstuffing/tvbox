@@ -10,4 +10,11 @@
 
     <string id="10010">Navegar por páginas web</string>
     <string id="10011">¡Actualización disponible!</string>
+
+    <string id="30000">Opciones</string>
+    <string id="30001">Lista remota de canales</string>
+    <string id="30002">Actualizador XML remoto</string>
+    <string id="30003">Habilitar canales alternativos (más canales)</string>
+
+    <string id="30010">Desarrollo</string>
 </strings>

@@ -122,6 +122,20 @@ class Decoder():
         return html
 
     @staticmethod
+    def decodePrivatestream(html,referer):
+        rtmpUrl = "rtmp://31.220.40.63/privatestream/"
+        logger.info("trying to get playpath from html...")
+        if html.find("var v_part = '")>-1:
+            logger.info("detected playpath...")
+            playPath = Decoder.extract("var v_part = '","';",html)[len("/privatestream/"):]
+            swfUrl = "http://privatestream.tv/js/jwplayer.flash.swf"
+            rtmpUrl = rtmpUrl+playPath+" playPath="+playPath+" swfUrl="+swfUrl+" live=1 timeout=12 pageUrl="+referer
+            logger.info("final link:"+rtmpUrl)
+        else:
+            logger.info("nothing detected, returning incomplete link :(")
+        return rtmpUrl
+
+    @staticmethod
     def decodeMipsplayer(html,referer):
         newParam = Decoder.extractParams(html)
         finalUrl = "rtmp://46.165.220.232/live playPath="+newParam+" swfVfy=1 timeout=15 live=true conn=S:OK swfUrl=http://www.mipsplayer.com/content/scripts/fplayer.swf flashver=WIN/2019,0,0,226 ccommand=false pageUrl="+referer

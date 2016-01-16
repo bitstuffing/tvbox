@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>29</version>
+	<version>0</version>
 	<date>16/01/2016</date>
 	<changes>Development update. Enable splive support with lists decoding.</changes>
 </plugin>

@@ -14,7 +14,7 @@ from core.cipher import PBEWithMD5AndDES
 
 class Spliveappcom(Downloader):
 
-    MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "splive_channel") #"http://pastebin.com/raw/ELJcaJhb"
+    MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "splive_channel")
 
     PASSWORD = 'c6ka74t4b2dv'
 

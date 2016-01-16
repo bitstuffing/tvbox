@@ -17,4 +17,8 @@
     <string id="30003">Enable alternative channels (more channels)</string>
 
     <string id="30010">Development</string>
+
+    <string id="30020">SPLive</string>
+    <string id="30021">Channels list</string>
+    <string id="30022">Enable SPlive app lists</string>
 </strings>

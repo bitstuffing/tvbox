@@ -19,7 +19,7 @@ class Downloader():
         else:
             logger.info("host: "+host+" , subUrl: "+subUrl)
         headers = {
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0",
             "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
             #"Accept-Encoding" : "gzip, deflate",
             "Conection" : "keep-alive",

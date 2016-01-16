@@ -6,4 +6,8 @@
 	<category label="30010">
 		<setting id="extended_channels" type="bool" label="30003" default="false"/>
 	</category>
+	<category label="30020">
+		<setting id="enable_splive" type="bool" label="30022" default="false"/>
+		<setting id="splive_channel" type="text" label="30021" value="" default="" enable="true"/>
+	</category>
 </settings>

@@ -5,6 +5,7 @@ import time
 import re
 import base64
 from core import logger
+from core.downloader import Downloader
 
 from core import jsunpack
 
@@ -61,12 +62,12 @@ class Decoder():
 
     @staticmethod
     def getFinalHtmlFromLink(link,waitTime=10,inhu=False):
-        response = Decoder.getContent(link,'')
-        data = response.read()
+        data = Downloader.getContentFromUrl(link,"","lang=english")
         html = ""
         if data.find("<script type='text/javascript'>eval(function(p,a,c,k,e")==-1:
 
-            finalCookie = ""
+            finalCookie = "lang=english"
+            '''
             cookies = ";"
             cookies = response.info()['Set-Cookie']
 
@@ -77,45 +78,46 @@ class Decoder():
                     finalCookie+= cookie
 
             logger.info('Extracted cookie: '+finalCookie)
-
+            '''
             #build form
-            op = Decoder.extract('type="hidden" name="op" value="','"',data)
-            id = Decoder.extract('type="hidden" name="id" value="','"',data)
-            fname = Decoder.extract('type="hidden" name="fname" value="','"',data)
-            usr_login = Decoder.extract('type="hidden" name="usr_login" value="','"',data)
-            referer = Decoder.extract('type="hidden" name="referer" value="','"',data)
-            hash = Decoder.extract('type="hidden" name="hash" value="','"',data)
-            if inhu==False:
-                imhuman = Decoder.extract('type="submit" name="imhuman" value="','"',data).replace("+"," ")
-                form = {
-                    'op':op,
-                    'id':id,
-                    'usr_login':usr_login,
-                    'fname':fname,
-                    'referer':referer,
-                    'hash':hash,
-                    'imhuman':imhuman}
-            else:
-                btn_download = ""
-                inhu = Decoder.extract('type="hidden" name="inhu" value="','"',data)
-                gfk = Decoder.extract("name: 'gfk', value: '","'",data)
-                vhash = Decoder.extract("name: '_vhash', value: '","'",data)
+            if data.find('type="hidden" name="op" value="')>-1:
+                op = Decoder.extract('type="hidden" name="op" value="','"',data)
+                id = Decoder.extract('type="hidden" name="id" value="','"',data)
+                fname = Decoder.extract('type="hidden" name="fname" value="','"',data)
+                usr_login = Decoder.extract('type="hidden" name="usr_login" value="','"',data)
+                referer = Decoder.extract('type="hidden" name="referer" value="','"',data)
+                hash = Decoder.extract('type="hidden" name="hash" value="','"',data)
+                if inhu==False:
+                    imhuman = Decoder.extract('type="submit" name="imhuman" value="','"',data).replace("+"," ")
+                    form = {
+                        'op':op,
+                        'id':id,
+                        'usr_login':usr_login,
+                        'fname':fname,
+                        'referer':referer,
+                        'hash':hash,
+                        'imhuman':imhuman}
+                else:
+                    btn_download = ""
+                    inhu = Decoder.extract('type="hidden" name="inhu" value="','"',data)
+                    gfk = Decoder.extract("name: 'gfk', value: '","'",data)
+                    vhash = Decoder.extract("name: '_vhash', value: '","'",data)
 
-                form = {
-                    'op':op,
-                    'id':id,
-                    'usr_login':usr_login,
-                    'fname':fname,
-                    'referer':referer,
-                    'hash':hash,
-                    'inhu':inhu,
-                    '_vhash':vhash,
-                    'gfk':gfk,
-                    'imhuman':btn_download}
+                    form = {
+                        'op':op,
+                        'id':id,
+                        'usr_login':usr_login,
+                        'fname':fname,
+                        'referer':referer,
+                        'hash':hash,
+                        'inhu':inhu,
+                        '_vhash':vhash,
+                        'gfk':gfk,
+                        'imhuman':btn_download}
 
-            if op != '':
-                time.sleep(waitTime)
-                html = Decoder.getContent(link,form,link,finalCookie,True).read()
+                if op != '':
+                    time.sleep(waitTime)
+                    html = Decoder.getContent(link,form,link,finalCookie,True).read()
         else:
             html = data
 

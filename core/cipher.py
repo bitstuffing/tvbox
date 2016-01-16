@@ -9,7 +9,8 @@ import os
 PBEWithMD5AndDES port based on
 
 '''
-class PBEWithMD5AndDES(object):
+class PBEWithMD5AndDES():
+
     @staticmethod
     def get_derived_key(password, salt, count):
         key = password + salt

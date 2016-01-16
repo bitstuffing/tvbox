@@ -21,8 +21,8 @@ from providers.vipracinginfo import Vipracinginfo
 from providers.hdfullhdeu import Hdfullhdeu
 from providers.skylinewebcamscom import Skylinewebcamscom
 from providers.zonasportsme import Zonasportsme
-#from providers.sportstream365com import Sportstream365com
-#from providers.spliveappcom import Spliveappcom
+from providers.sportstream365com import Sportstream365com
+from providers.spliveappcom import Spliveappcom
 from core.downloader import Downloader
 from core.decoder import Decoder
 import re
@@ -36,7 +36,7 @@ MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "remote_repository")
 
 ##CONSTANTS PARTS##
 BROWSE_CHANNELS = "browse_channels"
-MAX = 110
+MAX = 111
 
 def get_params():
 	param=[]
@@ -53,6 +53,7 @@ def get_params():
 			splitparams=pairsofparams[i].split('=')
 			if (len(splitparams))==2:
 				param[splitparams[0]]=splitparams[1]
+				logger.info("param: "+splitparams[0]+" with value: "+splitparams[1])
 
 	return param
 
@@ -72,7 +73,7 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 		u+=page
 		pass
 	provider = str(provider)
-	u+="&provider="+provider
+	u+="&provider="+urllib.quote_plus(provider.decode('utf-8', 'replace').encode('iso-8859-1', 'replace'))
 
 	ok=True
 
@@ -120,6 +121,35 @@ def get_dirs(url,name,page):
 				add_dir(name, value, 2, icon, '', name)
 	
 def open(url,page):
+	if url.find("http://privatestream.tv/")>-1 or url.find("http://www.dinostream.pw/")>-1 or url.find("http://www.embeducaster.com/")>-1 or url.find("http://tv.verdirectotv.org/channel.php")>-1:
+		referer = url[url.find("referer: ")+len("referer: "):]
+		url = url[0:url.find(",")]
+		if url.find("http://privatestream.tv/")>-1:
+			html = Downloader.getContentFromUrl(url,"","",referer)
+			url = Decoder.decodePrivatestream(html,referer)
+		elif url.find("http://www.dinostream.pw/")>-1:
+			url = Cineestrenostv.extractDinostreamPart(url,referer)["link"]
+		elif url.find("http://www.embeducaster.com/")>-1:
+			#url = url.replace("/membedplayer/","/embedplayer/")
+			url = Cineestrenostv.getContentFromUrl(url,"","",referer)
+		elif url.find("http://tv.verdirectotv.org/channel.php")>-1:
+			html4 = Cineestrenostv.getContentFromUrl(url,"",Cineestrenostv.cookie,referer)
+			finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
+			if finalIframeUrl.find('"')>-1 or finalIframeUrl.find("'")>-1:
+				finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
+			finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
+			url = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
+	else:
+		try:
+			if url.find(", referer:")>-1:
+				url = url[:url.find(", referer:")]
+			url = Decoder.decodeLink(url)
+		except:
+			logger.info("decoder url launched an exception, probably could not be decoded")
+			pass
+	play(url,page)
+
+def play(url,page):
 	listitem = xbmcgui.ListItem(page)
 	listitem.setProperty('IsPlayable','true')
 	listitem.setPath(url)
@@ -151,7 +181,9 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0) #this page was down, TODO: it will be replaced with the new version of this page: verliga.net
 	add_dir("Vipracing.info", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
 	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
-	#add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
+	enableSplive = xbmcplugin.getSetting(int(sys.argv[1]), "enable_splive")
+	if enableSplive=="true":
+		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
 	add_dir("Zonasport.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme' , 0)
 	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
 	add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
@@ -364,10 +396,14 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		for item in jsonChannels:
 			title = item["title"]
 			link = item["link"]
+			referer = "splive"
 			if item.has_key("permaLink"):
 				mode = 111
+				if item.has_key("referer"):
+					referer = item["referer"]
+					logger.info("referer is: "+referer)
 			image = icon
-			add_dir(title,link,mode,image,"splive",link)
+			add_dir(title,link,mode,image,referer,link)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):
@@ -382,6 +418,7 @@ def init():
 	url=""
 	mode=None
 	page=""
+	provider = ""
 
 	try:
 		page=urllib.unquote_plus(params["page"])
@@ -400,9 +437,10 @@ def init():
 	except:
 		pass
 
-	#print "Mode: "+str(mode)
-	#print "URL: "+str(url)
-	#print "page: "+str(page)
+	print "Mode: "+str(mode)
+	print "URL: "+str(url)
+	print "page: "+str(page)
+	print "provider: "+str(provider)
 
 	if mode==None: #init
 		get_main_dirs()
@@ -411,27 +449,6 @@ def init():
 		get_dirs(url, '', page)
 
 	elif mode == 2: #open video in player
-		if url.find("http://privatestream.tv/")>-1 or url.find("http://www.dinostream.pw/")>-1 or url.find("http://www.embeducaster.com/")>-1 or url.find("http://tv.verdirectotv.org/channel.php")>-1:
-			referer = url[url.find("referer: ")+len("referer: "):]
-			url = url[0:url.find(",")]
-			if url.find("http://privatestream.tv/")>-1:
-				html = Downloader.getContentFromUrl(url,"","",referer)
-				url = Decoder.decodePrivatestream(html,referer)
-			elif url.find("http://www.dinostream.pw/")>-1:
-				url = Cineestrenostv.extractDinostreamPart(url,referer)["link"]
-			elif url.find("http://www.embeducaster.com/")>-1:
-				#url = url.replace("/membedplayer/","/embedplayer/")
-				url = Cineestrenostv.getContentFromUrl(url,"","",referer)
-			elif url.find("http://tv.verdirectotv.org/channel.php")>-1:
-				html4 = Cineestrenostv.getContentFromUrl(url,"",Cineestrenostv.cookie,referer)
-				finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
-				finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
-				logger.info("proccessing level 4, cookie: "+Cineestrenostv.cookie)
-				finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
-				#print "final level5 html: "+finalHtml
-				logger.info("proccessing level 5, cookie: "+Cineestrenostv.cookie)
-				url = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
-
 		open(url,page)
 	elif mode == 3:
 		browse_channels(url,page)
@@ -491,7 +508,7 @@ def init():
 		open(channel[0]["link"],page)
 	elif mode == 111:
 		if url.find(".m3u8")==-1 and url.find("rtmp://")==-1:
-			channel = Spliveappcom.decodeUrl(url)
+			channel = Spliveappcom.decodeUrl(url,provider)
 			link = channel[0]["link"]
 		else:
 			link = url

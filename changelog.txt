@@ -5,3 +5,7 @@ Added support for multilanguage
 0.0.2 Added support for more servers
 This version will use github content by default (the free server has some limited problems)
 Added more streaming providers
+
+0.0.3 Added support for complex lists
+
+0.0.4 Migrated compatible splive decryption and simple lists

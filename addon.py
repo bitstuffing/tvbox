@@ -22,7 +22,10 @@ from providers.hdfullhdeu import Hdfullhdeu
 from providers.skylinewebcamscom import Skylinewebcamscom
 from providers.zonasportsme import Zonasportsme
 from providers.sportstream365com import Sportstream365com
-from providers.spliveappcom import Spliveappcom
+try:
+	from providers.spliveappcom import Spliveappcom
+except:
+	pass
 from core.downloader import Downloader
 from core.decoder import Decoder
 import re

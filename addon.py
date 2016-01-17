@@ -124,7 +124,7 @@ def get_dirs(url,name,page):
 				add_dir(name, value, 2, icon, '', name)
 	
 def open(url,page):
-	if url.find("http://privatestream.tv/")>-1 or url.find("http://www.dinostream.pw/")>-1 or url.find("http://www.embeducaster.com/")>-1 or url.find("http://tv.verdirectotv.org/channel.php")>-1:
+	if url.find("rtmp://")==-1 and ( url.find("http://privatestream.tv/")>-1 or url.find("http://www.dinostream.pw/")>-1 or url.find("http://www.embeducaster.com/")>-1 or url.find("http://tv.verdirectotv.org/channel.php")>-1):
 		referer = url[url.find("referer: ")+len("referer: "):]
 		url = url[0:url.find(",")]
 		if url.find("http://privatestream.tv/")>-1:

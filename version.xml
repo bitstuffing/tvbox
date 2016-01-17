@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>30</version>
+	<version>31</version>
 	<date>17/01/2016</date>
-	<changes>Development update. Improve live9.net provider.</changes>
+	<changes>Development update. Fix the previews open function improvement, when the link is ok it's not needed more work.</changes>
 </plugin>

@@ -177,6 +177,15 @@ class Decoder():
                 extractedElement = Decoder.extract("'","'",bruteElement[1])
                 #logger.info("obtained key: "+bruteElement[0]+", with value: "+extractedElement)
                 vars[bruteElement[0]] = extractedElement
+		if extractedElement.find("+")>-1:
+			for currentVarSubElement in extractedElement.split("+"):
+				if len(currentVarSubElement)>0 and currentVarSubElement.find('"')==-1:
+					logger.info("using var: "+currentVarSubElement)
+					preSubFix = "var "+currentVarSubElement+"=";
+					valueInternalVar = varPart[varPart.find(preSubFix)+len(preSubFix)+1:]
+					logger.info("Internal var provisional is: "+valueInternalVar)
+					valueInternalVar = valueInternalVar[:valueInternalVar.find('"')]
+					logger.info("Internal var final is: "+valueInternalVar)
         #second extract src part for a diagnostic
         bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
         finalUrl = ""
@@ -186,26 +195,37 @@ class Decoder():
                     extractedValue = Decoder.extract("(",")",bruteUrlPart)
                     if extractedValue.find("'")>-1: #it means encoded html
                         extractedValue = Decoder.extract("'","'",extractedValue)
+			logger.info("1")
                         finalUrl += urllib.unquote(extractedValue)
                     else: #it means a var, seek it
                         if vars.has_key(extractedValue):
                             finalUrl += vars[extractedValue]
+			    logger.info("2")
                 else:
                     if bruteUrlPart.find("'")==0:#there is a var
                         if vars.has_key(bruteUrlPart):
                             finalUrl += vars[bruteUrlPart]
+			    logger.info("3")
                         else:
                             bruteUrlPart = bruteUrlPart.replace("'","")
                             finalUrl+=bruteUrlPart
+			    logger.info("4")
                             #logger.info("brute text included1: "+bruteUrlPart)
                     else: #brute text, paste it without the final "'" if it contains that character
                         bruteUrlPart = bruteUrlPart.replace("'","")
                         if vars.has_key(bruteUrlPart):
-                            finalUrl += vars[bruteUrlPart]
+			    logger.info("5"+bruteUrlPart+","+vars[bruteUrlPart])
+			    if vars[bruteUrlPart].find('"')==-1:
+			        finalUrl += vars[bruteUrlPart]
+			    else:
+			        for bruteUrlPart2 in vars[bruteUrlPart].split("+"):
+					logger.info("seek key: "+bruteUrlPart2)
+					if vars.has_key(bruteUrlPart2) and bruteUrlPart2.find('"')==-1:
+						finalUrl += vars[bruteUrlPart2].replace('"',"")
                         else:
                             finalUrl+=bruteUrlPart
-                            #logger.info("brute text included2: "+bruteUrlPart)
-                #logger.info("now finalUrl is: "+urllib.unquote(finalUrl))
+                            logger.info("brute text included2: "+bruteUrlPart)
+                logger.info("now finalUrl is: "+urllib.unquote(finalUrl))
         finalUrl = urllib.unquote(finalUrl) #finally translate to good url
         if finalUrl.find("unezcapez(")>-1:
             logger.info("replacing url new encoding...")

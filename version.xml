@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>29</version>
-	<date>16/01/2016</date>
-	<changes>Development update. Enable splive support with lists decoding. It doesn't work into Kodi for Android</changes>
+	<version>30</version>
+	<date>17/01/2016</date>
+	<changes>Development update. Improve live9.net provider.</changes>
 </plugin>

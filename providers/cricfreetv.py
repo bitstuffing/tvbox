@@ -4,8 +4,9 @@ from core.decoder import Decoder
 from core import logger
 from core import jsunpack
 from providers.filmoncom import Filmoncom
+from core.downloader import Downloader
 
-class Cricfreetv():
+class Cricfreetv(Downloader):
 
     cookie = ""
     MAIN_URL = "http://cricfree.tv/"
@@ -112,6 +113,19 @@ class Cricfreetv():
             logger.info("Built a rtmp with data: "+file)
         elif html.find("eval(unescape('")>-1:
             html = Cricfreetv.decodeContent(html).lower()
+	elif html.find('<a href="http://sports4u.tv/channel')>-1 or html.find('http://sports4u.tv/embed/')>-1:
+	    if html.find('http://sports4u.tv/embed/')>-1:
+	    	urlLink = Decoder.extractWithRegex('http://sports4u.tv/embed/','"',html).replace('"',"")
+	    elif html.find('<a href="http://sports4u.tv/channel')>-1:
+		logger.info("urlLink...")
+		urlLink = Decoder.extractWithRegex('<a href="http://sports4u.tv/channel','/"',html)
+		logger.info("urlLink2..."+urlLink)
+		urlLink = urlLink[urlLink.find('"')+1:urlLink.rfind('"')]
+		logger.info("urlLinkFinal..."+urlLink)
+	    if urlLink != iframeUrl:
+		html2 = Cricfreetv.getContentFromUrl(urlLink,"",Cricfreetv.cookie,iframeUrl)
+		#print html2
+		file = Cricfreetv.seekIframeScript(html2,iframeUrl,urlLink)
         if file=='':
             #extract iframe value
             iframe = Decoder.extract('<iframe frameborder="0" marginheight="0" marginWidth="0" height="490" id="iframe" src="','" id="',html).replace('"',"")

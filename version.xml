@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>32</version>
-	<date>18/01/2016</date>
-	<changes>Development update. Fix for sports4u provider (cricfreetv engine).</changes>
+	<version>33</version>
+	<date>19/01/2016</date>
+	<changes>Development update. Added support for images in spliveapp lists.</changes>
 </plugin>

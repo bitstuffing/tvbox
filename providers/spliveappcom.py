@@ -56,6 +56,20 @@ class Spliveappcom(Downloader):
             elif value.find(" url_servidor \"")>-1:
                 link = Decoder.extract(" url_servidor \"","\"",value)
             element["title"] = title
+            img = ""
+            if value.find(" image \"")>-1:
+                img = Decoder.extract(" image \"","\"",value)
+            elif value.find(" image_url ")>-1:
+                img = Decoder.extract(" image_url \"","\"",value)
+            if img.find("http")==-1:
+                try:
+                    img = Spliveappcom.decrypt(img)
+                    element["thumbnail"] = img
+                except:
+                    logger.error("Could not be decoded img content.")
+                    pass
+            elif img!="":
+                element["thumbnail"] = img
             if link.find("pastebin.com"):
                 link = link.replace(".com/",".com/raw/")
             element["link"] = link

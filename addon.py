@@ -22,9 +22,12 @@ from providers.hdfullhdeu import Hdfullhdeu
 from providers.skylinewebcamscom import Skylinewebcamscom
 from providers.zonasportsme import Zonasportsme
 from providers.sportstream365com import Sportstream365com
+splive = True
 try:
 	from providers.spliveappcom import Spliveappcom
 except:
+	splive = False
+	logger.error("Pycript problem detected, it needs other platform like raspbian or native linux to be launched")
 	pass
 from core.downloader import Downloader
 from core.decoder import Decoder
@@ -185,7 +188,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	add_dir("Vipracing.info", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
 	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
 	enableSplive = xbmcplugin.getSetting(int(sys.argv[1]), "enable_splive")
-	if enableSplive=="true":
+	if enableSplive=="true" and splive:
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
 	add_dir("Zonasport.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme' , 0)
 	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
@@ -405,7 +408,11 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 				if item.has_key("referer"):
 					referer = item["referer"]
 					logger.info("referer is: "+referer)
-			image = icon
+			if item.has_key("thumbnail"):
+				image = item["thumbnail"]
+				logger.info("detected img: "+image)
+			else:
+				image = icon
 			add_dir(title,link,mode,image,referer,link)
 	logger.info(provider)
 

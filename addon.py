@@ -111,10 +111,34 @@ def get_dirs(url,name,page):
 	html = response.read()
 	if url.endswith(".xml"): #main channels, it's a list to browse
 		lists = common.parseDOM(html,"list")
-		for item in lists:
-			name = common.parseDOM(item,"name")[0].encode("utf-8")
-			value = common.parseDOM(item,"url")[0].encode("utf-8")
-			add_dir(name, value, 1, icon,'', 0)
+		if len(lists)>0:
+			logger.info("counted: "+str(len(lists)))
+			for item in lists:
+				name = common.parseDOM(item,"name")[0].encode("utf-8")
+				value = common.parseDOM(item,"url")[0].encode("utf-8")
+				logger.info("Added: "+name+", url: "+value)
+				add_dir(name, value, 1, icon,'', 0)
+		else:
+			lists = common.parseDOM(html,"item") #sportsdevil private lists
+			if len(lists)>0:
+				for item in lists:
+					name = common.parseDOM(item,"title")[0].encode("utf-8")
+					value = common.parseDOM(item,"sportsdevil")[0].encode("utf-8")
+					referer = ""
+					try:
+						referer = common.parseDOM(item,"referer")[0].encode("utf-8")
+					except:
+						logger.info("referer not found!")
+					img = icon
+					try:
+						img = common.parseDOM(item,"thumbnail")[0].encode("utf-8")
+					except:
+						logger.info("thumbnail not found!")
+					if name!="" and value!="":
+						if referer!= "":
+							value +=", referer: "+referer
+						logger.info("Added: "+name+", url: "+value)
+						add_dir(name, value, 1, img,'', 0)
 	else: #it's the final list channel, split
 		bruteChannels = html.split("#EXTINF")
 		for item in bruteChannels:
@@ -295,9 +319,13 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		jsonChannels = Cricfreetv.getChannels(page)
 		for item in jsonChannels:
 			title = item["title"]
+			if title=='Display by event':
+				title = addon.getLocalizedString(10006)
 			link = item["link"]
-			#if item.has_key("permalink"):
-			mode = 103 #next step returns a final link
+			if link=='1':
+				mode = 4
+			else:
+				mode = 103 #next step returns a final link
 			#else:
 			#	mode = 4 #continue browsing
 			if item.has_key("thumbnail"):

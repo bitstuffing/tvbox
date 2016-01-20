@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>33</version>
-	<date>19/01/2016</date>
-	<changes>Development update. Added support for images in spliveapp lists.</changes>
+	<version>34</version>
+	<date>20/01/2016</date>
+	<changes>Development update (a function is not finished yet). Added support for events into a provider.</changes>
 </plugin>

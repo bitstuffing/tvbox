@@ -167,6 +167,29 @@ class Decoder():
         return finalUrl
 
     @staticmethod
+    def extractSawlive(scriptSrc,cookie,iframeUrl):
+        encryptedHtml = Downloader.getContentFromUrl(scriptSrc,"",cookie,iframeUrl)
+        #print encryptedHtml
+        decryptedUrl = Decoder.decodeSawliveUrl(encryptedHtml)
+        html3 = Downloader.getContentFromUrl(decryptedUrl,"",cookie,scriptSrc)
+        #ok, now extract flash script content
+
+        flashContent = Decoder.extract("var so = new SWFObject('","</script>",html3)
+        file = Decoder.extract("'file', '","');",flashContent)
+        rtmpUrl = ""
+        if flashContent.find("'streamer', '")>.1:
+            rtmpUrl = Decoder.extract("'streamer', '","');",flashContent)
+        swfUrl = "http://static3.sawlive.tv/player.swf" #default
+        #update swf url
+        swfUrl = flashContent[:flashContent.find("'")]
+        logger.info("updated swf player to: "+swfUrl)
+        if rtmpUrl=='' and file.find("http://")>-1:
+            finalRtmpUrl = file #it's a redirect with an .m3u8, so it's used
+        else:
+            finalRtmpUrl = rtmpUrl+" playpath="+file+" swfUrl="+swfUrl+" live=1 conn=S:OK pageUrl="+decryptedUrl+" timeout=12"
+        return finalRtmpUrl
+
+    @staticmethod
     def decodeSawliveUrl(encryptedHtml):
         #first extract var values and append it to an array
         varPart = encryptedHtml[0:encryptedHtml.find(';document.write')]

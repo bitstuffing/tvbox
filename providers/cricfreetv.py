@@ -4,6 +4,7 @@ from core.decoder import Decoder
 from core import logger
 from core import jsunpack
 from providers.filmoncom import Filmoncom
+from providers.live9net import Live9net
 from core.downloader import Downloader
 
 class Cricfreetv(Downloader):
@@ -16,6 +17,10 @@ class Cricfreetv(Downloader):
         x = []
         if str(page) == "0":
             html = Cricfreetv.getContentFromUrl(Cricfreetv.MAIN_URL)
+            element = {}
+            element["link"] = '1'
+            element["title"] = 'Display by event'
+            x.append(element)
             if html.find("<div id='cssmenu'>")>-1:
                 cssMenu = Decoder.extract("<div id='cssmenu'>",'</a><li> </ul>',html)
                 for htmlElement in cssMenu.split('<li'):
@@ -31,6 +36,20 @@ class Cricfreetv(Downloader):
                         logger.info("found element: "+title+", url: "+link)
                         if title != 'ch1toch20' and title != 'No Stream':
                             x.append(element)
+        elif str(page) == '1': #event
+            html = Cricfreetv.getContentFromUrl(Cricfreetv.MAIN_URL)
+            html = Decoder.extract('<section class="panel">',"</section>",html)
+            print html
+            for htmlElement in html.split('<td><span class="sport-icon'):
+                if htmlElement.find('</span></td>\n<td>')>-1:
+                    name = Decoder.rExtract('</span></td>\n<td>',"</td>\n<td style=\"color:#545454;",htmlElement)
+                    event = Decoder.rExtract(' target="_blank">',"</a></td>",htmlElement)
+                    time = Decoder.extract('<td class="matchtime" style="color:#545454;font-weight:bold;font-size: 9px">','</td>',htmlElement)
+                    href = Decoder.extract(' href="','"',htmlElement)
+                    element = {}
+                    element["title"] = time+" - "+name+" - "+event
+                    element["link"] = href
+                    x.append(element)
         else:
             response = Decoder.getContent(page)
             html = response.read()
@@ -65,6 +84,7 @@ class Cricfreetv(Downloader):
     def seekIframeScript(html,referer, iframeUrl):
         lastIframeHtml = html
         file = ""
+        logger.info("seek iframe logic... ")
         if html.find("http://theactionlive.com/live")>-1:
             file = Cricfreetv.launchScriptLogic("http://theactionlive.com/live",html,referer,iframeUrl)
         elif html.find('http://biggestplayer.me/play')>-1:
@@ -113,33 +133,57 @@ class Cricfreetv(Downloader):
             logger.info("Built a rtmp with data: "+file)
         elif html.find("eval(unescape('")>-1:
             html = Cricfreetv.decodeContent(html).lower()
-	elif html.find('<a href="http://sports4u.tv/channel')>-1 or html.find('http://sports4u.tv/embed/')>-1:
-	    if html.find('http://sports4u.tv/embed/')>-1:
-	    	urlLink = Decoder.extractWithRegex('http://sports4u.tv/embed/','"',html).replace('"',"")
-	    elif html.find('<a href="http://sports4u.tv/channel')>-1:
-		logger.info("urlLink...")
-		urlLink = Decoder.extractWithRegex('<a href="http://sports4u.tv/channel','/"',html)
-		logger.info("urlLink2..."+urlLink)
-		urlLink = urlLink[urlLink.find('"')+1:urlLink.rfind('"')]
-		logger.info("urlLinkFinal..."+urlLink)
-	    if urlLink != iframeUrl:
-		html2 = Cricfreetv.getContentFromUrl(urlLink,"",Cricfreetv.cookie,iframeUrl)
-		#print html2
-		file = Cricfreetv.seekIframeScript(html2,iframeUrl,urlLink)
-        if file=='':
-            #extract iframe value
-            iframe = Decoder.extract('<iframe frameborder="0" marginheight="0" marginWidth="0" height="490" id="iframe" src="','" id="',html).replace('"',"")
-            if iframe.find("http:")!=0:
-                iframe = Decoder.extract("<iframe src='","' ",html).replace("'","") #take into account .lower() characters, so is not ' SRC=
-                if iframe.find("http:")!=0:
-                    iframe = Decoder.extract(' src="','"',html).replace('"',"")
-            logger.info("using iframeUrl: "+iframe)
-            if iframe.find("filmon.")>-1: # i prefer this fix to change all logic, really, I boried about this provider and is a 'silly' provider
-                logger.info("Detected exceptional filmon.com|tv provider: "+iframe)
-                file = Filmoncom.launchScriptLogic(iframe,referer)[0]["url"]
+        elif html.find('<a href="http://sports4u.tv/channel')>-1 or html.find('http://sports4u.tv/embed/')>-1:
+            if html.find('http://sports4u.tv/embed/')>-1:
+                urlLink = Decoder.extractWithRegex('http://sports4u.tv/embed/','"',html).replace('"',"")
+            elif html.find('<a href="http://sports4u.tv/channel')>-1:
+                logger.info("urlLink...")
+                urlLink = Decoder.extractWithRegex('<a href="http://sports4u.tv/channel','/"',html)
+                logger.info("urlLink2..."+urlLink)
+                urlLink = urlLink[urlLink.find('"')+1:urlLink.rfind('"')]
+                logger.info("urlLinkFinal..."+urlLink)
+                if urlLink != iframeUrl:
+                    html2 = Cricfreetv.getContentFromUrl(urlLink,"",Cricfreetv.cookie,iframeUrl)
+                    #print html2
+                    file = Cricfreetv.seekIframeScript(html2,iframeUrl,urlLink)
+                    if file=='':
+                        #extract iframe value
+                        iframe = Decoder.extract('<iframe frameborder="0" marginheight="0" marginWidth="0" height="490" id="iframe" src="','" id="',html).replace('"',"")
+                        file = Cricfreetv.extractIframeValue(iframe,html,referer)
+        else:
+            if html.find('<iframe id="player" scrolling="no" width="620" height="490" allowtransparency="no" frameborder="0" src="')>-1:
+                iframe = Decoder.extract('<iframe id="player" scrolling="no" width="620" height="490" allowtransparency="no" frameborder="0" src="','"',html)
+                file = Cricfreetv.extractIframeValue(iframe,html,referer)
+            elif html.find('<iframe ')>-1: #brute method forced
+                logger.info("brute method launched...")
+                iframe = Decoder.rExtract('<iframe ','</iframe>',html)
+                iframe = Decoder.extract('src="','"',iframe)
+                file = Cricfreetv.extractIframeValue(iframe,html,referer)
             else:
-                html2 = Cricfreetv.getContentFromUrl(iframe,"",Cricfreetv.cookie,referer)
-                #print html2
+                print html
+
+        return file
+
+    @staticmethod
+    def extractIframeValue(iframe,html,referer):
+        file = ""
+        if iframe.find("http:")!=0:
+            iframe = Decoder.extract("<iframe src='","' ",html).replace("'","") #take into account .lower() characters, so is not ' SRC=
+            if iframe.find("http:")!=0:
+                iframe = Decoder.extract(' src="','"',html).replace('"',"")
+        logger.info("using iframeUrl: "+iframe)
+        if iframe.find("filmon.")>-1: # i prefer this fix to change all logic, really, I boried about this provider and is a 'silly' provider
+            logger.info("Detected exceptional filmon.com|tv provider: "+iframe)
+            file = Filmoncom.launchScriptLogic(iframe,referer)[0]["url"]
+        else:
+            html2 = Cricfreetv.getContentFromUrl(iframe,"",Cricfreetv.cookie,referer)
+            #print html2
+            if html2.find("http://www3.sawlive.tv/embed/")>-1:
+                iframe2 = Decoder.extractWithRegex("http://www3.sawlive.tv/embed/",'"',html2).replace('"',"")
+                logger.info("detected a sawlive: "+iframe2+", from: "+iframe)
+                #file = Live9net.getChannels(iframe2) #Live9net has the sawlive decoder, so it decodes target link
+                file = Decoder.extractSawlive(iframe2,Cricfreetv.cookie,iframe)
+            else:
                 file = Cricfreetv.seekIframeScript(html2,referer,iframe)
         return file
 

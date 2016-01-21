@@ -22,6 +22,7 @@ from providers.hdfullhdeu import Hdfullhdeu
 from providers.skylinewebcamscom import Skylinewebcamscom
 from providers.zonasportsme import Zonasportsme
 from providers.sportstream365com import Sportstream365com
+from providers.mamahdcom import Mamahdcom
 splive = True
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -42,7 +43,7 @@ MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "remote_repository")
 
 ##CONSTANTS PARTS##
 BROWSE_CHANNELS = "browse_channels"
-MAX = 111
+MAX = 112
 
 def get_params():
 	param=[]
@@ -138,7 +139,7 @@ def get_dirs(url,name,page):
 						if referer!= "":
 							value +=", referer: "+referer
 						logger.info("Added: "+name+", url: "+value)
-						add_dir(name, value, 1, img,'', 0)
+						add_dir(name, value, 2, img,'', 0)
 	else: #it's the final list channel, split
 		bruteChannels = html.split("#EXTINF")
 		for item in bruteChannels:
@@ -151,7 +152,8 @@ def get_dirs(url,name,page):
 				add_dir(name, value, 2, icon, '', name)
 	
 def open(url,page):
-	if url.find("rtmp://")==-1 and ( url.find("http://privatestream.tv/")>-1 or url.find("http://www.dinostream.pw/")>-1 or url.find("http://www.embeducaster.com/")>-1 or url.find("http://tv.verdirectotv.org/channel.php")>-1):
+	if url.find("rtmp://")==-1 and ( url.find("http://privatestream.tv/")>-1 or url.find("http://www.dinostream.pw/")>-1 or url.find("http://www.embeducaster.com/")>-1 or url.find("http://tv.verdirectotv.org/channel.php")>-1 or url.find("http://mamahd.com/")>-1):
+		logger.info("brute url [referer] is: "+url)
 		referer = url[url.find("referer: ")+len("referer: "):]
 		url = url[0:url.find(",")]
 		if url.find("http://privatestream.tv/")>-1:
@@ -169,6 +171,8 @@ def open(url,page):
 				finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
 			finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
 			url = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
+		elif url.find("http://mamahd.com/")>-1:
+			url = Mamahdcom.getChannels(url)[0]["link"]
 	else:
 		try:
 			if url.find(", referer:")>-1:
@@ -215,6 +219,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	if enableSplive=="true" and splive:
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
 	add_dir("Zonasport.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme' , 0)
+	add_dir("Mamahd.com", 'mamahdcom', 4, "http://mamahd.com/images/logo.png", 'mamahdcom' , 0)
 	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
 	add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
 
@@ -442,6 +447,20 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			else:
 				image = icon
 			add_dir(title,link,mode,image,referer,link)
+	elif provider == 'mamahdcom':
+		mode = 4
+		jsonChannels = Mamahdcom.getChannels(page)
+		for item in jsonChannels:
+			title = item["title"]
+			link = item["link"]
+			if item.has_key("permaLink"):
+				mode = 112
+			if item.has_key("thumbnail"):
+				image = item["thumbnail"]
+				logger.info("detected img: "+image)
+			else:
+				image = icon
+			add_dir(title,link,mode,image,"mamahdcom",link)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):
@@ -552,6 +571,10 @@ def init():
 			link = url
 		logger.info("found link: "+link+", launching...")
 		open(link,page)
+	elif mode == 112:
+		channel = Mamahdcom.getChannels(url)
+		logger.info("found link: "+channel[0]["link"]+", launching...")
+		open(channel[0]["link"],page)
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 init()

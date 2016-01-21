@@ -447,6 +447,70 @@ class Decoder():
         #return html
 
     @staticmethod
+    def unwise(w, i, s, e): #javascript code, it's an obfuscation from www.caston.tv
+        lIll = 0;
+        ll1I = 0;
+        Il1l = 0;
+        ll1l = [];
+        l1lI = [];
+        while True:
+            if (lIll < 5):
+                l1lI.append(w[lIll])
+            elif (lIll < len(w)):
+                ll1l.append(w[lIll]);
+            lIll+=1;
+            if (ll1I < 5):
+                l1lI.append(i[ll1I])
+            elif (ll1I < len(i)):
+                ll1l.append(i[ll1I])
+            ll1I+=1;
+            if (Il1l < 5):
+                l1lI.append(s[Il1l])
+            elif (Il1l < len(s)):
+                ll1l.append(s[Il1l]);
+            Il1l+=1;
+            if (len(w) + len(i) + len(s) + len(e) == len(ll1l) + len(l1lI) + len(e)):
+                break;
+        lI1l = ''.join(ll1l)
+        I1lI = ''.join(l1lI)
+        ll1I = 0;
+        l1ll = [];
+        for lIll in range(0,len(ll1l),2):
+            ll11 = -1;
+            if ( ord(I1lI[ll1I]) % 2):
+                ll11 = 1;
+            l1ll.append(chr(    int(lI1l[lIll: lIll+2], 36) - ll11));
+            ll1I+=1;
+            if (ll1I >= len(l1lI)):
+                ll1I = 0;
+        ret=''.join(l1ll)
+        if 'eval(function(w,i,s,e)' in ret:
+            ret=re.compile('eval\(function\(w,i,s,e\).*}\((.*?)\)').findall(ret)[0]
+            return Decoder.preWise(ret)
+        else:
+            return ret
+        return ret
+
+    @staticmethod
+    def preWise(wised):
+        value=""
+        try:
+            logger.info("WISE -> extracting params...")
+            paramsString = Decoder.rExtract("('","')",wised)
+            logger.info("WISE -> params extracted splitting...")
+            params = paramsString.split(",")
+            logger.info("WISE -> explit finished..."+str(len(params)))
+            w = params[0].replace("'","")
+            i = params[1].replace("'","")
+            s = params[2].replace("'","")
+            e = params[3].replace("'","")
+            logger.info("WISE -> launching main logic...")
+            value=Decoder.unwise(w,i,s,e)
+        except:
+            logger.error("FATAL! It could not be dewised!")
+        return value
+
+    @staticmethod
     def getContent(url,data="",referer="",cookie="",dnt=True):
         logger.info('Using url: '+url)
         request = urllib2.Request(url)

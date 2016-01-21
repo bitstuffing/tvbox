@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>35</version>
+	<version>36</version>
 	<date>21/01/2016</date>
-	<changes>Development update (a function is not finished yet). Added support for mamahd provider.</changes>
+	<changes>Development update (a function is not finished yet). Added support for showsporttvcom provider.</changes>
 </plugin>

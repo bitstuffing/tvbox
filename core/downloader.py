@@ -7,7 +7,6 @@ class Downloader():
 
     @staticmethod
     def getContentFromUrl(url,data="",cookie="",referer="",ajax=False):
-        form = urllib.urlencode(data)
         host = url[url.find("://")+len("://"):]
         subUrl = ""
         logger.info("url is: "+host)
@@ -41,7 +40,12 @@ class Downloader():
             h = httplib.HTTPConnection(host+":80")
         else:
             h = httplib.HTTPConnection(host)
-        h.request('GET', subUrl, data, headers)
+        if data == "":
+            logger.info("launching GET...")
+            h.request('GET', subUrl, data, headers)
+        else:
+            logger.info("launching POST...")
+            h.request('POST', subUrl, data, headers)
         r = h.getresponse()
 
         headersReturned = r.getheaders()

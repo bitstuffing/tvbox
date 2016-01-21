@@ -39,7 +39,6 @@ class Cricfreetv(Downloader):
         elif str(page) == '1': #event
             html = Cricfreetv.getContentFromUrl(Cricfreetv.MAIN_URL)
             html = Decoder.extract('<section class="panel">',"</section>",html)
-            print html
             for htmlElement in html.split('<td><span class="sport-icon'):
                 if htmlElement.find('</span></td>\n<td>')>-1:
                     name = Decoder.rExtract('</span></td>\n<td>',"</td>\n<td style=\"color:#545454;",htmlElement)
@@ -110,7 +109,7 @@ class Cricfreetv(Downloader):
             securetoken = Decoder.extract('securetoken: "','"',html)
             #print html
             flashPlayer = 'http://p.jwpcdn.com/6/12/jwplayer.flash.swf'
-            rtmpUrl = file[0:file.rfind('/')+1]+" playpath="+file[file.rfind('/')+1:]+" token="+securetoken+" swfUrl=http://p.jwpcdn.com/6/12/jwplayer.flash.swf live=1 timeout=13 pageUrl="+iframeUrl
+            rtmpUrl = file[0:file.rfind('/')+1]+" playpath="+file[file.rfind('/')+1:]+" token="+securetoken+" swfUrl="+flashPlayer+" live=1 timeout=13 pageUrl="+iframeUrl
             logger.info("found final link: "+rtmpUrl)
             file = rtmpUrl
         elif html.find('return(["r","t","m","p"')>-1:

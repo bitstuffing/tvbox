@@ -22,6 +22,7 @@ from providers.hdfullhdeu import Hdfullhdeu
 from providers.skylinewebcamscom import Skylinewebcamscom
 from providers.zonasportsme import Zonasportsme
 from providers.sportstream365com import Sportstream365com
+from providers.showsporttvcom import ShowsportTvCom
 from providers.mamahdcom import Mamahdcom
 splive = True
 try:
@@ -43,7 +44,7 @@ MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "remote_repository")
 
 ##CONSTANTS PARTS##
 BROWSE_CHANNELS = "browse_channels"
-MAX = 112
+MAX = 113
 
 def get_params():
 	param=[]
@@ -173,6 +174,8 @@ def open(url,page):
 			url = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
 		elif url.find("http://mamahd.com/")>-1:
 			url = Mamahdcom.getChannels(url)[0]["link"]
+		elif url.find("http://showsport-tv.com/")>-1:
+			url = ShowsportTvCom.getChannels(url)[0]["link"]
 	else:
 		try:
 			if url.find(", referer:")>-1:
@@ -219,6 +222,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS
 	if enableSplive=="true" and splive:
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
 	add_dir("Zonasport.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme' , 0)
+	add_dir("Showsport-tv.com", 'showsporttvcom', 4, "http://mamahd.com/images/logo.png", 'showsporttvcom' , 0)
 	add_dir("Mamahd.com", 'mamahdcom', 4, "http://mamahd.com/images/logo.png", 'mamahdcom' , 0)
 	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
 	add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
@@ -461,6 +465,20 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			else:
 				image = icon
 			add_dir(title,link,mode,image,"mamahdcom",link)
+	elif provider == 'showsporttvcom':
+		mode = 4
+		jsonChannels = ShowsportTvCom.getChannels(page)
+		for item in jsonChannels:
+			title = item["title"]
+			link = item["link"]
+			if link!='1':
+				mode = 113
+			if item.has_key("thumbnail"):
+				image = item["thumbnail"]
+				logger.info("detected img: "+image)
+			else:
+				image = icon
+			add_dir(title,link,mode,image,"showsporttvcom",link)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):
@@ -573,6 +591,10 @@ def init():
 		open(link,page)
 	elif mode == 112:
 		channel = Mamahdcom.getChannels(url)
+		logger.info("found link: "+channel[0]["link"]+", launching...")
+		open(channel[0]["link"],page)
+	elif mode == 113:
+		channel = ShowsportTvCom.getChannels(url)
 		logger.info("found link: "+channel[0]["link"]+", launching...")
 		open(channel[0]["link"],page)
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))

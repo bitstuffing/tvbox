@@ -240,6 +240,7 @@ class Cineestrenostv(Downloader):
 
         elif html3.find('file: "')>-1 and html3.find('.m3u8')>-1: #direct link, not needed any logic
             link = Decoder.extract('file: "','",',html3)
+            link = link+"|Referer="+iframeUrl2
             logger.info("detected direct link: "+link)
             element["title"] = "Watching direct link"
             element["permalink"] = True

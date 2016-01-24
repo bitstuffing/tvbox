@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>36</version>
-	<date>21/01/2016</date>
-	<changes>Development update (a function is not finished yet). Added support for showsporttvcom provider.</changes>
+	<version>37</version>
+	<date>24/01/2016</date>
+	<changes>Development update (a function is not finished yet). Appended support for new simples links.</changes>
 </plugin>

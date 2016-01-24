@@ -271,7 +271,7 @@ class Decoder():
 
     @staticmethod
     def decodeBussinessApp(html,iframeReferer):
-
+        #print html
         response = ""
 
         jsFile = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js"
@@ -280,8 +280,13 @@ class Decoder():
             logger.info("updated js player to: "+jsFile)
         elif html.find("http://www.playerhd1.pw")>-1:
             jsFile = "http://www.playerhd1.pw/jwplayer5/addplayer/jwplayer.js"
+        token = ""
+        try:
+            token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
+        except:
+            logger.error("Error, trying without token")
+            pass
 
-        token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
         swfUrl = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf"
         if html.find("jwplayer5/addplayer/jwplayer.flash.swf")>-1: #http://www.playerapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf
             swfUrl = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.flash.swf",html)
@@ -301,17 +306,30 @@ class Decoder():
             decodedssx4 = base64.standard_b64decode(ssx4)
             #print "decoded{"+decodedssx1+","+decodedssx4+"} unescaped: "+unescaped
             iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
-            if decodedssx4.find("vod/?token=")>-1:
+            if decodedssx4.find(".m3u8")>-1:
+                logger.info("Found simple link: "+decodedssx4)
+                response = Decoder.getContent(decodedssx4,"",iframeReferer).read()
+                if response.find("chunklist.m3u8")>-1:
+                    finalSimpleLink2 = decodedssx4[:decodedssx4.rfind("/")+1]+"chunklist.m3u8"
+                    response = Decoder.getContent(finalSimpleLink2,"",iframeReferer).read()
+                    response = finalSimpleLink2+"|Referer="+iframeReferer
+                else:
+                    response = decodedssx4
+            elif token!= "" and decodedssx4.find("vod/?token=")>-1:
                 app = decodedssx4[decodedssx4.find("vod/?token="):]
                 response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
-            else:
+            elif token!="":
                 app = decodedssx4[decodedssx4.find("redirect/?token="):]
                 response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
+            else:#m3u8 file
+                logger.info("link1: "+decodedssx1)
+                logger.info("link2: "+decodedssx4)
             logger.info("to player: "+response)
         else:
             playPath = ""
             rtmpValue = ""
             #i = 0
+            finalSimpleLink = ""
             for splittedHtml in html.split('<input type="hidden" id="'):
                 if splittedHtml.find("DOCTYPE html PUBLIC")==-1 and splittedHtml.find(' value=""')==-1:
                     #logger.info("processing hidden: "+splittedHtml)
@@ -322,9 +340,21 @@ class Decoder():
                         playPath = base64.standard_b64decode(extracted)
                     else:
                         rtmpValue = base64.standard_b64decode(extracted)
-                    logger.info("original: "+extracted+", extracted: "+base64.standard_b64decode(extracted))
+                    decodedAndExtracted = base64.standard_b64decode(extracted)
+                    logger.info("original: "+extracted+", extracted: "+decodedAndExtracted)
+                    if decodedAndExtracted.find(".m3u8")>-1:
+                        finalSimpleLink = decodedAndExtracted
                 #i+=1
-            if rtmpValue.find("vod/?token=")>-1:
+            if finalSimpleLink!="":
+                logger.info("Found simple link: "+finalSimpleLink)
+                response = Decoder.getContent(finalSimpleLink,"",iframeReferer).read()
+                if response.find("chunklist.m3u8")>-1:
+                    finalSimpleLink2 = finalSimpleLink[:finalSimpleLink.rfind("/")+1]+"chunklist.m3u8"
+                    response = Decoder.getContent(finalSimpleLink2,"",iframeReferer).read()
+                    response = finalSimpleLink2+"|Referer="+iframeReferer
+                else:
+                    response = finalSimpleLink
+            elif rtmpValue.find("vod/?token=")>-1:
                 app = rtmpValue[rtmpValue.find("vod/?token="):]
                 iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
                 token = Decoder.extractBusinessappToken(iframeReferer,jsFile)

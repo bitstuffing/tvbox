@@ -4,6 +4,7 @@
 		<setting id="remote_updater" type="text" label="30002" value="https://github.com/harddevelop/tvbox/raw/master/version.xml" default="https://github.com/harddevelop/tvbox/raw/master/version.xml" enable="true"/>
 	</category>
 	<category label="30010">
+		<setting id="debug" type="bool" label="30011" default="false"/>
 		<setting id="extended_channels" type="bool" label="30003" default="false"/>
 	</category>
 	<category label="30020">

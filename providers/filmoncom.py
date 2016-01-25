@@ -46,7 +46,7 @@ class Filmoncom():
         request = urllib2.Request(ajaxUrl, "", {"X-Requested-With":"XMLHttpRequest"})
         request.add_header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0")
 
-        logger.info("launching ajax request: "+ajaxUrl)
+        logger.debug("launching ajax request: "+ajaxUrl)
 
         #response = urllib2.urlopen(request)
         response = Decoder.getContent(ajaxUrl,"",referer,"",True)

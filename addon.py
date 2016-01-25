@@ -207,25 +207,32 @@ def play(url,page):
 		pass
 		#print(traceback.format_exc())
 
-def browse_channels(url,page): #BROWSES ALL PROVIDERS
-	add_dir("Filmon.com", 'filmon', 4, "http://static.filmon.com/theme/img/filmon_small_logo.png", 'filmoncom', 0)
+def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
+	#static content
 	add_dir("HDFull.tv", 'hdfulltv', 4, "http://hdfull.tv/templates/hdfull/images/logo.png", 'hdfulltv' , 0)
-	add_dir("Zoptv.com", 'zoptv', 4, "http://www.zoptv.com/images/logo.png", 'zoptv' , 0)
-	add_dir("Cinestrenostv.tv", 'cineestrenos', 4, "http://i.imgur.com/z3CINCU.jpg", 'cineestrenos' , 0)
-	add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree' , 0)
-	add_dir("Sports4u.tv", 'sports4u', 4, "http://live.sports4u.tv/wp-content/uploads/logo3.png", 'sports4u' , 0)
-	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
-	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0) #this page was down, TODO: it will be replaced with the new version of this page: verliga.net
-	add_dir("Vipracing.info", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
-	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
 	enableSplive = xbmcplugin.getSetting(int(sys.argv[1]), "enable_splive")
 	if enableSplive=="true" and splive:
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
-	add_dir("Zonasport.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme' , 0)
-	add_dir("Showsport-tv.com", 'showsporttvcom', 4, "http://showsport-tv.com/images/logoh.png", 'showsporttvcom' , 0)
+	#sports with event
+	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0)
+	add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree' , 0)
+	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
+	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
+	#sports without event (at least not implemented yet)
 	add_dir("Mamahd.com", 'mamahdcom', 4, "http://mamahd.com/images/logo.png", 'mamahdcom' , 0)
-	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
+	add_dir("Showsport-tv.com", 'showsporttvcom', 4, "http://showsport-tv.com/images/logoh.png", 'showsporttvcom' , 0)
+	add_dir("Zonasport.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme' , 0)
+	add_dir("Sports4u.tv", 'sports4u', 4, "http://live.sports4u.tv/wp-content/uploads/logo3.png", 'sports4u' , 0)
+	add_dir("Vipracing.info", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
+	#world tv
+	add_dir("Filmon.com", 'filmon', 4, "http://static.filmon.com/theme/img/filmon_small_logo.png", 'filmoncom', 0)
+	add_dir("Zoptv.com", 'zoptv', 4, "http://www.zoptv.com/images/logo.png", 'zoptv' , 0)
+	add_dir("Cinestrenostv.tv", 'cineestrenos', 4, "http://i.imgur.com/z3CINCU.jpg", 'cineestrenos' , 0)
+	#static streaming lists
 	add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
+	#webcams and others
+	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
+
 
 def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	i = 0
@@ -272,6 +279,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 					title = title+" "+itemFirst["season"]+"x"+chapterString
 				else:
 					if(itemFirst["permalink"].find("http://")>-1):
+						link = itemFirst["permalink"]
+					elif itemFirst["permalink"].find("http")>-1:
 						link = itemFirst["permalink"]
 					else:
 						link = "http://hdfull.tv/"+itemFirst["permalink"] #TODO, review

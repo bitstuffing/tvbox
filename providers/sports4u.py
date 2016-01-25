@@ -24,15 +24,15 @@ class Sports4u(Downloader):
         if start and html.find('<div class="col-md-2 col-sm-12 col-xs-12 live-channels-list">')>-1: #it's a list, needs decode
             table = Decoder.extract('<div class="col-md-2 col-sm-12 col-xs-12 live-channels-list">','</ul>',html)
             x = Sports4u.extractElements(table)
-            logger.info("channel list logic done!")
+            logger.debug("channel list logic done!")
         else:
             iframeUrl = Decoder.extract('<iframe frameborder="0" marginheight="0" marginwidth="0" height="490" ','"></iframe>',html)
             iframeUrl = Decoder.extract('src="','"',iframeUrl)
-            logger.info("iframeUrl is: "+iframeUrl)
+            logger.debug("iframeUrl is: "+iframeUrl)
             html2 = Sports4u.getContentFromUrl(iframeUrl,"",Sports4u.cookie,page)
             #print html2
             file = Cricfreetv.seekIframeScript(html2,page,iframeUrl)
-            logger.info("Finished file logic, obtained file: "+file)
+            logger.debug("Finished file logic, obtained file: "+file)
             element = {}
             element["link"] = file
             element["title"] = "Watch streaming"
@@ -48,7 +48,7 @@ class Sports4u(Downloader):
                 element["link"] = Decoder.extract('<a href="','"',fieldHtml)
                 element["title"] = Decoder.extract('alt="','">',fieldHtml)
                 element["thumbnail"] = Decoder.extract('src="','" ',fieldHtml)
-                logger.info("found title: "+element["title"]+", link: "+element["link"]+", thumbnail: "+element["thumbnail"])
+                logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumbnail: "+element["thumbnail"])
                 if len(element["title"])>0:
                     x.append(element)
 

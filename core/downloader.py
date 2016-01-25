@@ -6,7 +6,7 @@ class Downloader():
     cookie = ""
 
     @staticmethod
-    def getContentFromUrl(url,data="",cookie="",referer="",ajax=False):
+    def getContentFromUrl(url,data="",cookie="",referer="",ajax=False,launchLocation=True):
         host = url[url.find("://")+len("://"):]
         subUrl = ""
         logger.info("url is: "+host)
@@ -68,7 +68,7 @@ class Downloader():
             Downloader.cookie = cfduid
         logger.info("cookie was updated to: "+Downloader.cookie)
         html = r.read()
-        if location != '':
+        if location != '' and launchLocation:
             logger.info("launching redirection to: "+location)
             html = Downloader.getContentFromUrl(location,data,Downloader.cookie,url)
         return html

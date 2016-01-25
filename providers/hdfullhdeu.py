@@ -34,7 +34,7 @@ class Hdfullhdeu(Downloader):
             element["link"] = link
             if link.find(".m3u8")>-1 or link.find(".ts")>-1:
                 element["permaLink"] = True
-            logger.info("append: "+title+", link: "+element["link"])
+            logger.debug("append: "+title+", link: "+element["link"])
             x.append(element)
             i+=1
         return x

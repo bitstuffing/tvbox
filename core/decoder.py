@@ -6,7 +6,10 @@ import re
 import base64
 from core import logger
 from core.downloader import Downloader
-
+try:
+    import json
+except:
+    import simplejson as json
 from core import jsunpack
 
 class Decoder():
@@ -33,6 +36,8 @@ class Decoder():
             link = Decoder.decodeVidXtreme(link)
         elif link.find("http://streame.net")>-1:
             link = Decoder.decodeStreame(link)
+        elif link.find("://openload")>-1:
+            link = Decoder.decodeOpenload(link)
         return link
 
     @staticmethod
@@ -117,11 +122,36 @@ class Decoder():
 
                 if op != '':
                     time.sleep(waitTime)
-                    html = Decoder.getContent(link,form,link,finalCookie,True).read()
+                    html = Decoder.getContent(link,form,link,finalCookie,False).read()
         else:
             html = data
 
         return html
+
+    @staticmethod
+    def decodeOpenload(link):
+        #get cookies
+        mediaId = Decoder.extract("/f/","/",link)
+        embedUrl = 'https://openload.io/embed/'+mediaId
+        html = Downloader.getContentFromUrl(embedUrl,"","","",False,False)
+        logger.info("html is: "+html)
+        logger.debug("using cookie 1: "+Downloader.cookie)
+        logger.debug("Media id for openload is: "+mediaId)
+        extra = "&login=f750b26513f64034&key=oaA-MbZo" #this avoid captcha petition
+        link2 = "https://api.openload.io/1/file/dlticket?file="+mediaId+extra
+        data = Downloader.getContentFromUrl(link2,"",Downloader.cookie,embedUrl,True,False)
+        logger.debug("jsonData: "+data)
+        js_result = json.loads(data)
+        logger.info("sleeping... "+str(js_result['result']['wait_time']))
+        time.sleep(int(js_result['result']['wait_time']))
+        link3 = 'https://api.openload.io/1/file/dl?file=%s&ticket=%s' % (mediaId, js_result['result']['ticket'])
+        logger.debug("using cookie 2: "+Downloader.cookie)
+        result = Downloader.getContentFromUrl(link3,"",Downloader.cookie,embedUrl,True,False)
+        logger.debug("jsonData 2: "+result)
+        js_result2 = json.loads(result)
+        file = js_result2['result']['url'] + '?mime=true'
+        logger.info("Built final link: "+file)
+        return file
 
     @staticmethod
     def decodePrivatestream(html,referer):

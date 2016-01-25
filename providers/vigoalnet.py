@@ -14,7 +14,7 @@ class Vigoal(Downloader):
     @staticmethod
     def getChannels(page):
         start = False
-        #logger.info("Current page is: "+page)
+        #logger.debug("Current page is: "+page)
         if str(page) == '0' or str(page)=='1':
             if str(page)=='0':
                 start = True
@@ -35,7 +35,7 @@ class Vigoal(Downloader):
                     element["title"] = element["title"][0:element["title"].find('"')]
                     element["thumbnail"] = fieldHtml[fieldHtml.find('<img src="')+len('<img src="'):]
                     element["thumbnail"] = element["thumbnail"][0:element["thumbnail"].find('"')]
-                    logger.info("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
+                    logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
                     if element["link"].find("http")==0:
                         x.append(element)
             else: #display program content
@@ -53,7 +53,7 @@ class Vigoal(Downloader):
                         element["title"] = titleLine+" - "+(element["title"].replace("</b>","").replace(" - ",""))
                         element["thumbnail"] = fieldHtml[fieldHtml.find('<img src="')+len('<img src="'):]
                         element["thumbnail"] = Vigoal.MAIN_URL+element["thumbnail"][0:element["thumbnail"].find('"')]
-                        logger.info("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
+                        logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
                         element["link"] = Vigoal.MAIN_URL+element["link"]
                         x.append(element)
                     i+=1
@@ -69,10 +69,10 @@ class Vigoal(Downloader):
             html2 = Vigoal.getContentFromUrl(scriptUrl)
             lastUrl = Decoder.extractWithRegex('http://','" ',html2)
             lastUrl = lastUrl.replace('"',"")
-            logger.info("last url: "+lastUrl+", cookie="+Vigoal.cookie)
+            logger.debug("last url: "+lastUrl+", cookie="+Vigoal.cookie)
             html3 = Vigoal.getContentFromUrl(lastUrl,"",Vigoal.cookie,lastUrl)
             playerUrl = Decoder.decodeBussinessApp(html3,lastUrl)
-            logger.info("player url is: "+playerUrl)
+            logger.debug("player url is: "+playerUrl)
             element["title"] = "Watch streaming"
             element["permalink"] = True
             element["link"] = playerUrl

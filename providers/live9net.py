@@ -21,7 +21,7 @@ class Live9net(Downloader):
         if html.find('ESPN</')>-1: #it's a list, needs decode
             table = Decoder.extract('ESPN</','<div>',html)
             x = Live9net.extractElements(table)
-            logger.info("live9 channels logic done!")
+            logger.debug("live9 channels logic done!")
         else:
             iframeUrl = Decoder.extract('src="','"></iframe>',html)
             html2 = Live9net.getContentFromUrl(iframeUrl,"",Live9net.cookie,page)
@@ -36,7 +36,7 @@ class Live9net(Downloader):
                 element["link"] = finalRtmpUrl
                 element["title"] = "Watch channel"
                 element["permalink"] = True
-                logger.info("finished append element!")
+                logger.debug("finished append element!")
                 x.append(element)
         return x
 
@@ -51,7 +51,7 @@ class Live9net(Downloader):
                 title = title[0:title.find('<a href="')]
                 title = title.replace('<font color="#ffea01"><b>'," - ").replace('</b></font>'," -")
                 element["title"] = title
-                logger.info("found title: "+element["title"]+", link: "+element["link"])
+                logger.debug("found title: "+element["title"]+", link: "+element["link"])
                 if len(element["title"])>0:
                     x.append(element)
 

@@ -7,6 +7,7 @@ import httplib
 import urllib
 import re
 import time
+from core import logger
 from core.decoder import Decoder
 
 
@@ -35,16 +36,16 @@ class HdfullTv():
 
             HdfullTv.magicKey = Decoder.extract("__csrf_magic' value=\"",'"',response.read())
             postForm["__csrf_magic"] = HdfullTv.magicKey
-            print "updated magic with: "+HdfullTv.magicKey
+            logger.debug("updated magic with: "+HdfullTv.magicKey)
             oldCookie = cookie
             cookie = HdfullTv.getNewCookie(response)
             if cookie.find("__cfduid")==-1:
-                print "not found cfduid, using last value: "+oldCookie
+                logger.debug("not found cfduid, using last value: "+oldCookie)
                 newCookie = oldCookie[oldCookie.find("__cfduid"):]
                 if newCookie.find(";")>-1:
                     newCookie = newCookie[0:newCookie.find(";")]
                 cookie = cookie+"; "+newCookie
-            print "updated cookie with: "+cookie
+            logger.debug("updated cookie with: "+cookie)
             #and retry
             html = HdfullTv.getJSONAJAXResponse("http://hdfull.tv/buscar",postForm,cookie,"http://hdfull.tv").read()
 
@@ -105,11 +106,11 @@ class HdfullTv():
             linkJSON = {}
             link = content[content.find('<a href="')+len('<a href="'):]
             link = link[:link.find('"')]
-            print "found a provider link: "+link
+            logger.debug("found a provider link: "+link)
 
             if link.find("http://olo.gg")==0 : ##TODO, change to rfind('http') or Decoder.rExtract() logic to be generic
                 link = link[link.find('=')+1:]
-                print "detected olo.gg link, cleaned to: "+link
+                logger.debug("detected olo.gg link, cleaned to: "+link)
 
             linkJSON["permalink"] = link
             linkJSON["title"] = providerName + " - " + quality + " - "+language
@@ -117,7 +118,7 @@ class HdfullTv():
 
             links.append(linkJSON)
             i+=1
-        print "links procesed: "+str(i)
+        logger.debug("links procesed: "+str(i))
         return links
 
     @staticmethod
@@ -152,7 +153,7 @@ class HdfullTv():
         if cookie=="":
             cookie = HdfullTv.getNewCookie()
 
-        print "page: "+page
+        logger.debug("page: "+page)
         if(page=="0"):
             itemFirst = {}
             itemFirst["title"] = 'Últimos Emitidos'
@@ -229,12 +230,12 @@ class HdfullTv():
             item["permalink"] = Decoder.extractWithRegex(url+"/temporada-","'",aHtml)
             item["permalink"] = item["permalink"][0:item["permalink"].find("'")]
             item["title"] = Decoder.extract('>','</a>',aHtml)
-            print "found title: "+item["title"]+", link: "+item["permalink"]
+            logger.debug("found title: "+item["title"]+", link: "+item["permalink"])
             if item["title"].find('<img class="tooltip" original-title="Temporada ')>-1:
                 title = item["title"]
                 item["title"] = Decoder.extract('original-title="','"',title)
                 item["thumbnail"] = Decoder.extract('" src="','" />',title)
-                print "procesed title: "+item["title"]+", thumbnail: "+item["permalink"]
+                logger.debug("procesed title: "+item["title"]+", thumbnail: "+item["permalink"])
                 items.append(item)
 
         return items
@@ -260,11 +261,11 @@ class HdfullTv():
         #request.add_header("Content-Length", len(form))
         host = url[url.find("://")+len("://"):]
         subUrl = ""
-        print "url is: "+host
+        logger.debug("url is: "+host)
         if host.find("/")>-1:
             host = host[0:host.find("/")]
             subUrl = url[url.find(host)+len(host):]
-        print "host: "+host+":80 , subUrl: "+subUrl
+        logger.debug("host: "+host+":80 , subUrl: "+subUrl)
         h = httplib.HTTPConnection(host+":80")
         h.request('POST', subUrl, data, headers)
         r = h.getresponse()
@@ -303,10 +304,10 @@ class HdfullTv():
                 title = title[0:title.find('"')]
             item["title"] = title
 
-            print "title: "+title+", url: "+href
+            logger.debug("title: "+title+", url: "+href)
             x.append(item)
             i+=1
-        print i
+        logger.debug("total: "+str(i))
         #print "REST: "+currentHtml
         return x
 

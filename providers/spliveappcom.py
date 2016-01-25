@@ -79,7 +79,7 @@ class Spliveappcom(Downloader):
                     element["referer"] = referer
             if permaLink:
                 element["permaLink"] = True
-            logger.info("append: "+title+", link: "+element["link"])
+            logger.debug("append: "+title+", link: "+element["link"])
             if title!='' and link!='':
                 x.append(element)
             i+=1
@@ -95,7 +95,7 @@ class Spliveappcom(Downloader):
             referer = Spliveappcom.decrypt(referer)
             if referer!='0':
                 decryptedUrl+=", referer: "+referer
-        logger.info("brute link to be launched: "+decryptedUrl)
+        logger.debug("brute link to be launched: "+decryptedUrl)
         element["link"] = decryptedUrl
         x = []
         x.append(element)
@@ -106,9 +106,9 @@ class Spliveappcom(Downloader):
     def decrypt(encrypted):
         decrypted = encrypted
         try:
-            logger.info("Encrypted content is: "+encrypted)
+            logger.debug("Encrypted content is: "+encrypted)
             decrypted = PBEWithMD5AndDES.decrypt(encrypted, Spliveappcom.PASSWORD)
-            logger.info("Decrypted content is: "+decrypted)
+            logger.debug("Decrypted content is: "+decrypted)
         except:
             logger.error("Could not be unencrypted: "+encrypted)
             pass

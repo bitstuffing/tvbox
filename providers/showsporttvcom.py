@@ -34,7 +34,7 @@ class ShowsportTvCom(Downloader):
                         element["title"] = title
                         element["link"] = ShowsportTvCom.MAIN_URL+link
                         element["thumbnail"] = ShowsportTvCom.MAIN_URL+img
-                        logger.info("found element: "+title+", url: "+element["link"])
+                        logger.debug("found element: "+title+", url: "+element["link"])
                         if title != '':
                             x.append(element)
         elif str(page) == '1': #event
@@ -56,7 +56,7 @@ class ShowsportTvCom(Downloader):
         else:
             html = ShowsportTvCom.getContentFromUrl(page)
             iframeUrl = ShowsportTvCom.MAIN_URL+Decoder.extract('<iframe frameborder="0" marginheight="0" marginwidth="0" height="450" src="/','"',html)
-            logger.info("iframeUrl is: "+iframeUrl)
+            logger.debug("iframeUrl is: "+iframeUrl)
             html2 = ShowsportTvCom.getContentFromUrl(iframeUrl,"",ShowsportTvCom.cookie,page)
             if html2.find("http://www.caston.tv/player.php?")>-1:
                 id = Decoder.extract("var id = "," ;",html2)
@@ -65,12 +65,12 @@ class ShowsportTvCom(Downloader):
                 script = Decoder.extract('<script type="text/javascript">\n','</script>',html3)
                 finalScriptContent = Decoder.preWise(script)
                 token = Decoder.extract("token:\"","\"",finalScriptContent)
-                logger.info("pre-token is: "+token)
+                logger.debug("pre-token is: "+token)
                 ajaxContent = dict(token=token, is_ajax=1)
                 tokenResponse = ShowsportTvCom.getContentFromUrl("http://www.caston.tv/s.php",urllib.urlencode(ajaxContent),ShowsportTvCom.cookie,url2,True)
-                logger.info("token response: "+tokenResponse)
+                logger.debug("token response: "+tokenResponse)
                 file = Decoder.extract("file:\"","\"",finalScriptContent)+Decoder.extract('["','",',tokenResponse)
-            logger.info("final remote url: "+file)
+            logger.debug("final remote url: "+file)
             element = {}
             element["link"] = file
             element["permaLink"] = True
@@ -87,7 +87,7 @@ class ShowsportTvCom(Downloader):
                 element["link"] = Decoder.extract('<a href="','"',fieldHtml)
                 element["title"] = Decoder.extract('alt="','">',fieldHtml)
                 element["thumbnail"] = Decoder.extract('src="','" ',fieldHtml)
-                logger.info("found title: "+element["title"]+", link: "+element["link"]+", thumbnail: "+element["thumbnail"])
+                logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumbnail: "+element["thumbnail"])
                 if len(element["title"])>0:
                     x.append(element)
         return x

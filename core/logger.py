@@ -1,10 +1,8 @@
 import xbmc
+import xbmcplugin
+import sys
 
-enabled = True #TODO: change to settings.xml stored value
-
-def log_enable(active):
-    global enabled
-    enabled = active
+enabled = bool(xbmcplugin.getSetting(int(sys.argv[1]), "debug")=="true")
 
 def info(text):
     if enabled:

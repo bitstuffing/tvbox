@@ -523,91 +523,96 @@ def init():
 	except:
 		pass
 
-	print "Mode: "+str(mode)
-	print "URL: "+str(url)
-	print "page: "+str(page)
-	print "provider: "+str(provider)
+	logger.debug("Mode: "+str(mode))
+	logger.debug("URL: "+str(url))
+	logger.debug("page: "+str(page))
+	logger.debug("provider: "+str(provider))
 
-	if mode==None: #init
-		get_main_dirs()
+	try:
 
-	elif mode==1: #get channels
-		get_dirs(url, '', page)
+		if mode==None: #init
+			get_main_dirs()
 
-	elif mode == 2: #open video in player
-		open(url,page)
-	elif mode == 3:
-		browse_channels(url,page)
-	elif mode == 4:
-		browse_channel(url,page,provider)
-	elif mode == 5:
-		open_channel(url,page)
-	elif mode == 0: #update
-		updater.update()
-		get_main_dirs()
-	elif mode == 100: #decode provider link
-		logger.info("decoding: "+url)
-		link = Decoder.decodeLink(url)
-		logger.info("decoded: "+link)
-		open(link,page)
-	elif mode == 101:
-		jsonChannels = Vigoal.getChannels(page)
-		url = jsonChannels[0]["link"]
-		logger.info("found link: "+url+", launching...")
-		open(url,page) #same that 2, but reserved for rtmp
-	elif mode == 102:
-		jsonChannels = Cineestrenostv.getChannels(page)
-		url = jsonChannels[0]["link"]
-		logger.info("found link: "+url+", launching...")
-		open(url,page)
-	elif mode == 103:
-		channel = Cricfreetv.getChannels(page)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
-	elif mode == 104:
-		channel = Zoptvcom.getChannels(page)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
-	elif mode == 105:
-		channel = Live9net.getChannels(page)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
-	elif mode == 106:
-		channel = Sports4u.getChannels(page)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
-	elif mode == 107:
-		channel = Vipracinginfo.getChannels(page)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
-	elif mode == 108:
-		channel = Skylinewebcamscom.getChannels(page)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
-	elif mode == 109:
-		channel = Zonasportsme.getChannels(url)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
-	elif mode == 110:
-		channel = Sportstream365com.getChannels(url)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
-	elif mode == 111:
-		if url.find(".m3u8")==-1 and url.find("rtmp://")==-1:
-			channel = Spliveappcom.decodeUrl(url,provider)
-			link = channel[0]["link"]
-		else:
-			link = url
-		logger.info("found link: "+link+", launching...")
-		open(link,page)
-	elif mode == 112:
-		channel = Mamahdcom.getChannels(url)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
-	elif mode == 113:
-		channel = ShowsportTvCom.getChannels(url)
-		logger.info("found link: "+channel[0]["link"]+", launching...")
-		open(channel[0]["link"],page)
+		elif mode==1: #get channels
+			get_dirs(url, '', page)
+
+		elif mode == 2: #open video in player
+			open(url,page)
+		elif mode == 3:
+			browse_channels(url,page)
+		elif mode == 4:
+			browse_channel(url,page,provider)
+		elif mode == 5:
+			open_channel(url,page)
+		elif mode == 0: #update
+			updater.update()
+			get_main_dirs()
+		elif mode == 100: #decode provider link
+			logger.info("decoding: "+url)
+			link = Decoder.decodeLink(url)
+			logger.info("decoded: "+link)
+			open(link,page)
+		elif mode == 101:
+			jsonChannels = Vigoal.getChannels(page)
+			url = jsonChannels[0]["link"]
+			logger.info("found link: "+url+", launching...")
+			open(url,page) #same that 2, but reserved for rtmp
+		elif mode == 102:
+			jsonChannels = Cineestrenostv.getChannels(page)
+			url = jsonChannels[0]["link"]
+			logger.info("found link: "+url+", launching...")
+			open(url,page)
+		elif mode == 103:
+			channel = Cricfreetv.getChannels(page)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 104:
+			channel = Zoptvcom.getChannels(page)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 105:
+			channel = Live9net.getChannels(page)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 106:
+			channel = Sports4u.getChannels(page)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 107:
+			channel = Vipracinginfo.getChannels(page)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 108:
+			channel = Skylinewebcamscom.getChannels(page)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 109:
+			channel = Zonasportsme.getChannels(url)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 110:
+			channel = Sportstream365com.getChannels(url)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 111:
+			if url.find(".m3u8")==-1 and url.find("rtmp://")==-1:
+				channel = Spliveappcom.decodeUrl(url,provider)
+				link = channel[0]["link"]
+			else:
+				link = url
+			logger.info("found link: "+link+", launching...")
+			open(link,page)
+		elif mode == 112:
+			channel = Mamahdcom.getChannels(url)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 113:
+			channel = ShowsportTvCom.getChannels(url)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+	except:
+		xbmcgui.Dialog().ok("Error","Probably link is down!")
+		pass
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 init()

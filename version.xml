@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>39</version>
+	<version>40</version>
 	<date>25/01/2016</date>
-	<changes>Development update (a function is not finished yet). Improves related to sports4u provider code.</changes>
+	<changes>Development update (a function is not finished yet). Log settings are now implemented.</changes>
 </plugin>

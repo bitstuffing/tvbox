@@ -135,6 +135,9 @@ class Cricfreetv(Downloader):
         elif html.find('<a href="http://sports4u.tv/channel')>-1 or html.find('http://sports4u.tv/embed/')>-1:
             if html.find('http://sports4u.tv/embed/')>-1:
                 urlLink = Decoder.extractWithRegex('http://sports4u.tv/embed/','"',html).replace('"',"")
+                logger.debug("seek new iframe url with: "+urlLink)
+                html2 = Cricfreetv.getContentFromUrl(urlLink,"",Cricfreetv.cookie,iframeUrl)
+                file = Cricfreetv.seekIframeScript(html2,iframeUrl,urlLink)
             elif html.find('<a href="http://sports4u.tv/channel')>-1:
                 logger.debug("urlLink...")
                 urlLink = Decoder.extractWithRegex('<a href="http://sports4u.tv/channel','/"',html)

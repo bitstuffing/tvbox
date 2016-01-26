@@ -29,7 +29,7 @@ try:
 	from providers.spliveappcom import Spliveappcom
 except:
 	splive = False
-	logger.error("Pycript problem detected, it needs other platform like raspbian or native linux to be launched")
+	logger.error("Pycript problem detected, it's needed other platform like raspbian or native linux to be loaded")
 	pass
 from core.downloader import Downloader
 from core.decoder import Decoder
@@ -234,262 +234,304 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
 
 
-def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
-	i = 0
-	if provider == "filmoncom":
-		jsonChannels = Filmoncom.getChannelsJSON()
-		for itemFirst in jsonChannels:
-			#print itemFirst
-			if page == "0":
-				i+=1
-				add_dir(itemFirst["title"],"http://www.filmon.com/tv/"+itemFirst["alias"],4,icon,"filmoncom",itemFirst["title"])
-			elif (page == itemFirst["title"]) and itemFirst.has_key("channels") :
-				for item in itemFirst["channels"]:
-					i+=1
-					add_dir(item["title"],"http://www.filmon.com/tv/"+item["alias"],5,item["logo"],"filmoncom",item["title"])
-			else:
-				logger.info("no channel: "+page)
-	elif provider== "hdfulltv":
-		#print "hdfulltv found"
-		#print page
-		mode = 4 #continue browsing
-		jsonChannels = HdfullTv.getChannels(page)
-		#print jsonChannels
-		for itemFirst in jsonChannels:
-			#print itemFirst
-			if itemFirst.has_key("permalink"):
-				i+=1
-				#print itemFirst
-				if itemFirst.has_key("show"): #serie
-					link = "http://hdfull.tv/serie/"+itemFirst["permalink"]+"/temporada-"+itemFirst["season"]+"/episodio-"+itemFirst["episode"] #TODO, recheck
-					title = itemFirst["show"]["title"]
-					if type(title) == type(dict()):
-						if title.has_key("es"):
-							title = title["es"]
-						else:
-							title = ""
-						if len(title)==0 and itemFirst["title"].has_key("en"):
-							title = itemFirst["title"]["en"]
-					#put the season and the chapter
-					chapter = int(itemFirst["episode"])
-					if chapter<10:
-						chapterString = "0"+str(chapter)
-					else:
-						chapterString = str(chapter)
-					title = title+" "+itemFirst["season"]+"x"+chapterString
-				else:
-					if(itemFirst["permalink"].find("http://")>-1):
-						link = itemFirst["permalink"]
-					elif itemFirst["permalink"].find("http")>-1:
-						link = itemFirst["permalink"]
-					else:
-						link = "http://hdfull.tv/"+itemFirst["permalink"] #TODO, review
-					title = itemFirst["title"]
-					if type(title) == type(dict()):
-						if title.has_key("es"):
-							title = title["es"]
-						else:
-							title = ""
-						if len(title)==0 and itemFirst["title"].has_key("en"):
-							title = itemFirst["title"]["en"]
-				if itemFirst.has_key("thumbnail"):
-					image = itemFirst["thumbnail"]
-					if image.find("http://")<0:
-						image = "http://hdfull.tv/tthumb/130x190/"+image
-				else:
-					image = icon
-			if itemFirst.has_key("finalLink"):
-				mode = 100 #open link from provider
-				#print image
+def drawFilmon(page):
+	jsonChannels = Filmoncom.getChannelsJSON()
+	for itemFirst in jsonChannels:
+		if page == "0":
+			add_dir(itemFirst["title"],"http://www.filmon.com/tv/"+itemFirst["alias"],4,icon,"filmoncom",itemFirst["title"])
+		elif (page == itemFirst["title"]) and itemFirst.has_key("channels") :
+			for item in itemFirst["channels"]:
+				add_dir(item["title"],"http://www.filmon.com/tv/"+item["alias"],5,item["logo"],"filmoncom",item["title"])
+		else:
+			logger.info("no channel: "+page)
 
-			add_dir(title,link,mode,image,"hdfulltv",link)
-	elif provider == "vigoal":
-		jsonChannels = Vigoal.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			if title=='Display by event':
-				title = addon.getLocalizedString(10006)
-			link = item["link"]
-			if link != '1':
-				mode = 101 #next step returns a final link
+def drawHdfulltv(page):
+	#print "hdfulltv found"
+	#print page
+	mode = 4 #continue browsing
+	jsonChannels = HdfullTv.getChannels(page)
+	#print jsonChannels
+	for itemFirst in jsonChannels:
+		#print itemFirst
+		if itemFirst.has_key("permalink"):
+			#print itemFirst
+			if itemFirst.has_key("show"): #serie
+				link = "http://hdfull.tv/serie/"+itemFirst["permalink"]+"/temporada-"+itemFirst["season"]+"/episodio-"+itemFirst["episode"]
+				title = itemFirst["show"]["title"]
+				if type(title) == type(dict()):
+					if title.has_key("es"):
+						title = title["es"]
+					else:
+						title = ""
+					if len(title)==0 and itemFirst["title"].has_key("en"):
+						title = itemFirst["title"]["en"]
+				#put the season and the chapter
+				chapter = int(itemFirst["episode"])
+				if chapter<10:
+					chapterString = "0"+str(chapter)
+				else:
+					chapterString = str(chapter)
+				title = title+" "+itemFirst["season"]+"x"+chapterString
 			else:
-				mode = 4 #continue browsing
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
+				if(itemFirst["permalink"].find("http://")>-1):
+					link = itemFirst["permalink"]
+				elif itemFirst["permalink"].find("http")>-1:
+					link = itemFirst["permalink"]
+				else:
+					link = "http://hdfull.tv/"+itemFirst["permalink"] #TODO, review
+				title = itemFirst["title"]
+				if type(title) == type(dict()):
+					if title.has_key("es"):
+						title = title["es"]
+					else:
+						title = ""
+					if len(title)==0 and itemFirst["title"].has_key("en"):
+						title = itemFirst["title"]["en"]
+			if itemFirst.has_key("thumbnail"):
+				image = itemFirst["thumbnail"]
+				if image.find("http://")<0:
+					image = "http://hdfull.tv/tthumb/130x190/"+image
 			else:
 				image = icon
-			add_dir(title,link,mode,image,"vigoal",link)
-	elif provider == "cineestrenos":
-		jsonChannels = Cineestrenostv.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			#if item.has_key("permalink"):
-			mode = 102 #next step returns a final link
-			#else:
-			#	mode = 4 #continue browsing
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
-			else:
-				image = icon
-			add_dir(title,link,mode,image,"cineestrenos",link)
-	elif provider == "cricfree":
-		jsonChannels = Cricfreetv.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			if title=='Display by event':
-				title = addon.getLocalizedString(10006)
-			link = item["link"]
-			if link=='1':
-				mode = 4
-			else:
-				mode = 103 #next step returns a final link
-			#else:
-			#	mode = 4 #continue browsing
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
-			else:
-				image = icon
-			add_dir(title,link,mode,image,"cricfree",link)
-	elif provider == 'zoptv':
-		jsonChannels = Zoptvcom.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			if title=='Browse by Country':
-				title = addon.getLocalizedString(10007)
-			elif title=='Browse by Genre':
-				title = addon.getLocalizedString(10008)
-			link = item["link"]
+		if itemFirst.has_key("finalLink"):
+			mode = 100 #open link from provider
+			#print image
+
+		add_dir(title,link,mode,image,"hdfulltv",link)
+
+def drawVipgoal(page):
+	jsonChannels = Vigoal.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		if title=='Display by event':
+			title = addon.getLocalizedString(10006)
+		link = item["link"]
+		if link != '1':
+			mode = 101 #next step returns a final link
+		else:
+			mode = 4 #continue browsing
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"vigoal",link)
+
+def drawCinestrenostv(page):
+	jsonChannels = Cineestrenostv.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		#if item.has_key("permalink"):
+		mode = 102 #next step returns a final link
+		#else:
+		#	mode = 4 #continue browsing
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"cineestrenos",link)
+
+def drawCricfree(page):
+	jsonChannels = Cricfreetv.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		if title=='Display by event':
+			title = addon.getLocalizedString(10006)
+		link = item["link"]
+		if link=='1':
 			mode = 4
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
-				mode = 104
-			else:
-				image = icon
-			add_dir(title,link,mode,image,"zoptv",link)
-	elif provider == 'live9':
-		jsonChannels = Live9net.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			#if item.has_key("permalink"):
-			mode = 105 #next step returns a final link
-			#else:
-			#	mode = 4 #continue browsing
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
-			else:
-				image = icon
-			add_dir(title,link,mode,image,"live9",link)
-	elif provider == 'sports4u':
-		jsonChannels = Sports4u.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			#if item.has_key("permalink"):
-			mode = 106 #next step returns a final link
-			#else:
-			#	mode = 4 #continue browsing
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
-			else:
-				image = icon
-			add_dir(title,link,mode,image,"sports4u",link)
-	elif provider == 'vipracinginfo':
-		jsonChannels = Vipracinginfo.getChannels(page)
-		mode = 107
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			add_dir(title,link,mode,icon,"vipracinginfo",link)
-	elif provider == 'hdfullhdeu':
-		jsonChannels = Hdfullhdeu.getChannels(page)
-		mode = 4
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			if item.has_key("permaLink"):
-				mode = 2
-			add_dir(title,link,mode,icon,"hdfullhdeu",link)
+		else:
+			mode = 103 #next step returns a final link
+		#else:
+		#	mode = 4 #continue browsing
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"cricfree",link)
 
+def drawZoptv(page):
+	jsonChannels = Zoptvcom.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		if title=='Browse by Country':
+			title = addon.getLocalizedString(10007)
+		elif title=='Browse by Genre':
+			title = addon.getLocalizedString(10008)
+		link = item["link"]
+		mode = 4
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			mode = 104
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"zoptv",link)
+
+def drawLive9(page):
+	jsonChannels = Live9net.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		#if item.has_key("permalink"):
+		mode = 105 #next step returns a final link
+		#else:
+		#	mode = 4 #continue browsing
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"live9",link)
+
+def drawSports4u(page):
+	jsonChannels = Sports4u.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		#if item.has_key("permalink"):
+		mode = 106 #next step returns a final link
+		#else:
+		#	mode = 4 #continue browsing
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"sports4u",link)
+
+def drawVipracinginfo(page):
+	jsonChannels = Vipracinginfo.getChannels(page)
+	mode = 107
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		add_dir(title,link,mode,icon,"vipracinginfo",link)
+
+def drawHdfullhdeu(page):
+	jsonChannels = Hdfullhdeu.getChannels(page)
+	mode = 4
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		if item.has_key("permaLink"):
+			mode = 2
+		add_dir(title,link,mode,icon,"hdfullhdeu",link)
+
+def drawSkylinewebcams(page):
+	jsonChannels = Skylinewebcamscom.getChannels(page)
+	mode = 4
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: "+image)
+		else:
+			image = icon
+		if item.has_key("permaLink"):
+			mode = 108
+		add_dir(title,link,mode,image,"skylinewebcams",link)
+
+def drawZonasportsme(page):
+	mode = 109
+	jsonChannels = Zonasportsme.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		image = icon
+		add_dir(title,link,mode,image,"zonasportsme",link)
+
+def drawSportstream365(page):
+	mode = 110
+	jsonChannels = Sportstream365com.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		image = icon
+		add_dir(title,link,mode,image,"sportstream365com",link)
+
+def drawSplive(page):
+	mode = 4
+	jsonChannels = Spliveappcom.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		referer = "splive"
+		if item.has_key("permaLink"):
+			mode = 111
+			if item.has_key("referer"):
+				referer = item["referer"]
+				logger.info("referer is: "+referer)
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: "+image)
+		else:
+			image = icon
+		add_dir(title,link,mode,image,referer,link)
+
+def drawMamahdcom(page):
+	mode = 4
+	jsonChannels = Mamahdcom.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		if item.has_key("permaLink"):
+			mode = 112
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: "+image)
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"mamahdcom",link)
+
+def drawShowsporttvcom(page):
+	mode = 4
+	jsonChannels = ShowsportTvCom.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		if title=='Display by event':
+			title = addon.getLocalizedString(10006)
+		link = item["link"]
+		if link!='1':
+			mode = 113
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: "+image)
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"showsporttvcom",link)
+
+def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
+	if provider == "filmoncom":
+		drawFilmon(page)
+	elif provider== "hdfulltv":
+		drawHdfulltv(page)
+	elif provider == "vigoal":
+		drawVipgoal(page)
+	elif provider == "cineestrenos":
+		drawCinestrenostv(page)
+	elif provider == "cricfree":
+		drawCricfree(page)
+	elif provider == 'zoptv':
+		drawZoptv(page)
+	elif provider == 'live9':
+		drawLive9(page)
+	elif provider == 'sports4u':
+		drawSports4u(page)
+	elif provider == 'vipracinginfo':
+		drawVipracinginfo(page)
+	elif provider == 'hdfullhdeu':
+		drawHdfullhdeu(page)
 	elif provider == 'skylinewebcams':
-		jsonChannels = Skylinewebcamscom.getChannels(page)
-		mode = 4
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
-				logger.info("detected img: "+image)
-			else:
-				image = icon
-			if item.has_key("permaLink"):
-				mode = 108
-			add_dir(title,link,mode,image,"skylinewebcams",link)
+		drawSkylinewebcams(page)
 	elif provider == 'zonasportsme':
-		mode = 109
-		jsonChannels = Zonasportsme.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			image = icon
-			add_dir(title,link,mode,image,"zonasportsme",link)
+		drawZonasportsme(page)
 	elif provider == 'sportstream365com':
-		mode = 110
-		jsonChannels = Sportstream365com.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			image = icon
-			add_dir(title,link,mode,image,"sportstream365com",link)
+		drawSportstream365(page)
 	elif provider == 'splive':
-		mode = 4
-		jsonChannels = Spliveappcom.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			referer = "splive"
-			if item.has_key("permaLink"):
-				mode = 111
-				if item.has_key("referer"):
-					referer = item["referer"]
-					logger.info("referer is: "+referer)
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
-				logger.info("detected img: "+image)
-			else:
-				image = icon
-			add_dir(title,link,mode,image,referer,link)
+		drawSplive(page)
 	elif provider == 'mamahdcom':
-		mode = 4
-		jsonChannels = Mamahdcom.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			link = item["link"]
-			if item.has_key("permaLink"):
-				mode = 112
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
-				logger.info("detected img: "+image)
-			else:
-				image = icon
-			add_dir(title,link,mode,image,"mamahdcom",link)
+		drawMamahdcom(page)
 	elif provider == 'showsporttvcom':
-		mode = 4
-		jsonChannels = ShowsportTvCom.getChannels(page)
-		for item in jsonChannels:
-			title = item["title"]
-			if title=='Display by event':
-				title = addon.getLocalizedString(10006)
-			link = item["link"]
-			if link!='1':
-				mode = 113
-			if item.has_key("thumbnail"):
-				image = item["thumbnail"]
-				logger.info("detected img: "+image)
-			else:
-				image = icon
-			add_dir(title,link,mode,image,"showsporttvcom",link)
+		drawShowsporttvcom(page)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):
@@ -611,7 +653,8 @@ def init():
 			logger.info("found link: "+channel[0]["link"]+", launching...")
 			open(channel[0]["link"],page)
 	except:
-		xbmcgui.Dialog().ok("Error","Probably link is down!")
+		logger.error(addon.getLocalizedString(10009))
+		xbmcgui.Dialog().ok("Error",addon.getLocalizedString(10009))
 		pass
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 

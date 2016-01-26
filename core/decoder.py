@@ -38,6 +38,8 @@ class Decoder():
             link = Decoder.decodeStreame(link)
         elif link.find("://openload")>-1:
             link = Decoder.decodeOpenload(link)
+        elif link.find("://idowatch.net/")>-1:
+            link = Decoder.decodeIdowatch(link)
         return link
 
     @staticmethod
@@ -127,6 +129,14 @@ class Decoder():
             html = data
 
         return html
+
+    @staticmethod
+    def decodeIdowatch(link):
+        logger.debug("decoding idowatch link: "+link)
+        html = Decoder.getContent(link,'').read()
+        file = Decoder.extract('file:"','",',html)
+        logger.debug("found file: "+file)
+        return file
 
     @staticmethod
     def decodeOpenload(link):
@@ -342,8 +352,10 @@ class Decoder():
                 if response.find("chunklist.m3u8")>-1:
                     finalSimpleLink2 = decodedssx4[:decodedssx4.rfind("/")+1]+"chunklist.m3u8"
                     response = Decoder.getContent(finalSimpleLink2,"",iframeReferer).read()
+                    logger.debug("response for m3u8(1): "+response)
                     response = finalSimpleLink2+"|Referer="+iframeReferer
                 else:
+                    logger.debug("response for m3u8(2): "+response)
                     response = decodedssx4
             elif token!= "" and decodedssx4.find("vod/?token=")>-1:
                 app = decodedssx4[decodedssx4.find("vod/?token="):]
@@ -381,8 +393,10 @@ class Decoder():
                 if response.find("chunklist.m3u8")>-1:
                     finalSimpleLink2 = finalSimpleLink[:finalSimpleLink.rfind("/")+1]+"chunklist.m3u8"
                     response = Decoder.getContent(finalSimpleLink2,"",iframeReferer).read()
+                    logger.debug("response for m3u8(a): "+response)
                     response = finalSimpleLink2+"|Referer="+iframeReferer
                 else:
+                    logger.debug("response for m3u8(b): "+response)
                     response = finalSimpleLink
             elif rtmpValue.find("vod/?token=")>-1:
                 app = rtmpValue[rtmpValue.find("vod/?token="):]

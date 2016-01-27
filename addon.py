@@ -184,6 +184,8 @@ def open(url,page):
 		except:
 			logger.info("decoder url launched an exception, probably could not be decoded")
 			pass
+	if url.find("sop://")>-1 or url.find("acestream://")>-1: #required plexus or something similar installed, this dependency is external from this addon so needs to be installed
+		url = "plugin://program.plexus/?url="+url
 	play(url,page)
 
 def play(url,page):

@@ -88,7 +88,10 @@ class Spliveappcom(Downloader):
     @staticmethod
     def decodeUrl(url,referer=''):
         #content = Spliveappcom.getContentFromUrl(url)
-        decryptedUrl = Spliveappcom.decrypt(url)
+        if url.find("http")==-1 and (url.find("sop://")==-1 and url.find("acestream://")==-1):
+            decryptedUrl = Spliveappcom.decrypt(url)
+        else:
+            decryptedUrl = url
         element = {}
         element["title"] = "Link"
         if referer!='':

@@ -40,6 +40,17 @@ class Decoder():
             link = Decoder.decodeOpenload(link)
         elif link.find("://idowatch.net/")>-1:
             link = Decoder.decodeIdowatch(link)
+        elif link.find("://vid.ag/")>-1:
+            link = Decoder.decodeVidag(link)
+        elif link.find("://letwatch.us/")>-1:
+            link = Decoder.decodeLetwatch(link)
+        elif link.find("://bestreams.net")>-1:
+            link = Decoder.decodeBestreams(link)
+        elif link.find("http://www.vidgg.to/")>-1 or link.find("http://www.vid.gg/")>-1:
+            link = Decoder.decodeVidggTo(link)
+        elif link.find("http")==0 and link.find("video.streamable.ch/")==-1 and link.find("streamable.ch")>-1:
+            link = Decoder.decodeStreamable(link)
+
         return link
 
     @staticmethod
@@ -129,6 +140,72 @@ class Decoder():
             html = data
 
         return html
+
+    @staticmethod
+    def decodeStreamable(link):
+        html = Downloader.getContentFromUrl(link)
+        flashContent = Decoder.extract('<object','</object',html)
+        movie = ""
+        flashVars = ""
+        for content in flashContent.split('<param'):
+            value = Decoder.extract('value="','"',content)
+            name = Decoder.extract('name="','"',content)
+            if name=="movie" or name=="player":
+                movie = value
+            elif name=="FlashVars":
+                flashVars = value
+        swfUrl = "http://www.streamable.ch"+movie
+        flashVars = flashVars[flashVars.find("="):]
+        decodedFlashvars = base64.standard_b64decode(flashVars)
+        logger.info("decoded url is: "+decodedFlashvars)
+        response = Downloader.getContentFromUrl(decodedFlashvars)
+        token = Decoder.extract("\"token1\":\"","\"",response)
+        finalLink = base64.standard_b64decode(token)
+        logger.debug("final link is: "+finalLink)
+        return finalLink
+
+    @staticmethod
+    def decodeVidggTo(link):
+        referer = "http://www.vidgg.to/player/cloudplayer.swf"
+        html = Downloader.getContentFromUrl(link)
+        file = Decoder.extract("flashvars.file=\"",'";',html)
+        key = Decoder.extract("flashvars.filekey=\"",'";',html)
+        url2 = "http://www.vidgg.to/api/player.api.php?pass=undefined&key="+key+"&user=undefined&numOfErrors=0&cid3=undefined&cid=1&file="+file+"&cid2=undefined"
+        bruteResponse = Downloader.getContentFromUrl(url2)
+        finalLink = Decoder.extract("url=","&title",bruteResponse)
+        logger.debug("Final link is: "+finalLink)
+        return finalLink
+
+    @staticmethod
+    def decodeBestreams(link):
+        html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with powvideo and others
+        file = Decoder.extract('streamer: "','"',html)
+        playpath = "mp4:"+Decoder.extract("file: \"","\",",html)
+        file += " playPath="+playpath+" swfUrl=http://bestreams.net/player/player.swf pageUrl="+link+" live=1 flashver=WIN/2019,0,0,226 timeout=14" #is an rtmp
+        logger.debug("Final link is: "+file)
+        return file
+
+    @staticmethod
+    def decodeLetwatch(link):
+        html = Downloader.getContentFromUrl(link,"","","",False,True)
+        try:
+            encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
+        except:
+            pass
+        mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
+        mp4File = Decoder.extract('{file:"','",',mp4File)
+        return mp4File
+
+    @staticmethod
+    def decodeVidag(link):
+        html = Downloader.getContentFromUrl(link,"","","",False,True)
+        try:
+            encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
+        except:
+            pass
+        mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
+        mp4File = Decoder.extract(',{file:"','",',mp4File)
+        return mp4File
 
     @staticmethod
     def decodeIdowatch(link):

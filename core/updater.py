@@ -26,11 +26,16 @@ def update():
     end = time.clock()
     logger.info("org.harddevelop.kodi.tv Downloaded in %d seconds " % (end-start+1))
 
+    separatorChar = "/"
+
+    #if xbmc.getCondVisibility( "system.platform.windows" ):
+    #    separatorChar = "\\"
+
     #unzip
     unzipper = ziptools.ziptools()
     logger.info("org.harddevelop.kodi.tv destpathname=%s" % ROOT_DIR)
-    addons_dir = ROOT_DIR[:ROOT_DIR.rfind('/')+1]
-    current_plugin_dir = ROOT_DIR[ROOT_DIR.rfind('/')+1:]
+    addons_dir = ROOT_DIR[:ROOT_DIR.rfind(separatorChar)+1]
+    current_plugin_dir = ROOT_DIR[ROOT_DIR.rfind(separatorChar)+1:]
     logger.debug("using dir: "+addons_dir+" to extract content")
 
     unzipper.extractReplacingMainFolder(localfile,addons_dir,current_plugin_dir) #github issues
@@ -53,3 +58,9 @@ def isUpdatable():
     local_version = common.parseDOM(content,"version")[0].encode("utf-8") #remote version
     print "localversion: "+local_version+", remoteversion: "+remote_version
     return bool(int(local_version)<int(remote_version))
+
+def getUpdateInfo():
+    response = urllib2.urlopen(REMOTE_FILE_XML)
+    html = response.read()
+    remote_changes = common.parseDOM(html,"changes")[0].encode("utf-8") #remote version
+    return str(remote_changes)

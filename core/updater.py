@@ -28,14 +28,14 @@ def update():
 
     separatorChar = "/"
 
-    #if xbmc.getCondVisibility( "system.platform.windows" ):
-    #    separatorChar = "\\"
+    if xbmc.getCondVisibility( "system.platform.windows" ):
+        separatorChar = "\\"
 
     #unzip
     unzipper = ziptools.ziptools()
     logger.info("org.harddevelop.kodi.tv destpathname=%s" % ROOT_DIR)
-    addons_dir = ROOT_DIR[:ROOT_DIR.rfind(separatorChar)+1]
-    current_plugin_dir = ROOT_DIR[ROOT_DIR.rfind(separatorChar)+1:]
+    addons_dir = xbmc.translatePath(ROOT_DIR[:ROOT_DIR.rfind(separatorChar)+1])
+    current_plugin_dir = xbmc.translatePath(ROOT_DIR[ROOT_DIR.rfind(separatorChar)+1:])
     logger.debug("using dir: "+addons_dir+" to extract content")
 
     unzipper.extractReplacingMainFolder(localfile,addons_dir,current_plugin_dir) #github issues

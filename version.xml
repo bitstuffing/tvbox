@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>43</version>
-	<date>28/01/2016</date>
-	<changes>Development update (a function is not finished yet). Added support for more video servers.</changes>
+	<version>44</version>
+	<date>29/01/2016</date>
+	<changes>Development update. Improves related to updates.</changes>
 </plugin>

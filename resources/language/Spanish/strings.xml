@@ -12,6 +12,13 @@
     <string id="10010">Navegar por páginas web</string>
     <string id="10011">¡Actualización disponible!</string>
 
+    <string id="11010">Sí</string>
+    <string id="11011">No</string>
+    <string id="11012">Confirmar</string>
+    <string id="11013">Cancelar</string>
+    <string id="11014">Actualizar</string>
+    <string id="11015">Mantener</string>
+
     <string id="30000">Opciones</string>
     <string id="30001">Lista remota de canales</string>
     <string id="30002">Actualizador XML remoto</string>
@@ -19,6 +26,7 @@
 
     <string id="30010">Desarrollo</string>
     <string id="30011">Debug</string>
+    <string id="30012">Descargar e instalar plexus (modificado para funcionar)</string>
 
     <string id="30020">SPLive</string>
     <string id="30021">Lista de canales</string>

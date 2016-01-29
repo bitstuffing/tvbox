@@ -12,6 +12,13 @@
     <string id="10010">Browse web pages</string>
     <string id="10011">¡Update available!</string>
 
+    <string id="11010">Yes</string>
+    <string id="11011">No</string>
+    <string id="11012">Confirm</string>
+    <string id="11013">Cancel</string>
+    <string id="11014">Update</string>
+    <string id="11015">Keep</string>
+
     <string id="30000">Settings</string>
     <string id="30001">Remote channel list</string>
     <string id="30002">XML remote for updates</string>
@@ -19,6 +26,7 @@
 
     <string id="30010">Development</string>
     <string id="30011">Debug</string>
+    <string id="30012">Download and install plexus (modded to work)</string>
 
     <string id="30020">SPLive</string>
     <string id="30021">Channels list</string>

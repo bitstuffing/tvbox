@@ -176,7 +176,7 @@ def open(url,page):
 			url = Mamahdcom.getChannels(url)[0]["link"]
 		elif url.find("http://showsport-tv.com/")>-1:
 			url = ShowsportTvCom.getChannels(url)[0]["link"]
-	else:
+	elif url.find("rtmp://")==-1:
 		try:
 			if url.find(", referer:")>-1:
 				url = url[:url.find(", referer:")]
@@ -589,7 +589,8 @@ def init():
 		elif mode == 5:
 			open_channel(url,page)
 		elif mode == 0: #update
-			updater.update()
+			if xbmcgui.Dialog().yesno(addon.getLocalizedString(10011),updater.getUpdateInfo(), "", "", addon.getLocalizedString(11013), addon.getLocalizedString(11014) ):
+				updater.update()
 			get_main_dirs()
 		elif mode == 100: #decode provider link
 			logger.info("decoding: "+url)
@@ -654,9 +655,9 @@ def init():
 			channel = ShowsportTvCom.getChannels(url)
 			logger.info("found link: "+channel[0]["link"]+", launching...")
 			open(channel[0]["link"],page)
-	except:
-		logger.error(addon.getLocalizedString(10009))
-		xbmcgui.Dialog().ok("Error",addon.getLocalizedString(10009))
+	except Exception as e:
+		logger.error(addon.getLocalizedString(10009)+", "+str(e))
+		xbmcgui.Dialog().notification("Error",addon.getLocalizedString(10009))
 		pass
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 

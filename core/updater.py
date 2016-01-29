@@ -29,6 +29,7 @@ def update():
     separatorChar = "/"
 
     if xbmc.getCondVisibility( "system.platform.windows" ):
+        logger.debug("Detected Windows system...")
         separatorChar = "\\"
 
     #unzip
@@ -56,7 +57,7 @@ def isUpdatable():
     content = fp.read()
     fp.close()
     local_version = common.parseDOM(content,"version")[0].encode("utf-8") #remote version
-    print "localversion: "+local_version+", remoteversion: "+remote_version
+    logger.debug("Local version: "+local_version+", Remote version: "+remote_version)
     return bool(int(local_version)<int(remote_version))
 
 def getUpdateInfo():

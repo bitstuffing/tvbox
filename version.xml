@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.4</tag>
-	<version>45</version>
-	<date>29/01/2016</date>
-	<changes>Development update. Improves related to updates.</changes>
+	<version>46</version>
+	<date>13/02/2016</date>
+	<changes>Dev update. Improves related to vipgoal.net provider</changes>
 </plugin>

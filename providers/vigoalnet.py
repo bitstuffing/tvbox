@@ -4,6 +4,7 @@ import httplib
 import urllib
 from core.decoder import Decoder
 from core import logger
+from providers.cinestrenostv import Cineestrenostv
 
 from core.downloader import Downloader
 
@@ -58,13 +59,13 @@ class Vigoal(Downloader):
                         x.append(element)
                     i+=1
         else:
-            x.append(Vigoal.extractChannel(html))
+            x.append(Vigoal.extractChannel(html,page))
         return x
 
     @staticmethod
-    def extractChannel(html):
+    def extractChannel(html,page="http://www.vipgoal.net/"):
         element = {}
-        if html.find('<script type="text/javascript" src="http://www.playerapp1.pw/channel.php?file=')>-1:
+        if html.find('<script type="text/javascript" src="http://www.playerapp1.pw/channel.php?file=')>-1: #old part
             scriptUrl = Decoder.extractWithRegex('http://www.playerapp1.pw/channel.php?file=','"',html)
             html2 = Vigoal.getContentFromUrl(scriptUrl)
             lastUrl = Decoder.extractWithRegex('http://','" ',html2)
@@ -76,4 +77,7 @@ class Vigoal(Downloader):
             element["title"] = "Watch streaming"
             element["permalink"] = True
             element["link"] = playerUrl
+        else: #unified with cinestrenostv, they are the same people, at least the same code works and the changes are at the same time xD
+            logger.debug('Extracting channel from: '+page)
+            element = Cineestrenostv.extractIframeChannel(html,page)
         return element

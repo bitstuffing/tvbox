@@ -127,6 +127,8 @@ class Cineestrenostv(Downloader):
         element = {}
         if html3.find('<script type="text/javascript" src="http://tv.verdirectotv.org/channel.php?file=')>-1:
             element = Cineestrenostv.extractScriptVerdirectotv(html3,iframeUrl2)
+        elif html3.find('<script type="text/javascript" src="http://www.sunhd.info/channelsa.php?file=')>-1:
+            element = Cineestrenostv.extractScriptSunhdinfo(html3,iframeUrl2)
         elif html3.find("http://vercanalestv.com/tv/")>-1: #vercanalestv
             iframeUrl = Decoder.extractWithRegex("http://vercanalestv.com/tv/",'"',html3)
             logger.debug("obtained iframeUrl: "+iframeUrl)
@@ -342,6 +344,31 @@ class Cineestrenostv(Downloader):
         element = {}
         logger.debug("proccessing level 3, cookie: "+Cineestrenostv.cookie)
         scriptUrl = Decoder.extractWithRegex("http://tv.verdirectotv.org/channel.php?file=",'"',htmlContent)
+        scriptUrl = scriptUrl[0:len(scriptUrl)-1]
+
+        html4 = Cineestrenostv.getContentFromUrl(scriptUrl,"",Cineestrenostv.cookie,referer)
+        finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
+        finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
+
+        logger.debug("proccessing level 4, cookie: "+Cineestrenostv.cookie)
+
+        finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
+        #print "final level5 html: "+finalHtml
+        logger.debug("proccessing level 5, cookie: "+Cineestrenostv.cookie)
+        playerUrl = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
+        #print "player url is: "+playerUrl
+        element["title"] = "Watch streaming"
+        element["permalink"] = True
+        element["link"] = playerUrl
+
+        return element
+
+
+    @staticmethod
+    def extractScriptSunhdinfo(htmlContent,referer):
+        element = {}
+        logger.debug("proccessing level 3, cookie: "+Cineestrenostv.cookie)
+        scriptUrl = Decoder.extractWithRegex("http://www.sunhd.info/channelsa.php?file=",'"',htmlContent)
         scriptUrl = scriptUrl[0:len(scriptUrl)-1]
 
         html4 = Cineestrenostv.getContentFromUrl(scriptUrl,"",Cineestrenostv.cookie,referer)

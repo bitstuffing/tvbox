@@ -1,6 +1,7 @@
 import httplib
 import urllib
 import os
+import re
 import binascii
 import base64
 from core.decoder import Decoder
@@ -63,11 +64,16 @@ class ShowsportTvCom(Downloader):
                 url2 = "http://www.caston.tv/player.php?id="+id
                 html3 = ShowsportTvCom.getContentFromUrl(url2,"",ShowsportTvCom.cookie,iframeUrl)
                 script = Decoder.extract('<script type="text/javascript">\n','</script>',html3)
+                if script.find("document.write(unescape('")>-1: #patch
+                    scriptContent = Decoder.extract("document.write(unescape('","'));",script)
+                    scriptContent = urllib.unquote(scriptContent)
+                    script=re.compile('eval\(function\(w,i,s,e\).*}\((.*?)\)').findall(scriptContent)[0]
                 finalScriptContent = Decoder.preWise(script)
+                logger.debug(finalScriptContent)
                 token = Decoder.extract("token:\"","\"",finalScriptContent)
                 logger.debug("pre-token is: "+token)
                 ajaxContent = dict(token=token, is_ajax=1)
-                tokenResponse = ShowsportTvCom.getContentFromUrl("http://www.caston.tv/s.php",urllib.urlencode(ajaxContent),ShowsportTvCom.cookie,url2,True)
+                tokenResponse = ShowsportTvCom.getContentFromUrl("http://www.caston.tv/ss.php",urllib.urlencode(ajaxContent),ShowsportTvCom.cookie,url2,True)
                 logger.debug("token response: "+tokenResponse)
                 file = Decoder.extract("file:\"","\"",finalScriptContent)+Decoder.extract('["','",',tokenResponse)
             logger.debug("final remote url: "+file)

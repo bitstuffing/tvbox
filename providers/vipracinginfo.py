@@ -4,6 +4,7 @@ import httplib
 import urllib
 import os
 import binascii
+import time
 from core.decoder import Decoder
 from core import jsunpack
 from core import logger
@@ -30,8 +31,23 @@ class Vipracinginfo(Downloader):
             logger.debug("launching Vipracing else logic")
             if html.find('http://www.streamlive.to/embed/')>-1:
                 iframeUrl = "http://www.streamlive.to/view/"+Decoder.extract('http://www.streamlive.to/embed/','&width=',html)
-                html2 = Vipracinginfo.getContentFromUrl(iframeUrl,"",Vipracinginfo.cookie,page)
-                link = "http://harddevelop.blogspot.com/2015/11/tv-box.html" #not a good to force if this link is not updated an error
+                html2 = Vipracinginfo.getContentFromUrl(iframeUrl,urllib.urlencode({"captcha":"yes"}),"",iframeUrl)
+                if html2.find("Question:")>-1:#captcha
+                    #logger.debug(html2)
+                    captcha = Decoder.rExtract(': ','<br /><br />',html2)
+                    if captcha.find("(")>-1:
+                        logger.debug("resolving captcha with math..."+captcha)
+                        try:
+                            captcha = Decoder.resolveSimpleMath(captcha)
+                        except:
+                            logger.error("Could not resolve captcha: "+captcha)
+                            pass
+                    logger.debug("captcha="+captcha)
+                    captchaPost = urllib.urlencode({'captcha': captcha})
+                    logger.debug(captchaPost)
+                    time.sleep(3)
+                    html2 = Vipracinginfo.getContentFromUrl(iframeUrl,captchaPost,Vipracinginfo.cookie,iframeUrl)
+                link = "http://harddevelop.com/2015/11/tv-box.html|Referer=http://gordosyfrikis.com/" # ;)
                 if html2.find("http://www.streamlive.to/ads/ilive_player.swf")>-1: #builds the link
                     swfUrl = "http://www.streamlive.to/ads/streamlive.swf"
                     tokenUrl = Decoder.extractWithRegex("http://www.streamlive.to/server.php?id=",'"',html2)

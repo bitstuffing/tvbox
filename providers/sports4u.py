@@ -46,7 +46,12 @@ class Sports4u(Downloader):
             if fieldHtml.find("<a href=")>-1:
                 element = {}
                 element["link"] = Decoder.extract('<a href="','"',fieldHtml)
-                element["title"] = Decoder.extract('alt="','">',fieldHtml)
+                title = Decoder.extract('alt="','">',fieldHtml)
+                if len(title)==0 and len(element["link"])>0: #provider probably has removed the alt content to 'destroy' scripts xD
+                    link = element["link"]
+                    title = Decoder.extract("channel/","/",link)
+                    logger.debug("alternative title: "+title)
+                element["title"] = title.replace("-live-stream-hd","").replace("-"," ").replace("online hd","").replace("online free hd","").replace("online","").replace("live stream","")
                 element["thumbnail"] = Decoder.extract('src="','" ',fieldHtml)
                 logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumbnail: "+element["thumbnail"])
                 if len(element["title"])>0:

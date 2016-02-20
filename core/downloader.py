@@ -1,4 +1,4 @@
-import urllib, httplib
+import urllib, urllib2, httplib
 from core import logger
 
 class Downloader():
@@ -43,32 +43,60 @@ class Downloader():
         if data == "":
             logger.info("launching GET...")
             h.request('GET', subUrl, data, headers)
+            r = h.getresponse()
+            headersReturned = r.getheaders()
+            cfduid = ""
+            location = ""
+            for returnedHeader,rValue in headersReturned:
+                if returnedHeader == 'set-cookie':
+                    #print "header1: "+returnedHeader+", value1: "+rValue
+                    if rValue.find("__cfduid=")>-1:
+                        logger.info("detected cfduid: "+rValue)
+                        cfduid = rValue[rValue.find("__cfduid="):]
+                        if cfduid.find(";")>-1:
+                            cfduid = cfduid[0:cfduid.find(";")]
+                elif returnedHeader == 'location':
+                    logger.info("Location detected: using location: "+rValue)
+                    location = rValue
+                else:
+                    logger.info("rejected cookie: "+returnedHeader+", "+rValue)
+            if cfduid!= '':
+                Downloader.cookie = cfduid
+            logger.info("cookie was updated to: "+Downloader.cookie)
+            html = r.read()
+            if location != '' and launchLocation:
+                logger.info("launching redirection to: "+location)
+                html = Downloader.getContentFromUrl(location,data,Downloader.cookie,url)
         else:
             logger.info("launching POST...")
-            h.request('POST', subUrl, data, headers)
-        r = h.getresponse()
-
-        headersReturned = r.getheaders()
-        cfduid = ""
-        location = ""
-        for returnedHeader,rValue in headersReturned:
-            if returnedHeader == 'set-cookie':
-                #print "header1: "+returnedHeader+", value1: "+rValue
-                if rValue.find("__cfduid=")>-1:
-                    logger.info("detected cfduid: "+rValue)
-                    cfduid = rValue[rValue.find("__cfduid="):]
-                    if cfduid.find(";")>-1:
-                        cfduid = cfduid[0:cfduid.find(";")]
-            elif returnedHeader == 'location':
-                logger.info("Location detected: using location: "+rValue)
-                location = rValue
-            else:
-                logger.info("rejected cookie: "+returnedHeader+", "+rValue)
-        if cfduid!= '':
-            Downloader.cookie = cfduid
-        logger.info("cookie was updated to: "+Downloader.cookie)
-        html = r.read()
-        if location != '' and launchLocation:
-            logger.info("launching redirection to: "+location)
-            html = Downloader.getContentFromUrl(location,data,Downloader.cookie,url)
+            req = urllib2.Request(url, data, headers)
+            r = urllib2.urlopen(req)
+            logger.debug(str(r.info()))
+            cookie = ""
+            html = r.read()
+            #update cookies
+            for key1, value1 in sorted(r.info().items()):
+                logger.debug("trace....."+key1)
+                if key1.lower()=='set-cookie':
+                    value1 = value1.replace("path=/, ","")
+                    if value1.find(";")==-1:
+                        value1+=";="
+                    logger.debug("processing cookie: "+value1)
+                    for values in value1.split(";"):
+                        logger.debug(values)
+                        key = values.split("=")[0]
+                        value = values.split("=")[1]
+                        logger.debug("key: "+key+", value="+value)
+                        if(key.find("PHPSESSID")>-1 or key.find("captcha_keystring")>-1 or key.find("__cfduid")>-1):
+                            if value.find(";")>-1:
+                                cookie+=key+"="+value[:value.find(";")]
+                            else:
+                                cookie+=key+"="+value
+                            cookie+=";"
+                            logger.debug("processed cookie: "+key+"="+value)
+                else:
+                    logger.debug("rejected cookie: "+key1+"->"+value1)
+            if len(cookie)>1:
+                Downloader.cookie = cookie
+                logger.info("Cookie was updated to: "+cookie)
         return html

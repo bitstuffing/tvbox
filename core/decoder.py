@@ -662,6 +662,44 @@ class Decoder():
         return value
 
     @staticmethod
+    def resolveSimpleMath(form):
+        if(form.find("(")>-1 and form.find(")")>-1):
+            breaked = Decoder.extract("(",")",form)
+            result = 0
+            if breaked.find("+")>-1:
+                first = int(breaked.split("+")[0])
+                second = int(breaked.split("+")[1])
+                result = first+second
+            elif breaked.find("-")>-1:
+                first = int(breaked.split("-")[0])
+                second = int(breaked.split("-")[1])
+                result = first-second
+            elif breaked.find("*")>-1:
+                first = int(breaked.split("*")[0])
+                second = int(breaked.split("*")[1])
+                result = first*second
+            elif breaked.find("/")>-1:
+                first = int(breaked.split("/")[0])
+                second = int(breaked.split("/")[1])
+                result = first/second
+
+            if form.find(")")==len(form)-1:
+                sign = form[form.find("(")-1]
+                figure = form[:form.find("(")-2]
+            else:
+                sign = form[form.find(")")+1]
+                figure = int(form[form.find(")")+2:])
+            if sign=="+":
+                form = str(figure+result)
+            elif sign=="-":
+                form = str(figure-result)
+            elif sign=="*":
+                form = str(figure*result)
+            elif sign=="/":
+                form = str(figure/result)
+        return form
+
+    @staticmethod
     def getContent(url,data="",referer="",cookie="",dnt=True):
         logger.info('Using url: '+url)
         request = urllib2.Request(url)

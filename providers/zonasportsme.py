@@ -41,6 +41,7 @@ class Zonasportsme(Downloader):
                     content = bytearray.fromhex(content).decode()
                 except TypeError:  # Work-around for Python 2.6 bug
                     content = bytearray.fromhex(unicode(content)).decode()
+                logger.debug("content: "+content)
                 url = Decoder.extract("'file': '","'",content)
                 logger.debug("found a link: "+url)
                 if url.find(".m3u8")==-1:

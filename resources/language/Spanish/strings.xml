@@ -31,4 +31,6 @@
     <string id="30020">SPLive</string>
     <string id="30021">Lista de canales</string>
     <string id="30022">Habilitar listas del programa splive (experimental)</string>
+
+    <string id="30031">Decoder online</string>
 </strings>

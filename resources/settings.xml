@@ -10,5 +10,6 @@
 	<category label="30020">
 		<setting id="enable_splive" type="bool" label="30022" default="false"/>
 		<setting id="splive_channel" type="text" label="30021" value="" default="" enable="true"/>
+		<setting id="online_pbewithmd5anddes_decoder" type="text" label="30031" value="http://decoder.x10host.com/index.php" default="http://decoder.x10host.com/index.php" enable="true"/>
 	</category>
 </settings>

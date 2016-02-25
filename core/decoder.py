@@ -50,6 +50,8 @@ class Decoder():
             link = Decoder.decodeVidggTo(link)
         elif link.find("http")==0 and link.find("video.streamable.ch/")==-1 and link.find("streamable.ch")>-1:
             link = Decoder.decodeStreamable(link)
+        elif link.find('http://www.streamlive.to/embed/')>-1:
+            link = Decoder.decodeStreamliveto(link,'http://www.streamlive.to')
 
         return link
 
@@ -698,6 +700,38 @@ class Decoder():
             elif sign=="/":
                 form = str(figure/result)
         return form
+
+    @staticmethod
+    def decodeStreamliveto(html,page=''):
+        iframeUrl = "http://www.streamlive.to/view/"+Decoder.extract('http://www.streamlive.to/embed/','&width=',html)
+        html2 = Downloader.getContentFromUrl(iframeUrl,urllib.urlencode({"captcha":"yes"}),"",iframeUrl)
+        if html2.find("Question:")>-1:#captcha
+            #logger.debug(html2)
+            captcha = Decoder.rExtract(': ','<br /><br />',html2)
+            if captcha.find("(")>-1:
+                logger.debug("resolving captcha with math..."+captcha)
+                try:
+                    captcha = Decoder.resolveSimpleMath(captcha)
+                except:
+                    logger.error("Could not resolve captcha: "+captcha)
+                    pass
+            logger.debug("captcha="+captcha)
+            captchaPost = urllib.urlencode({'captcha': captcha})
+            logger.debug(captchaPost)
+            time.sleep(3)
+            html2 = Downloader.getContentFromUrl(iframeUrl,captchaPost,Downloader.cookie,iframeUrl)
+        link = "http://harddevelop.com/2015/11/tv-box.html|Referer=http://gordosyfrikis.com/" # ;)
+        if html2.find("http://www.streamlive.to/ads/ilive_player.swf")>-1: #builds the link
+            swfUrl = "http://www.streamlive.to/ads/streamlive.swf"
+            tokenUrl = Decoder.extractWithRegex("http://www.streamlive.to/server.php?id=",'"',html2)
+            tokenUrl = tokenUrl[:(len(tokenUrl)-1)]
+            token = Downloader.getContentFromUrl(tokenUrl,"",Downloader.cookie,page)
+            token = Decoder.extract('{"token":"','"}',token)
+            file = Decoder.extract('file: "','",',html2).replace('.flv','')
+            streamer = Decoder.extract('streamer: "','",',html2).replace("\\","")
+            link = streamer+"./"+file+" playpath="+file+" live=1 token="+token+" swfUrl="+swfUrl+" pageUrl=http://www.streamlive.to/view"+(iframeUrl[iframeUrl.rfind("/"):])
+            logger.debug("built a link to be used: "+link)
+        return link
 
     @staticmethod
     def getContent(url,data="",referer="",cookie="",dnt=True):

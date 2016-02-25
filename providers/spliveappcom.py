@@ -10,27 +10,36 @@ from core.decoder import Decoder
 from core import jsunpack
 from core import logger
 from core.downloader import Downloader
-from core.cipher import PBEWithMD5AndDES
+
+ONLINE = False
+try:
+    from core.cipher import PBEWithMD5AndDES
+except:
+    logger.error("Detected missing pycrypt")
+    logger.info("using online decrypter solution...")
+    ONLINE = True
+    pass
 
 class Spliveappcom(Downloader):
 
     MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "splive_channel")
+    DECODER_URL = xbmcplugin.getSetting(int(sys.argv[1]), "online_pbewithmd5anddes_decoder")
 
     PASSWORD = 'c6ka74t4b2dv'
 
     @staticmethod
-    def getChannels(page):
+    def getChannels(page,decode=False):
         x = []
         if str(page) == '0':
             page=Spliveappcom.MAIN_URL
             if page.find("pastebin.com/")>-1 and page.find("/raw/")==-1:
                 page = page.replace(".com/",".com/raw/")
         html = Spliveappcom.getContentFromUrl(page,"",Spliveappcom.cookie,"")
-        x = Spliveappcom.extractElements(html)
+        x = Spliveappcom.extractElements(html,decode)
         return x
 
     @staticmethod
-    def extractElements(table):
+    def extractElements(table,decode=False):
         x = []
         i = 0
         permaLink = False
@@ -61,7 +70,7 @@ class Spliveappcom(Downloader):
                 img = Decoder.extract(" image \"","\"",value)
             elif value.find(" image_url ")>-1:
                 img = Decoder.extract(" image_url \"","\"",value)
-            if img.find("http")==-1:
+            if decode and img.find("http")==-1:
                 try:
                     img = Spliveappcom.decrypt(img)
                     element["thumbnail"] = img
@@ -110,7 +119,10 @@ class Spliveappcom(Downloader):
         decrypted = encrypted
         try:
             logger.debug("Encrypted content is: "+encrypted)
-            decrypted = PBEWithMD5AndDES.decrypt(encrypted, Spliveappcom.PASSWORD)
+            if not ONLINE:
+                decrypted = PBEWithMD5AndDES.decrypt(encrypted, Spliveappcom.PASSWORD)
+            elif len(encrypted)>0 and encrypted.find("http://")==-1:
+                decrypted = Downloader.getContentFromUrl(Spliveappcom.DECODER_URL+'?data='+encrypted+"&key="+Spliveappcom.PASSWORD+"&iterations=1000")
             logger.debug("Decrypted content is: "+decrypted)
         except:
             logger.error("Could not be unencrypted: "+encrypted)

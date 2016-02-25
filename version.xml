@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
-	<tag>0.0.4</tag>
-	<version>49</version>
-	<date>20/02/2016</date>
-	<changes>Improves related to vipracing.info provider and a streamlive.to captcha resolver</changes>
+	<tag>0.0.5</tag>
+	<version>50</version>
+	<date>25/02/2016</date>
+	<changes>Improves related to decoder, now support online decoder for platforms without pycrypt module</changes>
 </plugin>

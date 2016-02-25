@@ -17,6 +17,7 @@ class Vipracinginfo(Downloader):
     @staticmethod
     def getChannels(page):
         x = []
+        element = {}
         if str(page) == '0':
             page=Vipracinginfo.MAIN_URL
             html = Vipracinginfo.getContentFromUrl(page,"",Vipracinginfo.cookie,"")
@@ -30,37 +31,9 @@ class Vipracinginfo(Downloader):
             html = Vipracinginfo.getContentFromUrl(page,"",Vipracinginfo.cookie,Vipracinginfo.MAIN_URL)
             logger.debug("launching Vipracing else logic")
             if html.find('http://www.streamlive.to/embed/')>-1:
-                iframeUrl = "http://www.streamlive.to/view/"+Decoder.extract('http://www.streamlive.to/embed/','&width=',html)
-                html2 = Vipracinginfo.getContentFromUrl(iframeUrl,urllib.urlencode({"captcha":"yes"}),"",iframeUrl)
-                if html2.find("Question:")>-1:#captcha
-                    #logger.debug(html2)
-                    captcha = Decoder.rExtract(': ','<br /><br />',html2)
-                    if captcha.find("(")>-1:
-                        logger.debug("resolving captcha with math..."+captcha)
-                        try:
-                            captcha = Decoder.resolveSimpleMath(captcha)
-                        except:
-                            logger.error("Could not resolve captcha: "+captcha)
-                            pass
-                    logger.debug("captcha="+captcha)
-                    captchaPost = urllib.urlencode({'captcha': captcha})
-                    logger.debug(captchaPost)
-                    time.sleep(3)
-                    html2 = Vipracinginfo.getContentFromUrl(iframeUrl,captchaPost,Vipracinginfo.cookie,iframeUrl)
-                link = "http://harddevelop.com/2015/11/tv-box.html|Referer=http://gordosyfrikis.com/" # ;)
-                if html2.find("http://www.streamlive.to/ads/ilive_player.swf")>-1: #builds the link
-                    swfUrl = "http://www.streamlive.to/ads/streamlive.swf"
-                    tokenUrl = Decoder.extractWithRegex("http://www.streamlive.to/server.php?id=",'"',html2)
-                    tokenUrl = tokenUrl[:(len(tokenUrl)-1)]
-                    token = Vipracinginfo.getContentFromUrl(tokenUrl,"",Vipracinginfo.cookie,page)
-                    token = Decoder.extract('{"token":"','"}',token)
-                    file = Decoder.extract('file: "','",',html2).replace('.flv','')
-                    streamer = Decoder.extract('streamer: "','",',html2).replace("\\","")
-                    link = streamer+"./"+file+" playpath="+file+" live=1 token="+token+" swfUrl="+swfUrl+" pageUrl=http://www.streamlive.to/view"+(iframeUrl[iframeUrl.rfind("/"):])
-                    logger.debug("built a link to be used: "+link)
-                element = {}
+                link = Decoder.decodeStreamliveto(html,page)
                 element["link"] = link
-                element["title"] = Decoder.extract("<title>","</title>",html2)
+                element["title"] = Decoder.extract("<title>","</title>",html)
                 element["permalink"] = True
                 x.append(element)
             elif html.find("http://www.janjua.tv")!=-1:
@@ -75,7 +48,6 @@ class Vipracinginfo(Downloader):
                 ip = Vipracinginfo.getContentFromUrl("http://www.janjuapublisher.com:1935/loadbalancer?"+(id[id.find("=")+1:]),"","","http://www.janjuaplayer.com/resources/scripts/eplayer.swf").replace('redirect=','')
                 link = "rtmp://"+ip+"/live"+" swfUrl=http://www.janjuaplayer.com/resources/scripts/eplayer.swf pageUrl="+url2+" flashver=WIN/2019,0,0,226 live=true timeout=11 playpath="+channel+"?"+id+"&"+pk
                 link = "rtmp://"+ip+"/live"+channel+"?"+id+"&"+pk+" app=live pageUrl="+url2+" swfUrl=http://www.janjuaplayer.com/resources/scripts/eplayer.swf tcUrl=rtmp://"+ip+"/live playPath="+channel+"?"+id+"&"+pk+" conn=S:OK live=1 flashver=WIN/2019,0,0,226"
-                element = {}
                 element["link"] = link
                 element["title"] = channel
                 element["permalink"] = True
@@ -105,7 +77,6 @@ class Vipracinginfo(Downloader):
                 streamer = Decoder.extract("'streamer': '","',",html4).replace("\\","")
                 link = streamer+" playpath="+file+" live=1 token="+token+" swfUrl="+swfUrl+" pageUrl="+iframeUrl3
                 logger.debug("built a link to be used: "+link)
-                element = {}
                 element["link"] = link
                 element["title"] = Decoder.extract("<title>","</title>",html4)
                 element["permalink"] = True

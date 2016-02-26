@@ -178,9 +178,11 @@ def open(url,page):
 			url = ShowsportTvCom.getChannels(url)[0]["link"]
 	elif url.find("rtmp://")==-1:
 		try:
-			if url.find(", referer:")>-1:
-				url = url[:url.find(", referer:")]
-			url = Decoder.decodeLink(url)
+			if url.find(", referer: ")>-1:
+				page = url[url.find(", referer: ")+len(", referer: "):]
+				url = url[:url.find(", referer: ")]
+				logger.debug("changing page to referer: "+page)
+			url = Decoder.decodeLink(url,page)
 		except:
 			logger.info("decoder url launched an exception, probably could not be decoded")
 			pass

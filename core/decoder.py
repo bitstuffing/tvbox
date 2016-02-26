@@ -15,7 +15,7 @@ from core import jsunpack
 class Decoder():
 
     @staticmethod
-    def decodeLink(link):
+    def decodeLink(link,referer=''):
         if link.find("http://streamcloud.")>-1 :
             link = Decoder.decodeStreamcloud(link)
         elif link.find("http://powvideo.net")>-1:
@@ -52,6 +52,8 @@ class Decoder():
             link = Decoder.decodeStreamable(link)
         elif link.find('http://www.streamlive.to/embed/')>-1:
             link = Decoder.decodeStreamliveto(link,'http://www.streamlive.to')
+        elif link.find("http://castalba.tv/")>-1:
+            link = Decoder.decodeCastalbatv(link,referer);
 
         return link
 
@@ -732,6 +734,32 @@ class Decoder():
             link = streamer+"./"+file+" playpath="+file+" live=1 token="+token+" swfUrl="+swfUrl+" pageUrl=http://www.streamlive.to/view"+(iframeUrl[iframeUrl.rfind("/"):])
             logger.debug("built a link to be used: "+link)
         return link
+
+    @staticmethod
+    def decodeCastalbatv(url,page=''):
+        channelId = url[url.find('cid=')+len('cid='):]
+        if channelId.find("&")>-1:
+            channelId = channelId[:channelId.find("&")]
+        #iframeUrl = "http://castalba.tv/channel/"+channelId
+        iframeUrl = url;
+        logger.debug("using referer: "+page)
+        html = Downloader.getContentFromUrl(iframeUrl,'',"",page)
+        file = "";
+        if html.find(".m3u8")>-1:
+            file = Decoder.rExtract("'file': '",'.m3u8',html)
+            logger.debug("detected castalba file: "+file)
+            if len(file)>0 and page!='':
+                file+="|Referer="+page
+            else:
+                file+="|Referer="+file
+        else:
+            file = Decoder.extract("var file = '","'",html)
+            flash= Decoder.extract("'flashplayer': \"","\"",html)
+            rtmpUrl = "rtmp://"+Decoder.extract("return '/","';",html)
+            playpath = file+"?"+Decoder.extract("unescape('?","'),",html)
+            file = rtmpUrl+" playpath="+playpath+" swfUrl="+flash+" live=1 pageUrl=http://castalba.tv/"
+        logger.debug("final link from castalba is: "+file)
+        return file
 
     @staticmethod
     def getContent(url,data="",referer="",cookie="",dnt=True):

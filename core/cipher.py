@@ -1,4 +1,4 @@
-from core.Cipher import DES
+from core.pyDes import *
 from hashlib import md5
 import hashlib
 import base64
@@ -7,7 +7,7 @@ import os
 
 '''
 PBEWithMD5AndDES port based on
-
+now it's based on pyDes library
 '''
 class PBEWithMD5AndDES():
 
@@ -25,8 +25,8 @@ class PBEWithMD5AndDES():
         salt = msg_bytes[:8]
         enc_text = msg_bytes[8:]
         (dk, iv) = PBEWithMD5AndDES.get_derived_key(password, salt, 1000)
-        crypter = DES.new(dk, DES.MODE_CBC, iv)
-        text = crypter.decrypt(enc_text)
+        k = des(dk, CBC, iv)
+        text = k.decrypt(enc_text)
         # remove the padding at the end, if any
         return re.sub(r'[\x01-\x08]','',text)
 
@@ -37,6 +37,6 @@ class PBEWithMD5AndDES():
         for i in range(pad_num):
             msg += chr(pad_num)
         (dk, iv) = PBEWithMD5AndDES.get_derived_key(password, salt, 1000)
-        crypter = DES.new(dk, DES.MODE_CBC, iv)
-        enc_text = crypter.encrypt(msg)
+        k = des(dk, CBC, iv)
+        enc_text = k.encrypt(msg)
         return base64.b64encode(salt + enc_text)

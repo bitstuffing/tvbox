@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 import httplib
 import urllib2
 import urllib
@@ -36,7 +37,7 @@ class Decoder():
             link = Decoder.decodeVidXtreme(link)
         elif link.find("http://streame.net")>-1:
             link = Decoder.decodeStreame(link)
-        elif link.find("://openload")>-1:
+        elif link.find("://openload")>-1 and link.find("/stream/")==-1:
             link = Decoder.decodeOpenload(link)
         elif link.find("://idowatch.net/")>-1:
             link = Decoder.decodeIdowatch(link)
@@ -220,7 +221,59 @@ class Decoder():
         return file
 
     @staticmethod
-    def decodeOpenload(link):
+    def decodeAAScript(script):
+        '''
+        see Aadecoder() from http://pastebin.com/cD0kT82B, which was the real first method
+        TODO: implement original javascript decoder
+        http://pastebin.com/CnMsw3xw
+        these links are the reference for the following code
+        http://pastebin.com/8HtaXMSg
+        http://pastebin.com/PcMyxtPX
+        '''
+        #replace all figures, math, symbols and other offuscated
+        script = script.replace("((ﾟｰﾟ) + (ﾟｰﾟ) + (ﾟΘﾟ))", "9")
+        script = script.replace("((ﾟｰﾟ) + (ﾟｰﾟ))","8")
+        script = script.replace("((ﾟｰﾟ) + (o^_^o))","7")
+        script = script.replace("((o^_^o) +(o^_^o))","6")
+        script = script.replace("((ﾟｰﾟ) + (ﾟΘﾟ))","5")
+        script = script.replace("(ﾟｰﾟ)","4")
+        script = script.replace("(o^_^o)","3")
+        script = script.replace("((o^_^o) - (ﾟΘﾟ))","2")
+        script = script.replace("(ﾟΘﾟ)","1")
+        script = script.replace("(+!+[])","1")
+        script = script.replace("(c^_^o)","0")
+        script = script.replace("(0+0)","0")
+        script = script.replace("(ﾟДﾟ)[ﾟεﾟ]","\\")
+        script = script.replace("(3 +3 +0)","6")
+        script = script.replace("(3 - 1 +0)","2")
+        script = script.replace("(!+[]+!+[])","2")
+        script = script.replace("(-~-~2)","4")
+        script = script.replace("(-~-~1)","3")
+        decodestring = re.search(r"\\\+([^(]+)", script, re.DOTALL | re.IGNORECASE).group(1)
+        decodestring = "\\+"+ decodestring
+        decodestring = decodestring.replace("+","")
+        decodestring = decodestring.replace(" ","")
+        for octc in (c for c in re.findall(r'\\(\d{2,3})', decodestring)):
+            decodestring = decodestring.replace(r'\%s' % octc, chr(int(octc, 8)))
+        decodestring = decodestring.replace("\\/","/")
+        url = re.search(r"vr\s?=\s?\"|'([^\"']+)", decodestring, re.DOTALL | re.IGNORECASE).group(1)
+        return url
+
+    @staticmethod
+    def decodeOpenload(link): #decode javascript link like Firefox
+        mediaId = Decoder.extract("/f/","/",link)
+        logger.debug("mediaId is: "+mediaId)
+        link = link.replace('/f/', '/embed/')
+        html = Downloader.getContentFromUrl(link,"data=data","","",False,True) #make post, with get there is an infinite loop
+        #extract script
+        script = re.search(r"<video(?:.|\s)*?<script\s[^>]*?>((?:.|\s)*?)</script", html, re.DOTALL | re.IGNORECASE).group(1)
+        url = Decoder.decodeAAScript(script)
+        logger.debug("decoded url is: "+url)
+        return url
+
+
+    @staticmethod
+    def decodeOpenloadUsingOfficialApi(link): #API sucks, today it always returns a 509 with all logins xDDD
         #get cookies
         mediaId = Decoder.extract("/f/","/",link)
         embedUrl = 'https://openload.io/embed/'+mediaId
@@ -228,7 +281,9 @@ class Decoder():
         logger.info("html is: "+html)
         logger.debug("using cookie 1: "+Downloader.cookie)
         logger.debug("Media id for openload is: "+mediaId)
-        extra = "&login=f750b26513f64034&key=oaA-MbZo" #this avoid captcha petition
+        key = "oaA-MbZo"
+        login = "f750b26513f64034"
+        extra = "&login="+login+"&key="+key #this avoid captcha petition
         link2 = "https://api.openload.io/1/file/dlticket?file="+mediaId+extra
         data = Downloader.getContentFromUrl(link2,"",Downloader.cookie,embedUrl,True,False)
         logger.debug("jsonData: "+data)

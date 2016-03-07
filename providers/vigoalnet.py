@@ -31,9 +31,12 @@ class Vigoal(Downloader):
                 table = Decoder.extract("<center><table><tbody><tr>","</center>",html)
                 for fieldHtml in table.split('<a href="'):
                     element = {}
-                    element["link"] = fieldHtml[0:fieldHtml.find('"')]
+                    element["link"] = urllib.quote_plus(str(fieldHtml[0:fieldHtml.find('"')]))
                     element["title"] = fieldHtml[fieldHtml.find('title="')+len('title="'):]
-                    element["title"] = element["title"][0:element["title"].find('"')]
+                    element["title"] = element["title"][0:element["title"].find('"')].replace("-"," ").replace("en directo","").replace("Live Stream","").replace("\n","").replace("\t","").replace("  ","").strip() #cleaned
+                    while element["title"].find("<")>-1: #clean tags
+                        tag = Decoder.extract("<",">",element["title"])
+                        element["title"] = element["title"].replace("<"+tag+">","")
                     element["thumbnail"] = fieldHtml[fieldHtml.find('<img src="')+len('<img src="'):]
                     element["thumbnail"] = element["thumbnail"][0:element["thumbnail"].find('"')]
                     logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
@@ -51,11 +54,15 @@ class Vigoal(Downloader):
                             titleLine = Decoder.extract('"><h2>',"</h2>",fieldHtml)
                         else:
                             titleLine = Decoder.rExtract('html">',"</a></div>",fieldHtml)
-                        element["title"] = titleLine+" - "+(element["title"].replace("</b>","").replace(" - ",""))
+                        timeLine = (element["title"].replace("</b>","").replace(" - ","")).replace("-"," ").replace("en directo","").replace("Live Stream","").replace("\n","").replace("\t","").replace("  ","").strip() #cleaned
+                        element["title"] = timeLine+" - "+titleLine
+                        while element["title"].find("<")>-1: #clean tags
+                            tag = Decoder.extract("<",">",element["title"])
+                            element["title"] = element["title"].replace("<"+tag+">","")
                         element["thumbnail"] = fieldHtml[fieldHtml.find('<img src="')+len('<img src="'):]
                         element["thumbnail"] = Vigoal.MAIN_URL+element["thumbnail"][0:element["thumbnail"].find('"')]
                         logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
-                        element["link"] = Vigoal.MAIN_URL+element["link"]
+                        element["link"] = urllib.quote_plus(str(Vigoal.MAIN_URL+element["link"]))
                         x.append(element)
                     i+=1
         else:

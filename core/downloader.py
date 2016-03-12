@@ -83,19 +83,21 @@ class Downloader():
                     value1 = value1.replace("path=/, ","")
                     if value1.find(";")==-1:
                         value1+=";="
-                    logger.debug("processing cookie: "+value1)
-                    for values in value1.split(";"):
-                        logger.debug(values)
-                        key = values.split("=")[0]
-                        value = values.split("=")[1]
-                        logger.debug("key: "+key+", value="+value)
-                        if(key.find("PHPSESSID")>-1 or key.find("captcha_keystring")>-1 or key.find("__cfduid")>-1):
-                            if value.find(";")>-1:
-                                cookie+=key+"="+value[:value.find(";")]
-                            else:
-                                cookie+=key+"="+value
-                            cookie+=";"
-                            logger.debug("processed cookie: "+key+"="+value)
+                    logger.debug("processing cookie...: "+value1)
+                    if value1.find(";")>-1:
+                        for values in value1.split(";"):
+                            logger.debug(values)
+                            if values.find("=")>-1:
+                                key = values.split("=")[0]
+                                value = values.split("=")[1]
+                                logger.debug("key: "+key+", value="+value)
+                                if(key.find("PHPSESSID")>-1 or key.find("captcha_keystring")>-1 or key.find("__cfduid")>-1 or key.find("key")):
+                                    if value.find(";")>-1:
+                                        cookie+=key+"="+value[:value.find(";")]
+                                    else:
+                                        cookie+=key+"="+value
+                                    cookie+=";"
+                                    logger.debug("processed cookie: "+key+"="+value)
                 else:
                     logger.debug("rejected cookie: "+key1+"->"+value1)
             if len(cookie)>1:

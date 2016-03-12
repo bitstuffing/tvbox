@@ -389,13 +389,33 @@ class Decoder():
         #print encryptedHtml
         decryptedUrl = Decoder.decodeSawliveUrl(encryptedHtml)
         html3 = Downloader.getContentFromUrl(decryptedUrl,"",cookie,scriptSrc)
+        logger.debug("decrypted sawlive url content obtained!")
         #ok, now extract flash script content
-
         flashContent = Decoder.extract("var so = new SWFObject('","</script>",html3)
-        file = Decoder.extract("'file', '","');",flashContent)
+        file = Decoder.extract("'file', ",");",flashContent)
+        logger.debug("proccessing brute file: "+file)
+        #now proccess file, it can be a figure so needs to be appended if contains +
+        if file.find("+")>1:
+            newFile = ""
+            for target in file.split("+"):
+                seekedString = "var "+target+" = '"
+                if html3.find(seekedString)>-1:
+                    value = Decoder.extract(seekedString,"'",html3)
+                    newFile += value
+                else:
+                    newFile += target
+                logger.debug("now file is: "+newFile)
+            file = newFile
+            logger.debug("updated file to: "+file)
+        else:
+            file = file.replace("'","") #clean
         rtmpUrl = ""
         if flashContent.find("'streamer', '")>.1:
             rtmpUrl = Decoder.extract("'streamer', '","');",flashContent)
+        else:
+            rtmpVar = Decoder.extract("'streamer', ",");",flashContent)
+            seekedString = "var "+rtmpVar+" = '"
+            rtmpUrl = Decoder.extract(seekedString,"';",html3)
         swfUrl = "http://static3.sawlive.tv/player.swf" #default
         #update swf url
         swfUrl = flashContent[:flashContent.find("'")]

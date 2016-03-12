@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>54</version>
-	<date>7/03/2016</date>
-	<changes>Improves related to vipgoal provider.</changes>
+	<version>55</version>
+	<date>12/03/2016</date>
+	<changes>Improves related to iguide decoder.</changes>
 </plugin>

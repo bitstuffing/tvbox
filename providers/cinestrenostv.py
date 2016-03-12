@@ -195,7 +195,7 @@ class Cineestrenostv(Downloader):
             if html4.find("http://www.dinostream.pw/channel.php?file=")>-1:
                 scriptUrl2 = Decoder.extractWithRegex("http://www.dinostream.pw/channel.php?file=",'&autostart=true"',html4)
                 scriptUrl2 = scriptUrl2[0:len(scriptUrl2)-1]
-                element = Cineestrenostv.extractDinostreamPart(scriptUrl2,scriptUrl)
+                element = Decoder.extractDinostreamPart(scriptUrl2,scriptUrl)
             elif html4.find("<script type='text/javascript' src='http://www.embeducaster.com/static/scripts/ucaster.js'></script>")>-1: #ucaster cases
                 channel = Decoder.extract("<script type='text/javascript'> width=650, height=400, channel='","'",html4)
                 if html4.find('<script type="text/javascript" src="http://tv.verdirectotv.org/channel.php?file=')>-1:
@@ -388,20 +388,3 @@ class Cineestrenostv(Downloader):
 
         return element
 
-    @staticmethod
-    def extractDinostreamPart(url,referer):
-        element = {}
-        logger.debug("url: "+url+", referer: "+referer)
-        html4 = Cineestrenostv.getContentFromUrl(url,"",Cineestrenostv.cookie,referer)
-        finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
-        finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
-        logger.debug("proccessing level 4, cookie: "+Cineestrenostv.cookie)
-        finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
-        logger.debug("proccessing level 5, cookie: "+Cineestrenostv.cookie)
-        playerUrl = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
-        #print "player url is: "+playerUrl
-        element["title"] = "Watch streaming"
-        element["permalink"] = True
-        element["link"] = playerUrl
-
-        return element

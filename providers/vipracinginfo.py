@@ -65,20 +65,9 @@ class Vipracinginfo(Downloader):
                 #extract channelId
                 channelId = Decoder.extract('embed/','&',iframeUrl3)
                 iframeUrl3 = "http://www.iguide.to/embedplayer_new.php?width=650&height=400&channel="+channelId+"&autoplay=true"
-                html4 = Vipracinginfo.getContentFromUrl(iframeUrl3,"",Vipracinginfo.cookie,iframeUrl2)
-                #at this point is a similar logic than streamlive.to (probably because like always it's the same server), builds the link
-                swfUrl = Decoder.rExtractWithRegex("http://",".swf",html4)
-                logger.debug("using swfUrl: "+swfUrl)
-                tokenUrl = Decoder.extractWithRegex("http://www.iguide.to/serverfile.php?id=",'"',html4)
-                tokenUrl = tokenUrl[:(len(tokenUrl)-1)]
-                token = Vipracinginfo.getContentFromUrl(tokenUrl,"",Vipracinginfo.cookie,page)
-                token = Decoder.extract('{"token":"','"}',token)
-                file = Decoder.extract("'file': '","',",html4).replace('.flv','')
-                streamer = Decoder.extract("'streamer': '","',",html4).replace("\\","")
-                link = streamer+" playpath="+file+" live=1 token="+token+" swfUrl="+swfUrl+" pageUrl="+iframeUrl3
-                logger.debug("built a link to be used: "+link)
+                link = Decoder.decodeIguide(iframeUrl3,iframeUrl2)
                 element["link"] = link
-                element["title"] = Decoder.extract("<title>","</title>",html4)
+                element["title"] = page
                 element["permalink"] = True
                 x.append(element)
         return x

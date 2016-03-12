@@ -54,9 +54,31 @@ class Decoder():
         elif link.find('http://www.streamlive.to/embed/')>-1:
             link = Decoder.decodeStreamliveto(link,'http://www.streamlive.to')
         elif link.find("http://castalba.tv/")>-1:
-            link = Decoder.decodeCastalbatv(link,referer);
-
+            link = Decoder.decodeCastalbatv(link,referer)
+        elif link.find("http://www.dinostream.pw/")>-1:
+            link = Decoder.extractDinostreamPart(link)["link"]
+        elif link.find("http://www.iguide.to/embedplayer")>-1:
+            link = Decoder.decodeIguide(link)
         return link
+
+    @staticmethod
+    def extractDinostreamPart(url,referer=''):
+        element = {}
+        logger.debug("url: "+url+", referer: "+referer)
+        html4 = Downloader.getContentFromUrl(url,"","",referer)
+        print html4
+        finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
+        finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
+        logger.debug("proccessing level 4, cookie: "+Downloader.cookie)
+        finalHtml = Downloader.getContentFromUrl(finalIframeUrl,"",Downloader.cookie,referer)
+        logger.debug("proccessing level 5, cookie: "+Downloader.cookie)
+        playerUrl = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
+        #print "player url is: "+playerUrl
+        element["title"] = "Watch streaming"
+        element["permalink"] = True
+        element["link"] = playerUrl
+
+        return element
 
     @staticmethod
     def extract(fromString,toString,data):
@@ -219,6 +241,25 @@ class Decoder():
         file = Decoder.extract('file:"','",',html)
         logger.debug("found file: "+file)
         return file
+
+    @staticmethod
+    def decodeIguide(iframeUrl3,iframeUrl2=''):
+        logger.debug("iguide url is: "+iframeUrl3)
+        html4 = Downloader.getContentFromUrl(iframeUrl3,"autoplay=true",Downloader.cookie,iframeUrl2)
+        print html4
+        logger.debug("part 2 of iguide")
+        #at this point is a similar logic than streamlive.to (probably because like always it's the same server), builds the link
+        swfUrl = Decoder.rExtractWithRegex("http://",".swf",html4)
+        logger.debug("using swfUrl: "+swfUrl)
+        tokenUrl = Decoder.extractWithRegex("http://www.iguide.to/serverfile.php?id=",'"',html4)
+        tokenUrl = tokenUrl[:(len(tokenUrl)-1)]
+        token = Downloader.getContentFromUrl(tokenUrl,"",Downloader.cookie)
+        token = Decoder.extract('{"token":"','"}',token)
+        file = Decoder.extract("'file': '","',",html4).replace('.flv','')
+        streamer = Decoder.extract("'streamer': '","',",html4).replace("\\","")
+        link = streamer+" playpath="+file+" live=1 token="+token+" swfUrl="+swfUrl+" pageUrl="+iframeUrl3
+        logger.debug("built a link to be used: "+link)
+        return link
 
     @staticmethod
     def decodeAAScript(script):
@@ -799,6 +840,7 @@ class Decoder():
         iframeUrl = url;
         logger.debug("using referer: "+page)
         html = Downloader.getContentFromUrl(iframeUrl,'',"",page)
+        print html
         file = "";
         if html.find(".m3u8")>-1:
             file = Decoder.rExtract("'file': '",'.m3u8',html)

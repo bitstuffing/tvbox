@@ -155,13 +155,15 @@ def get_dirs(url,name,page):
 def open(url,page):
 	if url.find("rtmp://")==-1 and url.find("|Referer=")==-1 and ( url.find("http://privatestream.tv/")>-1 or url.find("http://www.dinostream.pw/")>-1 or url.find("http://www.embeducaster.com/")>-1 or url.find("http://tv.verdirectotv.org/channel.php")>-1 or url.find("http://mamahd.com/")>-1):
 		logger.info("brute url [referer] is: "+url)
-		referer = url[url.find("referer: ")+len("referer: "):]
+		referer = ''
+		if(url.find("referer: ")>-1):
+			referer = url[url.find("referer: ")+len("referer: "):]
 		url = url[0:url.find(",")]
 		if url.find("http://privatestream.tv/")>-1:
 			html = Downloader.getContentFromUrl(url,"","",referer)
 			url = Decoder.decodePrivatestream(html,referer)
 		elif url.find("http://www.dinostream.pw/")>-1:
-			url = Cineestrenostv.extractDinostreamPart(url,referer)["link"]
+			url = Decoder.extractDinostreamPart(url,referer)["link"]
 		elif url.find("http://www.embeducaster.com/")>-1:
 			#url = url.replace("/membedplayer/","/embedplayer/")
 			url = Cineestrenostv.getContentFromUrl(url,"","",referer)
@@ -182,6 +184,7 @@ def open(url,page):
 				page = url[url.find(", referer: ")+len(", referer: "):]
 				url = url[:url.find(", referer: ")]
 				logger.debug("changing page to referer: "+page)
+			logger.debug("trying decoder part for url: "+url)
 			url = Decoder.decodeLink(url,page)
 		except:
 			logger.info("decoder url launched an exception, probably could not be decoded")

@@ -65,6 +65,8 @@ class Downloader():
             logger.info("cookie was updated to: "+Downloader.cookie)
             html = r.read()
             if location != '' and launchLocation:
+                if location=="/":
+                    location = url
                 logger.info("launching redirection to: "+location)
                 html = Downloader.getContentFromUrl(location,data,Downloader.cookie,url)
         else:

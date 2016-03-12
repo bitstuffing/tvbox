@@ -23,7 +23,7 @@ class ShowsportTvCom(Downloader):
             element["link"] = '1'
             element["title"] = 'Display by event'
             x.append(element)
-            if html.find('<div id="cssmenu">')>-1:
+            if html.find('<div id="cssmenu">')>-1: #build channels menu from provider
                 cssMenu = Decoder.extract('<div id="cssmenu">','</ul>',html)
                 for htmlElement in cssMenu.split('<li class="has-sub">'):
                     if htmlElement.find('<a href="')>-1:
@@ -38,23 +38,32 @@ class ShowsportTvCom(Downloader):
                         logger.debug("found element: "+title+", url: "+element["link"])
                         if title != '':
                             x.append(element)
-        elif str(page) == '1': #event
+        elif str(page) == '1': #show by events
             html = ShowsportTvCom.getContentFromUrl(ShowsportTvCom.MAIN_URL)
             html = Decoder.extract('<div class="listmatch">','<div id="right_content">',html)
             for htmlElement in html.split('<div class="leaguelogo column">'):
-                if htmlElement.find('<a href="')>-1:
-                    href = Decoder.extract('<a href="','">',htmlElement)
+                if htmlElement.find(' href="')>-1:
+                    href = Decoder.extract(' href="','">',htmlElement)
                     timeHtml = Decoder.extract('<div class="date_time column"><span class="','</span></div>',htmlElement)
-                    time = Decoder.extract('>','</span><span',timeHtml)
-                    time+= " - "+timeHtml[timeHtml.rfind(">")+1:]
+                    time = ""
+                    if timeHtml.find('</span><span')>-1:
+                        time = Decoder.extract('>','</span><span',timeHtml)
+                        time+= " - "+timeHtml[timeHtml.rfind(">")+1:]
                     name = Decoder.extract('png"><span>','</span></div>',htmlElement)
+                    logger.debug("first name is: "+name)
                     if htmlElement.find('px;">')>-1 and htmlElement.find('</span><img')>-1:
                         name += " vs "+Decoder.extract('px;">','</span><img',htmlElement)
+                    logger.debug("final name is: "+name)
                     element = {}
-                    element["title"] = time+" - "+name
+                    if time=='':
+                        element["title"] = name
+                    else:
+                        element["title"] = time+" - "+name
                     element["link"] = ShowsportTvCom.MAIN_URL+href
-                    x.append(element)
-        else:
+                    logger.debug("appending event: "+element["title"])
+                    if element["title"].find(" vs ")>-1:
+                        x.append(element)
+        else: #open link
             html = ShowsportTvCom.getContentFromUrl(page)
             iframeUrl = ShowsportTvCom.MAIN_URL+Decoder.extract('<iframe frameborder="0" marginheight="0" marginwidth="0" height="450" src="/','"',html)
             logger.debug("iframeUrl is: "+iframeUrl)
@@ -62,7 +71,7 @@ class ShowsportTvCom(Downloader):
             if html2.find("http://www.caston.tv/player.php?")>-1:
                 id = Decoder.extract("var id = "," ;",html2)
                 url2 = "http://www.caston.tv/player.php?id="+id
-                html3 = ShowsportTvCom.getContentFromUrl(url2,"",ShowsportTvCom.cookie,iframeUrl)
+                html3 = ShowsportTvCom.getContentFromUrl(url2,"id="+id,ShowsportTvCom.cookie,iframeUrl)
                 script = Decoder.extract('<script type="text/javascript">\n','</script>',html3)
                 if script.find("document.write(unescape('")>-1: #patch
                     scriptContent = Decoder.extract("document.write(unescape('","'));",script)

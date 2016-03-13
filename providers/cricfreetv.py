@@ -83,7 +83,6 @@ class Cricfreetv(Downloader):
     def seekIframeScript(html,referer, iframeUrl):
         lastIframeHtml = html
         file = ""
-        logger.debug(html)
         logger.debug("seek iframe logic... ")
         if html.find("http://theactionlive.com/live")>-1:
             file = Cricfreetv.launchScriptLogic("http://theactionlive.com/live",html,referer,iframeUrl)

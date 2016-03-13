@@ -96,6 +96,16 @@ class Cricfreetv(Downloader):
             file = Cricfreetv.launchScriptLogic("http://www.rocktv.co/play",html,referer,iframeUrl)
         elif html.find("http://miplayer.net/embed")>-1:
             file = Cricfreetv.launchScriptLogic("http://miplayer.net/embed",html,referer,iframeUrl)
+        elif html.find("http://violadito.biggestplayer.me/playercr.js")>-1:
+            id = Decoder.extract("<script type='text/javascript'>id='","'",html)
+            logger.debug("violadito id="+id)
+            newUrl = "http://lqgq.biggestplayer.me/streamcr.php?id="+id+"&width=620&height=460" #TODO, decode to the js
+            logger.debug("using referer: "+iframeUrl)
+            html2 = Cricfreetv.getContentFromUrl(newUrl,"",Cricfreetv.cookie,iframeUrl)
+            logger.debug("extracting file from "+newUrl)
+            if html2.find('file: "')>-1:
+                file = Decoder.extract('file: "','"',html2)
+            logger.debug("obtained file: "+file)
         elif html.find("http://www.filmon.com/tv/")>-1:
             url = Decoder.extractWithRegex("http://www.filmon.com/tv/",'"',html).replace('"',"")
             logger.debug("using first filmon.com url from provider, url: "+url+", r: "+referer)

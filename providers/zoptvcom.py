@@ -49,26 +49,36 @@ class Zoptvcom(Downloader):
                 if html.find('var streams =[{"src":"')>-1:
                     link = Decoder.extract('var streams =[{"src":"','","',html)
                     logger.debug("has been detected a link: "+link)
-                    if link.find(".m3u8")==-1: #iframe
-                        logger.debug("extracting iframe link from: "+link)
-                        html = Zoptvcom.getContentFromUrl(link,"",Zoptvcom.cookie,page)
-                        #print html
-                        host = Decoder.extract("://","embed?",link)
-                        m3u8File = Decoder.extract("var src = '","';",html)
-                        if m3u8File.find("http://")==-1:
-                            if m3u8File[0] == "/":
-                                logger.debug("converting a partial link: "+m3u8File)
-                                host = Decoder.extract("://","/",link)
-                            link = "http://"+host+m3u8File
-                        else:
-                            link = m3u8File
-                        logger.debug("new link is: "+link)
-                    element = {}
-                    element["title"] = ""
-                    element["permalink"] = True
-                    element["link"] = link+"|User-Agent=Mozilla/5.0 (Windows NT 6.3; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0,Cookie="+Zoptvcom.cookie+",Referer=http://www.juhe.ml/player/grindplayer/GrindPlayer.swf" #in some cases there are GET HEADERS checks, it fix issues
-                    logger.debug("link used will be: "+element["link"])
-                    x.append(element)
+                    if link.find("vimeo.com/")==-1 and link.find("youtube.com/")==-1:
+                        if link.find(".m3u8")==-1: #iframe
+                            logger.debug("extracting iframe link from: "+link)
+                            html = Zoptvcom.getContentFromUrl(link,"",Zoptvcom.cookie,page,False,False)
+                            #print html
+                            host = Decoder.extract("://","embed?",link)
+                            m3u8File = Decoder.extract("var src = '","';",html)
+                            if m3u8File.find("http://")==-1:
+                                if m3u8File[0] == "/":
+                                    logger.debug("converting a partial link: "+m3u8File)
+                                    host = Decoder.extract("://","/",link)
+                                link = "http://"+host+m3u8File
+                            else:
+                                link = m3u8File
+                            logger.debug("new link is: "+link)
+                        element = {}
+                        element["title"] = ""
+                        element["permalink"] = True
+                        element["link"] = link+"|User-Agent=Mozilla/5.0 (Windows NT 6.3; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0,Cookie="+Zoptvcom.cookie+",Referer=http://www.juhe.ml/player/grindplayer/GrindPlayer.swf" #in some cases there are GET HEADERS checks, it fix issues
+                        logger.debug("link used will be: "+element["link"])
+                        x.append(element)
+                    else:
+                        if link.find("youtube.com/embed/")>-1:
+                            link = link.replace("/embed/","/watch?v=")
+                        element = {}
+                        element["title"] = ""
+                        element["permalink"] = True
+                        element["link"] = link #it could be vimeo and youtube links so call to his addon
+                        logger.debug("link used will be: "+element["link"])
+                        x.append(element)
         return x
 
     @staticmethod

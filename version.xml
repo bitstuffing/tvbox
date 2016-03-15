@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>59</version>
-	<date>13/03/2016</date>
-	<changes>Fix related to sports4u provider.</changes>
+	<version>60</version>
+	<date>15/03/2016</date>
+	<changes>Improves related to external addons.</changes>
 </plugin>

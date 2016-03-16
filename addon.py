@@ -235,8 +235,7 @@ def open(url,page):
 		url = "plugin://program.plexus/?mode="+mode+"&url="+url
 	elif url.find(".torrent")>-1 or url.find("magnet:")>-1:
 		logger.info("trying to send link to quasar: "+url)
-		if url.find("magnet:")==-1:
-			url = urllib.quote_plus(url)
+		url = urllib.quote_plus(url)
 		url = "plugin://plugin.video.quasar/play?uri="+url
 	elif url.find("youtube.com/")>-1:
 		id = ""

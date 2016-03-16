@@ -38,7 +38,11 @@ class Decoder():
         elif link.find("http://streame.net")>-1:
             link = Decoder.decodeStreame(link)
         elif link.find("://openload")>-1 and link.find("/stream/")==-1:
-            link = Decoder.decodeOpenload(link)
+            try:
+                link = Decoder.decodeOpenloadUsingOfficialApi(link)
+            except:
+                logger.error("API doesn't work fine, so it's used the web method")
+                link = Decoder.decodeOpenload(link)
         elif link.find("://idowatch.net/")>-1:
             link = Decoder.decodeIdowatch(link)
         elif link.find("://vid.ag/")>-1:
@@ -246,7 +250,6 @@ class Decoder():
     def decodeIguide(iframeUrl3,iframeUrl2=''):
         logger.debug("iguide url is: "+iframeUrl3)
         html4 = Downloader.getContentFromUrl(iframeUrl3,"autoplay=true",Downloader.cookie,iframeUrl2)
-        print html4
         logger.debug("part 2 of iguide")
         #at this point is a similar logic than streamlive.to (probably because like always it's the same server), builds the link
         swfUrl = Decoder.rExtractWithRegex("http://",".swf",html4)

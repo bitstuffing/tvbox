@@ -382,10 +382,7 @@ def drawCinestrenostv(page):
 	for item in jsonChannels:
 		title = item["title"]
 		link = item["link"]
-		#if item.has_key("permalink"):
 		mode = 102 #next step returns a final link
-		#else:
-		#	mode = 4 #continue browsing
 		if item.has_key("thumbnail"):
 			image = item["thumbnail"]
 		else:
@@ -403,8 +400,6 @@ def drawCricfree(page):
 			mode = 4
 		else:
 			mode = 103 #next step returns a final link
-		#else:
-		#	mode = 4 #continue browsing
 		if item.has_key("thumbnail"):
 			image = item["thumbnail"]
 		else:
@@ -433,10 +428,7 @@ def drawLive9(page):
 	for item in jsonChannels:
 		title = item["title"]
 		link = item["link"]
-		#if item.has_key("permalink"):
 		mode = 105 #next step returns a final link
-		#else:
-		#	mode = 4 #continue browsing
 		if item.has_key("thumbnail"):
 			image = item["thumbnail"]
 		else:
@@ -448,10 +440,7 @@ def drawSports4u(page):
 	for item in jsonChannels:
 		title = item["title"]
 		link = item["link"]
-		#if item.has_key("permalink"):
 		mode = 106 #next step returns a final link
-		#else:
-		#	mode = 4 #continue browsing
 		if item.has_key("thumbnail"):
 			image = item["thumbnail"]
 		else:

@@ -229,10 +229,15 @@ def open(url,page):
 	#launch redirects to his better addons
 	if url.find("sop://")>-1 or url.find("acestream://")>-1: #required plexus or something similar installed, this dependency is external from this addon so needs to be installed
 		logger.info("trying to send link to plexus: "+url)
-		url = "plugin://program.plexus/?url="+urllib.quote_plus(url)
+		mode = "1"
+		if url.find("sop://")>-1:
+			mode = "2"
+		url = "plugin://program.plexus/?mode="+mode+"&url="+url
 	elif url.find(".torrent")>-1 or url.find("magnet:")>-1:
 		logger.info("trying to send link to quasar: "+url)
-		url = "plugin://plugin.video.quasar/play?uri="+urllib.quote_plus(url)
+		if url.find("magnet:")==-1:
+			url = urllib.quote_plus(url)
+		url = "plugin://plugin.video.quasar/play?uri="+url
 	elif url.find("youtube.com/")>-1:
 		id = ""
 		if url.find("v=")>-1:

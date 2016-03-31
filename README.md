@@ -1,6 +1,19 @@
-TV BOX video plugin for KODI.
+TV BOX video plugin for Kodi for learning people, it's completely free, it has no ads and if you get it from a page with 
+advertising or pay for it, you are insane.
 
-This project is based on GNU v2 and shared on github.com to the community.
+This project is based on GNU v2 and shared on github.com to the community to learn, make improves and promote
+the use of Kodi, because it's the best app ever done.
+
+You're the unique responsible of the use of this app. If you do an wrong use of this app, you see something that
+it's ilegal in your country, please go to the people who offer this content. The developer of this app is not responsible
+of nothing, and less by third people. This app have not any content, so if you change params to see illegal content or 
+browse to page which offers illegal content you are the unique responsible. To avoid misunderstandings the development 
+has forbidden download content willfully. 
+
+If you device explodes or teleports to other planet, galaxy or dimensions this addon will not be responsible. 
+Don't use it if you are not agree with the remark that you are the unique responsible.
+
+It's hoped be clear enough.
 
 TV BOX is a plugin to watch multimedia content from remote servers in a XBMC (Kodi).
 
@@ -32,3 +45,4 @@ This addon has two main options:
 	1) Static content (your list described before or an url to standard .m3u list)
 	
 	2) Web browsing by list
+	

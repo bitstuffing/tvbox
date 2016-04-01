@@ -70,7 +70,6 @@ class Decoder():
         element = {}
         logger.debug("url: "+url+", referer: "+referer)
         html4 = Downloader.getContentFromUrl(url,"","",referer)
-        print html4
         finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
         finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
         logger.debug("proccessing level 4, cookie: "+Downloader.cookie)
@@ -440,15 +439,15 @@ class Decoder():
                 extractedElement = Decoder.extract("'","'",bruteElement[1])
                 #logger.info("obtained key: "+bruteElement[0]+", with value: "+extractedElement)
                 vars[bruteElement[0]] = extractedElement
-		if extractedElement.find("+")>-1:
-			for currentVarSubElement in extractedElement.split("+"):
-				if len(currentVarSubElement)>0 and currentVarSubElement.find('"')==-1:
-					logger.info("using var: "+currentVarSubElement)
-					preSubFix = "var "+currentVarSubElement+"=";
-					valueInternalVar = varPart[varPart.find(preSubFix)+len(preSubFix)+1:]
-					logger.info("Internal var provisional is: "+valueInternalVar)
-					valueInternalVar = valueInternalVar[:valueInternalVar.find('"')]
-					logger.info("Internal var final is: "+valueInternalVar)
+                if extractedElement.find("+")>-1:
+                    for currentVarSubElement in extractedElement.split("+"):
+                        if len(currentVarSubElement)>0 and currentVarSubElement.find('"')==-1:
+                            logger.info("using var: "+currentVarSubElement)
+                            preSubFix = "var "+currentVarSubElement+"=";
+                            valueInternalVar = varPart[varPart.find(preSubFix)+len(preSubFix)+1:]
+                            logger.info("Internal var provisional is: "+valueInternalVar)
+                            valueInternalVar = valueInternalVar[:valueInternalVar.find('"')]
+                            logger.info("Internal var final is: "+valueInternalVar)
         #second extract src part for a diagnostic
         bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
         finalUrl = ""
@@ -458,36 +457,36 @@ class Decoder():
                     extractedValue = Decoder.extract("(",")",bruteUrlPart)
                     if extractedValue.find("'")>-1: #it means encoded html
                         extractedValue = Decoder.extract("'","'",extractedValue)
-			logger.info("1")
+                        logger.info("1")
                         finalUrl += urllib.unquote(extractedValue)
                     else: #it means a var, seek it
                         if vars.has_key(extractedValue):
                             finalUrl += vars[extractedValue]
-			    logger.info("2")
+                    logger.info("2")
                 else:
                     if bruteUrlPart.find("'")==0:#there is a var
                         if vars.has_key(bruteUrlPart):
                             finalUrl += vars[bruteUrlPart]
-			    logger.info("3")
+                            logger.info("3")
                         else:
                             bruteUrlPart = bruteUrlPart.replace("'","")
                             finalUrl+=bruteUrlPart
-			    logger.info("4")
+                            logger.info("4")
                             #logger.info("brute text included1: "+bruteUrlPart)
                     else: #brute text, paste it without the final "'" if it contains that character
                         bruteUrlPart = bruteUrlPart.replace("'","")
                         if vars.has_key(bruteUrlPart):
-			    logger.info("5"+bruteUrlPart+","+vars[bruteUrlPart])
-			    if vars[bruteUrlPart].find('"')==-1:
-			        finalUrl += vars[bruteUrlPart]
-			    else:
-			        for bruteUrlPart2 in vars[bruteUrlPart].split("+"):
-					logger.info("seek key: "+bruteUrlPart2)
-					if vars.has_key(bruteUrlPart2) and bruteUrlPart2.find('"')==-1:
-						finalUrl += vars[bruteUrlPart2].replace('"',"")
-                        else:
-                            finalUrl+=bruteUrlPart
-                            logger.info("brute text included2: "+bruteUrlPart)
+                            logger.info("5"+bruteUrlPart+","+vars[bruteUrlPart])
+                            if vars[bruteUrlPart].find('"')==-1:
+                                finalUrl += vars[bruteUrlPart]
+                            else:
+                                for bruteUrlPart2 in vars[bruteUrlPart].split("+"):
+                                    logger.info("seek key: "+bruteUrlPart2)
+                                    if vars.has_key(bruteUrlPart2) and bruteUrlPart2.find('"')==-1:
+                                        finalUrl += vars[bruteUrlPart2].replace('"',"")
+                                    else:
+                                        finalUrl+=bruteUrlPart
+                                        logger.info("brute text included2: "+bruteUrlPart)
                 logger.info("now finalUrl is: "+urllib.unquote(finalUrl))
         finalUrl = urllib.unquote(finalUrl) #finally translate to good url
         if finalUrl.find("unezcapez(")>-1:
@@ -548,7 +547,12 @@ class Decoder():
             iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
             if decodedssx4.find(".m3u8")>-1:
                 logger.info("Found simple link: "+decodedssx4)
-                response = Decoder.getContent(decodedssx4,"",iframeReferer).read()
+                #response = Decoder.getContent(decodedssx4,"",iframeReferer).read()
+                if iframeReferer.find("ponlatv.com")>-1:
+                    iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
+                logger.debug("using referer url: "+iframeReferer)
+                response = Downloader.getContentFromUrl(decodedssx4,"","",iframeReferer)
+                logger.debug("html is: "+response)
                 if response.find("chunklist.m3u8")>-1:
                     finalSimpleLink2 = decodedssx4[:decodedssx4.rfind("/")+1]+"chunklist.m3u8"
                     response = Decoder.getContent(finalSimpleLink2,"",iframeReferer).read()
@@ -572,12 +576,13 @@ class Decoder():
             rtmpValue = ""
             #i = 0
             finalSimpleLink = ""
+            logger.debug("html is: "+html)
             for splittedHtml in html.split('<input type="hidden" id="'):
                 if splittedHtml.find("DOCTYPE html PUBLIC")==-1 and splittedHtml.find(' value=""')==-1:
-                    #logger.info("processing hidden: "+splittedHtml)
+                    logger.info("processing hidden: "+splittedHtml)
                     extracted = splittedHtml[splittedHtml.find('value="')+len('value="'):]
                     extracted = extracted[0:extracted.find('"')]
-                    logger.info("extracted hidden value: "+extracted)
+                    logger.debug("extracted hidden value: "+extracted)
                     if playPath == "":
                         playPath = base64.standard_b64decode(extracted)
                     else:
@@ -589,9 +594,13 @@ class Decoder():
                 #i+=1
             if finalSimpleLink!="":
                 logger.info("Found simple link: "+finalSimpleLink)
-                response = Decoder.getContent(finalSimpleLink,"",iframeReferer).read()
+                if iframeReferer.find("ponlatv.com")>-1:
+                    iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
+                logger.debug("using referer url: "+iframeReferer)
+                response = Downloader.getContentFromUrl(finalSimpleLink,"","",iframeReferer)
+                logger.debug(response)
                 if response.find("chunklist.m3u8")>-1:
-                    finalSimpleLink2 = finalSimpleLink[:finalSimpleLink.rfind("/")+1]+"chunklist.m3u8"
+                    finalSimpleLink2 = finalSimpleLink[:finalSimpleLink.rfind("/")+1]+response[response.find("chunklist.m3u8"):].strip()
                     response = Decoder.getContent(finalSimpleLink2,"",iframeReferer).read()
                     logger.debug("response for m3u8(a): "+response)
                     response = finalSimpleLink2+"|Referer="+iframeReferer
@@ -863,7 +872,6 @@ class Decoder():
         iframeUrl = url;
         logger.debug("using referer: "+page)
         html = Downloader.getContentFromUrl(iframeUrl,'',"",page)
-        print html
         file = "";
         if html.find(".m3u8")>-1:
             file = Decoder.rExtract("'file': '",'.m3u8',html)

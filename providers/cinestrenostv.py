@@ -129,6 +129,8 @@ class Cineestrenostv(Downloader):
             element = Cineestrenostv.extractScriptVerdirectotv(html3,iframeUrl2)
         elif html3.find('<script type="text/javascript" src="http://www.sunhd.info/channelsa.php?file=')>-1:
             element = Cineestrenostv.extractScriptSunhdinfo(html3,iframeUrl2)
+        elif html3.find('<script type="text/javascript" src="http://www.ponlatv.com/channel.php?file=')>-1:
+            element = Cineestrenostv.extractScriptPonlatv(html3,iframeUrl2)
         elif html3.find("http://vercanalestv.com/tv/")>-1: #vercanalestv
             iframeUrl = Decoder.extractWithRegex("http://vercanalestv.com/tv/",'"',html3)
             logger.debug("obtained iframeUrl: "+iframeUrl)
@@ -191,7 +193,7 @@ class Cineestrenostv(Downloader):
             scriptUrl = scriptUrl[0:len(scriptUrl)-1]
 
             html4 = Cineestrenostv.getContentFromUrl(scriptUrl,"",Cineestrenostv.cookie,iframeUrl2)
-
+            #logger.debug("verdirectotv html: "+html4)
             if html4.find("http://www.dinostream.pw/channel.php?file=")>-1:
                 scriptUrl2 = Decoder.extractWithRegex("http://www.dinostream.pw/channel.php?file=",'&autostart=true"',html4)
                 scriptUrl2 = scriptUrl2[0:len(scriptUrl2)-1]
@@ -231,8 +233,12 @@ class Cineestrenostv(Downloader):
                 element["title"] = "Watch streaming"
                 element["permalink"] = True
                 element["link"] = playerUrl
-            #else:
-            #    print "big data"+html4
+            elif scriptUrl!=iframeUrl2:
+                logger.debug("trying new loop with: "+scriptUrl+", "+iframeUrl2)
+                element = Cineestrenostv.mainLogicExtractIframeChannel(html4,scriptUrl)
+            else:
+                logger.debug("big data: "+html4)
+
         elif html3.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="653" height="403" src="')>-1:
              #html4 = Cineestrenostv.getContentFromUrl(iframeUrl2,"","",referer)
              #if html4.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="653" height="403" src="')>-1:
@@ -345,8 +351,9 @@ class Cineestrenostv(Downloader):
         logger.debug("proccessing level 3, cookie: "+Cineestrenostv.cookie)
         scriptUrl = Decoder.extractWithRegex("http://tv.verdirectotv.org/channel.php?file=",'"',htmlContent)
         scriptUrl = scriptUrl[0:len(scriptUrl)-1]
-
+        logger.info("debug url for level 3: "+scriptUrl)
         html4 = Cineestrenostv.getContentFromUrl(scriptUrl,"",Cineestrenostv.cookie,referer)
+        logger.debug(html4)
         finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
         finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
 
@@ -388,3 +395,26 @@ class Cineestrenostv(Downloader):
 
         return element
 
+    @staticmethod
+    def extractScriptPonlatv(htmlContent,referer):
+        element = {}
+        logger.debug("proccessing level 3, cookie: "+Cineestrenostv.cookie)
+        scriptUrl = Decoder.extractWithRegex("http://www.ponlatv.com/channel.php?file=",'"',htmlContent)
+        scriptUrl = scriptUrl[0:len(scriptUrl)-1]
+
+        html4 = Cineestrenostv.getContentFromUrl(scriptUrl,"",Cineestrenostv.cookie,referer)
+        finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
+        finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
+
+        logger.debug("proccessing level 4, cookie: "+Cineestrenostv.cookie)
+
+        finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
+        #print "final level5 html: "+finalHtml
+        logger.debug("proccessing level 5, cookie: "+Cineestrenostv.cookie)
+        playerUrl = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
+        #print "player url is: "+playerUrl
+        element["title"] = "Watch streaming"
+        element["permalink"] = True
+        element["link"] = playerUrl
+
+        return element

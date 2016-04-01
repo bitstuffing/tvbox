@@ -57,9 +57,12 @@ class Skylinewebcamscom(Downloader):
             logger.debug("loop: "+str(i))
             if i>0:
                 element = {}
+                logger.debug("processing html: "+value)
                 if value.find('<img ')==-1:
                     title = Decoder.rExtract(">",'</a></li>',value)
                     link = Decoder.extract("href=\"/",'"',value)
+                    if title == '</a':
+                        title = Decoder.extract('>',' <span',value)
                     element["title"] = title
                     element["link"] = Skylinewebcamscom.MAIN_URL+link
                     if len(title)>0 and link.find("#")==-1 and len(element["link"])>len(Skylinewebcamscom.MAIN_URL) and (title.find("<")==-1 and title.find(">")==-1):

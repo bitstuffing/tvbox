@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>64</version>
+	<version>65</version>
 	<date>01/04/2016</date>
-	<changes>Fix related to skylinewebcamscom provider.</changes>
+	<changes>Improves related to zonasports provider.</changes>
 </plugin>

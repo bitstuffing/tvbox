@@ -85,6 +85,17 @@ class Zonasportsme(Downloader):
                     playPath = tcUrl[tcUrl.rfind('/'):]
                     url = tcUrl+" swfUrl="+swfUrl+" playPath="+playPath+" live=1 pageUrl="+url2
                     logger.debug("built rtmp url: "+url)
+            elif html.find("http://js.p2pcast.tech/p2pcast/player.js")>-1:
+                id = Decoder.extract("<script type='text/javascript'>id='","'",html)
+                newReferer = "http://p2pcast.tech/stream.php?id="+id+"&osr=0&p2p=0&stretching=uniform"
+                html2 = Zonasportsme.getContentFromUrl(newReferer,"",Zonasportsme.cookie,page)
+                html3 = Zonasportsme.getContentFromUrl('http://p2pcast.tech/getTok.php',"",Zonasportsme.cookie,newReferer)
+                token = Decoder.extract('{"token":"','"}',html3)
+                logger.debug("token: "+token)
+                base64Url = Decoder.extract('&p2p=1&stretching=uniform&osr="</script><script>',';',html2)
+                logger.debug("provisional: "+base64Url)
+                base64Url = Decoder.extract('"','"',base64Url)
+                url = base64.decodestring(base64Url)+token+"|Referer=http://cdn.p2pcast.tech/jwplayer.flash.swf"
             else:
                 #http://www.byetv.org/channel.php?file=2099&width=700&height=400&autostart=true
                 logger.debug("unescape logic...")
@@ -93,6 +104,8 @@ class Zonasportsme(Downloader):
                 #search for .m3u8 file
                 if extracted.find('file: "')>-1:
                     url = Decoder.extract('file: "','",',extracted)
+                elif extracted.find('var stream = "')>-1:
+                    url = Decoder.extract('var stream = "','";',extracted)
                 elif extracted.find(' src="'+Zonasportsme.MAIN_URL)>-1:
                     page = Decoder.extractWithRegex(Zonasportsme.MAIN_URL,'"',extracted)
                     logger.debug("detected embed other channel, relaunching with page: \""+page)

@@ -67,6 +67,8 @@ class Downloader():
             if location != '' and launchLocation:
                 if location=="/":
                     location = url
+                elif location.find("/")==0:
+                    location = "http://"+host+location
                 logger.info("launching redirection to: "+location)
                 html = Downloader.getContentFromUrl(location,data,Downloader.cookie,url)
         else:

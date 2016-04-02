@@ -88,17 +88,26 @@ class Zonasportsme(Downloader):
             elif html.find("http://js.p2pcast.tech/p2pcast/player.js")>-1:
                 id = Decoder.extract("<script type='text/javascript'>id='","'",html)
                 newReferer = "http://p2pcast.tech/stream.php?id="+id+"&osr=0&p2p=0&stretching=uniform"
-                html2 = Zonasportsme.getContentFromUrl(newReferer,"",Zonasportsme.cookie,page)
-                html3 = Zonasportsme.getContentFromUrl('http://p2pcast.tech/getTok.php',"",Zonasportsme.cookie,newReferer)
+                html2 = Downloader.getContentFromUrl(newReferer,"","",page)
+                html3 = Downloader.getContentFromUrl('http://p2pcast.tech/getTok.php',"","",newReferer,True)
+                logger.debug("at this moment cookie is: "+Downloader.cookie)
                 token = Decoder.extract('{"token":"','"}',html3)
                 logger.debug("token: "+token)
                 base64Url = Decoder.extract('&p2p=1&stretching=uniform&osr="</script><script>',';',html2)
                 logger.debug("provisional: "+base64Url)
                 base64Url = Decoder.extract('"','"',base64Url)
-                url = base64.decodestring(base64Url)+token+"|Referer=http://cdn.p2pcast.tech/jwplayer.flash.swf"
+                url = base64.decodestring(base64Url)+token
+                #logger.debug(Downloader.getContentFromUrl(url,"","","http://cdn.p2pcast.tech/jwplayer.flash.swf"))
+                #fix related to token, it depends on User-Agent header content, so needs the same User-Agent in the player
+                url+= "|Referer=http://cdn.p2pcast.tech/jwplayer.flash.swf&User-Agent="+"Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0".replace(" ","+")
+            elif html.find("http://www.castalba.tv/js/embed.js")>-1:
+                id = Decoder.extract('<script type="text/javascript"> id="','"',html)
+                newUrl = "http://castalba.tv/embed.php?cid="+id+"&wh=740&ht=430&r=zonasports.me"
+                url = Decoder.decodeCastalbatv(newUrl,page)
             else:
                 #http://www.byetv.org/channel.php?file=2099&width=700&height=400&autostart=true
                 logger.debug("unescape logic...")
+                logger.debug(html)
                 extracted = Decoder.extract('document.write(unescape("','"));',html).decode('unicode-escape', 'ignore')
                 logger.debug("extracted unicode was (no cases 2): "+extracted)
                 #search for .m3u8 file

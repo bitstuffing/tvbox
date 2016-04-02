@@ -592,10 +592,10 @@ class Decoder():
                     #logger.debug("response for m3u8(a): "+response)
                     #extract an internal link to use, m3u8 list doesn't work anymore
                     logger.debug("appending headers to link...")
-                    response = finalSimpleLink2+"|Referer="+iframeReferer+"&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
+                    response = finalSimpleLink2+"|Referer="+iframeReferer+("&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0".replace(" ","+"))
                 else:
                     logger.debug("response for m3u8(b): "+response)
-                    response = finalSimpleLink+"|Referer="+iframeReferer+"&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
+                    response = finalSimpleLink+"|Referer="+iframeReferer+("&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0".replace(" ","+"))
             elif rtmpValue.find("vod/?token=")>-1:
                 app = rtmpValue[rtmpValue.find("vod/?token="):]
                 iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
@@ -860,13 +860,17 @@ class Decoder():
             file = Decoder.rExtract("'file': '",'.m3u8',html)
             logger.debug("detected castalba file: "+file)
             if len(file)>0 and page!='':
-                file+="|Referer="+page+"&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
+                file+="|Referer="+page+("&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0".replace(" ","+"))
             else:
-                file+="|Referer="+file+"&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
+                file+="|Referer="+file+("&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0".replace(" ","+"))
         else:
-            file = Decoder.extract("var file = '","'",html)
+            if html.find("var file = '")>-1:
+                file = Decoder.extract("var file = '","'",html)
             flash= Decoder.extract("'flashplayer': \"","\"",html)
-            rtmpUrl = "rtmp://"+Decoder.extract("return '/","';",html)
+            if html.find("return '/")>-1:
+                rtmpUrl = "rtmp://"+Decoder.extract("return '/","';",html)
+            else:
+                rtmpUrl = "rtmp"+Decoder.rExtractWithRegex("://","/live';",html).replace("';","")
             playpath = file+"?"+Decoder.extract("unescape('?","'),",html)
             file = rtmpUrl+" playpath="+playpath+" swfUrl="+flash+" live=1 pageUrl=http://castalba.tv/"
         logger.debug("final link from castalba is: "+file)

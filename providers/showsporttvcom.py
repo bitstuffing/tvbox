@@ -82,9 +82,10 @@ class ShowsportTvCom(Downloader):
                 token = Decoder.extract("token:\"","\"",finalScriptContent)
                 logger.debug("pre-token is: "+token)
                 ajaxContent = dict(token=token, is_ajax=1)
-                tokenResponse = ShowsportTvCom.getContentFromUrl("http://www.caston.tv/ss.php",urllib.urlencode(ajaxContent),ShowsportTvCom.cookie,url2,True)
+                #logger.debug(html3)
+                tokenResponse = ShowsportTvCom.getContentFromUrl("http://www.caston.tv/sssss.php",urllib.urlencode(ajaxContent),ShowsportTvCom.cookie,url2,True)
                 logger.debug("token response: "+tokenResponse)
-                file = Decoder.extract("file:\"","\"",finalScriptContent)+Decoder.extract('["','",',tokenResponse)
+                file = Decoder.extract("file:\"","\"",finalScriptContent)+Decoder.extract('","','",',tokenResponse)+"&e="+Decoder.rExtract(',',']',tokenResponse)+"|Referer=http://p.jwpcdn.com/6/12/jwplayer.flash.swf"
             logger.debug("final remote url: "+file)
             element = {}
             element["link"] = file

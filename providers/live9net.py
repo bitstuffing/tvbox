@@ -31,7 +31,7 @@ class Live9net(Downloader):
                     scriptSrc = Decoder.extractWithRegex('http://sawlive','"></script>',html2).replace('"></script>',"")
                 else:
                     scriptSrc = Decoder.extractWithRegex('http://www3.sawlive','"></script>',html2).replace('"></script>',"")
-                finalRtmpUrl = Decoder.extractSawlive(scriptSrc,Live9net.cookie,iframeUrl)
+                finalRtmpUrl = Decoder.extractSawlive(scriptSrc,iframeUrl)
                 element = {}
                 element["link"] = finalRtmpUrl
                 element["title"] = "Watch channel"

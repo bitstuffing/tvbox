@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>68</version>
+	<version>69</version>
 	<date>02/04/2016</date>
-	<changes>Improves related to showsporttv provider</changes>
+	<changes>Improves related to live9 provider</changes>
 </plugin>

@@ -35,8 +35,8 @@ def buildMusicDownloadHeaders(host,cookie='',referer=''):
     return headers
 
 def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
-    logger.info("[downloadtools.py] downloadfile: url="+url)
-    logger.info("[downloadtools.py] downloadfile: fileName="+fileName)
+    logger.debug("downloadfile: url="+url)
+    logger.debug("downloadfile: fileName="+fileName)
 
     try:
 
@@ -44,23 +44,23 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
             fileName = xbmc.makeLegalFilename(fileName)
         except:
             pass
-        logger.info("[downloadtools.py] downloadfile: fileName="+fileName)
+        logger.debug("downloadfile with fileName="+fileName)
 
         if os.path.exists(fileName) and notStop:
             f = open(fileName, 'r+b')
             existSize = os.path.getsize(fileName)
             
-            logger.info("[downloadtools.py] downloadfile: file exists, size=%d" % existSize)
+            logger.info("downloadfile: file exists, size=%d" % existSize)
             recordedSize = existSize
             f.seek(existSize)
 
         elif os.path.exists(fileName) and not notStop:
-            logger.info("[downloadtools.py] downloadfile: file exists, dont re-download")
+            logger.info("downloadfile: file exists, dont re-download")
             return
 
         else:
             existSize = 0
-            logger.info("[downloadtools.py] downloadfile: file doesn't exists")
+            logger.info("downloadfile: file doesn't exists")
 
             f = open(fileName, 'wb')
             recordedSize = 0
@@ -76,52 +76,46 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
         h=urllib2.HTTPHandler(debuglevel=0)
         remoteFile = url
         params = None
-        '''
-        if remoteFile.find("?"):
-            remoteFile = url[:url.find("?")]
-        request = urllib2.Request(remoteFile, params, headers)
-        logger.info("request created to "+url)
-        '''
+
         request = urllib2.Request(url)
-        logger.info("checking headers...")
-        logger.info("type: "+str(type(headers)))
+
+        logger.debug("checking headers... type: "+str(type(headers)))
         if len(headers)>0:
-            logger.info("adding headers...")
+            logger.debug("adding headers...")
             for key in headers.keys():
-                logger.info("[downloadtools.py] Header="+key+": "+headers.get(key))
+                logger.debug("Header="+key+": "+headers.get(key))
                 request.add_header(key,headers.get(key))
         else:
-            logger.info("headers are 0")
+            logger.debug("headers figure are 0")
 
-        logger.info("checking resume...")
+        logger.debug("checking resume status...")
         if existSize > 0: #restart
-            logger.info("resume is detected")
+            logger.info("resume is launched!")
             request.add_header('Range', 'bytes=%d-' % (existSize, ))
     
         opener = urllib2.build_opener(h)
         urllib2.install_opener(opener)
         try:
-            logger.info("opening request...")
+            logger.debug("opening request...")
             connection = opener.open(request)
         except: # End
-            logger.error("something fatal happened")
             logger.error("ERROR: "+traceback.format_exc())
             f.close()
             if not silent:
                 progressDialog.close()
-        logger.info("detecting download size...")
+        logger.debug("detecting download size...")
     
         try:
             totalFileSize = int(connection.headers["Content-Length"])
         except:
             totalFileSize = 1
 
-        logger.info("total file size: "+str(totalFileSize))
+        logger.debug("total file size: "+str(totalFileSize))
                 
         if existSize > 0:
             totalFileSize = totalFileSize + existSize
     
-        logger.info("Content-Length=%s" % totalFileSize)
+        logger.debug("Content-Length=%s" % totalFileSize)
     
         blockSize = 100*1024 #Buffer size
     
@@ -172,7 +166,7 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
     
                 # Something wrong happened
                 if retries > maxRetries:
-                    logger.info("ERROR, something happened in download proccess")
+                    logger.error("ERROR, something happened in download proccess")
                     f.close()
                     if not silent:
                         progressDialog.close()

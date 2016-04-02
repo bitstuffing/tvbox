@@ -232,7 +232,7 @@ def open(url,page):
 		mode = "1"
 		if url.find("sop://")>-1:
 			mode = "2"
-		url = "plugin://program.plexus/?mode="+mode+"&url="+url
+		url = "plugin://program.plexus/?mode="+mode+"&url="+url+"&name=RemoteLink"
 	elif url.find(".torrent")>-1 or url.find("magnet:")>-1:
 		logger.info("trying to send link to quasar: "+url)
 		url = urllib.quote_plus(url)

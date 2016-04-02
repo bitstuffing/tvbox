@@ -579,12 +579,14 @@ class Decoder():
                 logger.debug(response)
                 if response.find("chunklist.m3u8")>-1:
                     finalSimpleLink2 = finalSimpleLink[:finalSimpleLink.rfind("/")+1]+response[response.find("chunklist.m3u8"):].strip()
-                    response = Decoder.getContent(finalSimpleLink2,"",iframeReferer).read()
-                    logger.debug("response for m3u8(a): "+response)
-                    response = finalSimpleLink2+"|Referer="+iframeReferer
+                    #response = Decoder.getContent(finalSimpleLink2,"",iframeReferer).read()
+                    #logger.debug("response for m3u8(a): "+response)
+                    #extract an internal link to use, m3u8 list doesn't work anymore
+                    logger.debug("appending headers to link...")
+                    response = finalSimpleLink2+"|Referer="+iframeReferer+"&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
                 else:
                     logger.debug("response for m3u8(b): "+response)
-                    response = finalSimpleLink
+                    response = finalSimpleLink+"|Referer="+iframeReferer+"&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
             elif rtmpValue.find("vod/?token=")>-1:
                 app = rtmpValue[rtmpValue.find("vod/?token="):]
                 iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
@@ -849,9 +851,9 @@ class Decoder():
             file = Decoder.rExtract("'file': '",'.m3u8',html)
             logger.debug("detected castalba file: "+file)
             if len(file)>0 and page!='':
-                file+="|Referer="+page
+                file+="|Referer="+page+"&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
             else:
-                file+="|Referer="+file
+                file+="|Referer="+file+"&User-Agent=Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
         else:
             file = Decoder.extract("var file = '","'",html)
             flash= Decoder.extract("'flashplayer': \"","\"",html)

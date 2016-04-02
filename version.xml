@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>66</version>
+	<version>67</version>
 	<date>02/04/2016</date>
-	<changes>Maintenance tasks: Cleaned core code.</changes>
+	<changes>Improves related to cinestrenostv provider</changes>
 </plugin>

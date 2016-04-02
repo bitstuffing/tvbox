@@ -370,11 +370,12 @@ class Decoder():
         return finalUrl
 
     @staticmethod
-    def extractSawlive(scriptSrc,cookie,iframeUrl):
-        encryptedHtml = Downloader.getContentFromUrl(scriptSrc,"",cookie,iframeUrl)
+    def extractSawlive(scriptSrc,iframeUrl):
+        encryptedHtml = Downloader.getContentFromUrl(scriptSrc,"","",iframeUrl)
         decryptedUrl = Decoder.decodeSawliveUrl(encryptedHtml)
-        html3 = Downloader.getContentFromUrl(decryptedUrl,"",cookie,scriptSrc)
+        html3 = Downloader.getContentFromUrl(decryptedUrl,"",Downloader.cookie,iframeUrl) #fix, it must use the same referer
         logger.debug("decrypted sawlive url content obtained!")
+        #logger.debug("final html is: "+html3)
         #ok, now extract flash script content
         flashContent = Decoder.extract("var so = new SWFObject('","</script>",html3)
         file = Decoder.extract("'file', ",");",flashContent)
@@ -405,7 +406,7 @@ class Decoder():
         #update swf url
         swfUrl = flashContent[:flashContent.find("'")]
         logger.debug("updated swf player to: "+swfUrl)
-        if rtmpUrl=='' and file.find("http://")>-1:
+        if rtmpUrl=='' and file.find("http://")>-1 and file.find(".jpg")==-1:
             finalRtmpUrl = file #it's a redirect with an .m3u8, so it's used
         else:
             finalRtmpUrl = rtmpUrl+" playpath="+file+" swfUrl="+swfUrl+" live=1 conn=S:OK pageUrl="+decryptedUrl+" timeout=12"
@@ -431,7 +432,11 @@ class Decoder():
                             valueInternalVar = valueInternalVar[:valueInternalVar.find('"')]
                             logger.debug("Internal var final is: "+valueInternalVar)
         #second extract src part for a diagnostic
-        bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
+        if encryptedHtml.find(' src="')>-1:
+            bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
+        elif encryptedHtml.find(" src=\"")>-1:
+            bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
+        logger.debug("bruteSrc is: "+bruteSrc)
         finalUrl = ""
         if bruteSrc.find("+")>-1:
             for bruteUrlPart in bruteSrc.split("+"):
@@ -465,9 +470,13 @@ class Decoder():
                                     logger.debug("seek key: "+bruteUrlPart2)
                                     if vars.has_key(bruteUrlPart2) and bruteUrlPart2.find('"')==-1:
                                         finalUrl += vars[bruteUrlPart2].replace('"',"")
-                                    else:
+                                    elif len(bruteUrlPart.strip())>2:
+                                        logger.debug("brute url part: "+bruteUrlPart)
                                         finalUrl+=bruteUrlPart
                                         logger.debug("brute text included2: "+bruteUrlPart)
+                        else:
+                            logger.debug("It's not waste, text is: "+bruteUrlPart)
+                            finalUrl+=bruteUrlPart
                 logger.debug("now finalUrl is: "+urllib.unquote(finalUrl))
         finalUrl = urllib.unquote(finalUrl) #finally translate to good url
         if finalUrl.find("unezcapez(")>-1:

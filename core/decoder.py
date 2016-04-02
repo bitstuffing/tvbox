@@ -76,7 +76,6 @@ class Decoder():
         finalHtml = Downloader.getContentFromUrl(finalIframeUrl,"",Downloader.cookie,referer)
         logger.debug("proccessing level 5, cookie: "+Downloader.cookie)
         playerUrl = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
-        #print "player url is: "+playerUrl
         element["title"] = "Watch streaming"
         element["permalink"] = True
         element["link"] = playerUrl
@@ -113,20 +112,7 @@ class Decoder():
         data = Downloader.getContentFromUrl(link,"","lang=english")
         html = ""
         if data.find("<script type='text/javascript'>eval(function(p,a,c,k,e")==-1:
-
             finalCookie = "lang=english"
-            '''
-            cookies = ";"
-            cookies = response.info()['Set-Cookie']
-
-            for cookie in cookies.split(";"):
-                if cookie.find("path=") == -1 and cookie.find("expires=") == -1 and cookie.find("Max-Age=") and cookie.find("domain="):
-                    if len(finalCookie)>0:
-                        finalCookie += "; "
-                    finalCookie+= cookie
-
-            logger.info('Extracted cookie: '+finalCookie)
-            '''
             #build form
             if data.find('type="hidden" name="op" value="')>-1:
                 op = Decoder.extract('type="hidden" name="op" value="','"',data)
@@ -150,7 +136,6 @@ class Decoder():
                     inhu = Decoder.extract('type="hidden" name="inhu" value="','"',data)
                     gfk = Decoder.extract("name: 'gfk', value: '","'",data)
                     vhash = Decoder.extract("name: '_vhash', value: '","'",data)
-
                     form = {
                         'op':op,
                         'id':id,
@@ -162,7 +147,6 @@ class Decoder():
                         '_vhash':vhash,
                         'gfk':gfk,
                         'imhuman':btn_download}
-
                 if op != '':
                     time.sleep(waitTime)
                     html = Decoder.getContent(link,form,link,finalCookie,False).read()
@@ -187,7 +171,7 @@ class Decoder():
         swfUrl = "http://www.streamable.ch"+movie
         flashVars = flashVars[flashVars.find("="):]
         decodedFlashvars = base64.standard_b64decode(flashVars)
-        logger.info("decoded url is: "+decodedFlashvars)
+        logger.debug("decoded url is: "+decodedFlashvars)
         response = Downloader.getContentFromUrl(decodedFlashvars)
         token = Decoder.extract("\"token1\":\"","\"",response)
         finalLink = base64.standard_b64decode(token)
@@ -321,7 +305,7 @@ class Decoder():
         mediaId = Decoder.extract("/f/","/",link)
         embedUrl = 'https://openload.io/embed/'+mediaId
         html = Downloader.getContentFromUrl(embedUrl,"","","",False,False)
-        logger.info("html is: "+html)
+        logger.debug("html is: "+html)
         logger.debug("using cookie 1: "+Downloader.cookie)
         logger.debug("Media id for openload is: "+mediaId)
         key = "oaA-MbZo"
@@ -331,7 +315,7 @@ class Decoder():
         data = Downloader.getContentFromUrl(link2,"",Downloader.cookie,embedUrl,True,False)
         logger.debug("jsonData: "+data)
         js_result = json.loads(data)
-        logger.info("sleeping... "+str(js_result['result']['wait_time']))
+        logger.debug("sleeping... "+str(js_result['result']['wait_time']))
         time.sleep(int(js_result['result']['wait_time']))
         link3 = 'https://api.openload.io/1/file/dl?file=%s&ticket=%s' % (mediaId, js_result['result']['ticket'])
         logger.debug("using cookie 2: "+Downloader.cookie)
@@ -339,19 +323,19 @@ class Decoder():
         logger.debug("jsonData 2: "+result)
         js_result2 = json.loads(result)
         file = js_result2['result']['url'] + '?mime=true'
-        logger.info("Built final link: "+file)
+        logger.debug("Built final link: "+file)
         return file
 
     @staticmethod
     def decodePrivatestream(html,referer):
         rtmpUrl = "rtmp://31.220.40.63/privatestream/"
-        logger.info("trying to get playpath from html...")
+        logger.debug("trying to get playpath from html...")
         if html.find("var v_part = '")>-1:
-            logger.info("detected playpath...")
+            logger.debug("detected playpath...")
             playPath = Decoder.extract("var v_part = '","';",html)[len("/privatestream/"):]
             swfUrl = "http://privatestream.tv/js/jwplayer.flash.swf"
             rtmpUrl = rtmpUrl+playPath+" playPath="+playPath+" swfUrl="+swfUrl+" live=1 timeout=12 pageUrl="+referer
-            logger.info("final link:"+rtmpUrl)
+            logger.debug("final link:"+rtmpUrl)
         else:
             logger.info("nothing detected, returning incomplete link :(")
         return rtmpUrl
@@ -365,12 +349,12 @@ class Decoder():
     @staticmethod
     def extractParams(html):
         param = Decoder.extract("so.addParam('FlashVars', '","');",html) #brute params, needs a sort
-        logger.info("brute params are: "+param)
+        logger.debug("brute params are: "+param)
         firstArgument = Decoder.extract('s=','&',param)
         id = Decoder.extract('id=','&',param)
         pk = param[param.find('pk=')+len('pk='):]
         newParam = firstArgument+"?id="+id+"&pk="+pk #format param
-        logger.info("param is now: "+newParam)
+        logger.debug("param is now: "+newParam)
         return newParam
 
     @staticmethod
@@ -388,7 +372,6 @@ class Decoder():
     @staticmethod
     def extractSawlive(scriptSrc,cookie,iframeUrl):
         encryptedHtml = Downloader.getContentFromUrl(scriptSrc,"",cookie,iframeUrl)
-        #print encryptedHtml
         decryptedUrl = Decoder.decodeSawliveUrl(encryptedHtml)
         html3 = Downloader.getContentFromUrl(decryptedUrl,"",cookie,scriptSrc)
         logger.debug("decrypted sawlive url content obtained!")
@@ -421,7 +404,7 @@ class Decoder():
         swfUrl = "http://static3.sawlive.tv/player.swf" #default
         #update swf url
         swfUrl = flashContent[:flashContent.find("'")]
-        logger.info("updated swf player to: "+swfUrl)
+        logger.debug("updated swf player to: "+swfUrl)
         if rtmpUrl=='' and file.find("http://")>-1:
             finalRtmpUrl = file #it's a redirect with an .m3u8, so it's used
         else:
@@ -437,17 +420,16 @@ class Decoder():
             if varElement.find('=')>-1:
                 bruteElement = varElement.split('=')
                 extractedElement = Decoder.extract("'","'",bruteElement[1])
-                #logger.info("obtained key: "+bruteElement[0]+", with value: "+extractedElement)
                 vars[bruteElement[0]] = extractedElement
                 if extractedElement.find("+")>-1:
                     for currentVarSubElement in extractedElement.split("+"):
                         if len(currentVarSubElement)>0 and currentVarSubElement.find('"')==-1:
-                            logger.info("using var: "+currentVarSubElement)
+                            logger.debug("using var: "+currentVarSubElement)
                             preSubFix = "var "+currentVarSubElement+"=";
                             valueInternalVar = varPart[varPart.find(preSubFix)+len(preSubFix)+1:]
-                            logger.info("Internal var provisional is: "+valueInternalVar)
+                            logger.debug("Internal var provisional is: "+valueInternalVar)
                             valueInternalVar = valueInternalVar[:valueInternalVar.find('"')]
-                            logger.info("Internal var final is: "+valueInternalVar)
+                            logger.debug("Internal var final is: "+valueInternalVar)
         #second extract src part for a diagnostic
         bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
         finalUrl = ""
@@ -457,40 +439,39 @@ class Decoder():
                     extractedValue = Decoder.extract("(",")",bruteUrlPart)
                     if extractedValue.find("'")>-1: #it means encoded html
                         extractedValue = Decoder.extract("'","'",extractedValue)
-                        logger.info("1")
+                        logger.debug("trace 1 for brutesrc")
                         finalUrl += urllib.unquote(extractedValue)
                     else: #it means a var, seek it
                         if vars.has_key(extractedValue):
                             finalUrl += vars[extractedValue]
-                    logger.info("2")
+                    logger.debug("trace 2 for brutesrc")
                 else:
                     if bruteUrlPart.find("'")==0:#there is a var
                         if vars.has_key(bruteUrlPart):
                             finalUrl += vars[bruteUrlPart]
-                            logger.info("3")
+                            logger.debug("trace 3 for brutesrc")
                         else:
                             bruteUrlPart = bruteUrlPart.replace("'","")
                             finalUrl+=bruteUrlPart
-                            logger.info("4")
-                            #logger.info("brute text included1: "+bruteUrlPart)
+                            logger.debug("trace 4 for brutesrc")
                     else: #brute text, paste it without the final "'" if it contains that character
                         bruteUrlPart = bruteUrlPart.replace("'","")
                         if vars.has_key(bruteUrlPart):
-                            logger.info("5"+bruteUrlPart+","+vars[bruteUrlPart])
+                            logger.debug("trace 5 for brutesrc: "+bruteUrlPart+","+vars[bruteUrlPart])
                             if vars[bruteUrlPart].find('"')==-1:
                                 finalUrl += vars[bruteUrlPart]
                             else:
                                 for bruteUrlPart2 in vars[bruteUrlPart].split("+"):
-                                    logger.info("seek key: "+bruteUrlPart2)
+                                    logger.debug("seek key: "+bruteUrlPart2)
                                     if vars.has_key(bruteUrlPart2) and bruteUrlPart2.find('"')==-1:
                                         finalUrl += vars[bruteUrlPart2].replace('"',"")
                                     else:
                                         finalUrl+=bruteUrlPart
-                                        logger.info("brute text included2: "+bruteUrlPart)
-                logger.info("now finalUrl is: "+urllib.unquote(finalUrl))
+                                        logger.debug("brute text included2: "+bruteUrlPart)
+                logger.debug("now finalUrl is: "+urllib.unquote(finalUrl))
         finalUrl = urllib.unquote(finalUrl) #finally translate to good url
         if finalUrl.find("unezcapez(")>-1:
-            logger.info("replacing url new encoding...")
+            logger.debug("replacing url new encoding...")
             finalUrl = finalUrl.replace("unezcapez(","").replace(')','') #little fix for new coding, it will be included in the previews revision
         logger.info("Decrypted url is: "+finalUrl)
         return finalUrl
@@ -498,9 +479,9 @@ class Decoder():
     @staticmethod
     def decodeLetonTv(html,referer):
         rtmpUrl = "rtmp://31.200.0.186"
-        logger.info("trying to get playpath from html...")
+        logger.debug("trying to get playpath from html...")
         if html.find("var v_part = '")>-1:
-            logger.info("detected playpath...")
+            logger.debug("detected playpath...")
             playPath = Decoder.extract("var v_part = '","';",html)
             swfUrl = "http://files.leton.tv/jwplayer.flash.swf"
             rtmpUrl = rtmpUrl+playPath+" playPath="+playPath+" swfUrl="+swfUrl+" live=1 timeout=12 pageUrl="+referer
@@ -510,13 +491,12 @@ class Decoder():
 
     @staticmethod
     def decodeBussinessApp(html,iframeReferer):
-        #print html
         response = ""
 
         jsFile = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js"
         if html.find("jwplayer5/addplayer/jwplayer.js")>-1:
             jsFile = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.js",html)
-            logger.info("updated js player to: "+jsFile)
+            logger.debug("updated js player to: "+jsFile)
         elif html.find("http://www.playerhd1.pw")>-1:
             jsFile = "http://www.playerhd1.pw/jwplayer5/addplayer/jwplayer.js"
         token = ""
@@ -529,10 +509,10 @@ class Decoder():
         swfUrl = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf"
         if html.find("jwplayer5/addplayer/jwplayer.flash.swf")>-1: #http://www.playerapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf
             swfUrl = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.flash.swf",html)
-            logger.info("updated swf player to: "+swfUrl)
+            logger.debug("updated swf player to: "+swfUrl)
         elif jsFile.find("businessapp1.pw")==-1:
             swfUrl = "http://"+Decoder.extract('//',"/",jsFile)+"/jwplayer5/addplayer/jwplayer.flash.swf"
-            logger.info("updated swf player to: "+swfUrl)
+            logger.debug("updated swf player to: "+swfUrl)
         elif html.find("http://www.playerhd1.pw")>-1:
             swfUrl = "http://www.playerhd1.pw/jwplayer5/addplayer/jwplayer.flash.swf"
 
@@ -543,11 +523,9 @@ class Decoder():
             unescaped = urllib.unquote(escaped)
             decodedssx1 = base64.standard_b64decode(ssx1)
             decodedssx4 = base64.standard_b64decode(ssx4)
-            #print "decoded{"+decodedssx1+","+decodedssx4+"} unescaped: "+unescaped
             iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
             if decodedssx4.find(".m3u8")>-1:
-                logger.info("Found simple link: "+decodedssx4)
-                #response = Decoder.getContent(decodedssx4,"",iframeReferer).read()
+                logger.debug("Found simple link: "+decodedssx4)
                 if iframeReferer.find("ponlatv.com")>-1:
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
                 logger.debug("using referer url: "+iframeReferer)
@@ -568,9 +546,9 @@ class Decoder():
                 app = decodedssx4[decodedssx4.find("redirect/?token="):]
                 response = decodedssx4+" playpath="+decodedssx1+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
             else:#m3u8 file
-                logger.info("link1: "+decodedssx1)
-                logger.info("link2: "+decodedssx4)
-            logger.info("to player: "+response)
+                logger.debug("link1: "+decodedssx1)
+                logger.debug("link2: "+decodedssx4)
+            logger.debug("to player: "+response)
         else:
             playPath = ""
             rtmpValue = ""
@@ -579,7 +557,7 @@ class Decoder():
             logger.debug("html is: "+html)
             for splittedHtml in html.split('<input type="hidden" id="'):
                 if splittedHtml.find("DOCTYPE html PUBLIC")==-1 and splittedHtml.find(' value=""')==-1:
-                    logger.info("processing hidden: "+splittedHtml)
+                    logger.debug("processing hidden: "+splittedHtml)
                     extracted = splittedHtml[splittedHtml.find('value="')+len('value="'):]
                     extracted = extracted[0:extracted.find('"')]
                     logger.debug("extracted hidden value: "+extracted)
@@ -593,7 +571,7 @@ class Decoder():
                         finalSimpleLink = decodedAndExtracted
                 #i+=1
             if finalSimpleLink!="":
-                logger.info("Found simple link: "+finalSimpleLink)
+                logger.debug("Found simple link: "+finalSimpleLink)
                 if iframeReferer.find("ponlatv.com")>-1:
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
                 logger.debug("using referer url: "+iframeReferer)
@@ -662,11 +640,8 @@ class Decoder():
             encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
         except:
             pass
-            #print html
         mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
         ip = Decoder.extract("http://",'/',mp4File)
-        #port = Decoder.extract(":","/",ip)
-        #ip = ip[0:ip.find("/")]
         code = Decoder.extract("mp4?h=",'"',mp4File)
         link = "http://"+ip+"/"+code+"/v.mp4"
 
@@ -699,7 +674,6 @@ class Decoder():
             encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
         except:
             pass
-            #print html
         mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
         mp4File = Decoder.extractWithRegex("http://play.",".mp4",mp4File)
         return mp4File
@@ -711,7 +685,6 @@ class Decoder():
             encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
         except:
             pass
-            #print html
         mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
         mp4File = Decoder.rExtractWithRegex("http://",".mp4",mp4File)
         mp4File = mp4File.replace("\\","")
@@ -723,7 +696,6 @@ class Decoder():
     @staticmethod
     def decodeStreamcloud(link):
         html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with powvideo and others
-        #print 'html returned: '+html
         mp4File = Decoder.extract('file: "','"',html)
         logger.info('found mp4: '+mp4File)
         return mp4File
@@ -778,16 +750,16 @@ class Decoder():
     def preWise(wised):
         value=""
         try:
-            logger.info("WISE -> extracting params...")
+            logger.debug("WISE -> extracting params...")
             paramsString = Decoder.rExtract("('","')",wised)
-            logger.info("WISE -> params extracted splitting...")
+            logger.debug("WISE -> params extracted splitting...")
             params = paramsString.split(",")
             logger.info("WISE -> explit finished..."+str(len(params)))
             w = params[0].replace("'","")
             i = params[1].replace("'","")
             s = params[2].replace("'","")
             e = params[3].replace("'","")
-            logger.info("WISE -> launching main logic...")
+            logger.debug("WISE -> launching main logic...")
             value=Decoder.unwise(w,i,s,e)
         except:
             logger.error("FATAL! It could not be dewised!")
@@ -850,7 +822,7 @@ class Decoder():
             logger.debug(captchaPost)
             time.sleep(3)
             html2 = Downloader.getContentFromUrl(iframeUrl,captchaPost,Downloader.cookie,iframeUrl)
-        link = "http://harddevelop.com/2015/11/tv-box.html|Referer=http://gordosyfrikis.com/" # ;)
+        link = "https://www.github.com" # dummy url, f.i. ;)
         if html2.find("http://www.streamlive.to/ads/ilive_player.swf")>-1: #builds the link
             swfUrl = "http://www.streamlive.to/ads/streamlive.swf"
             tokenUrl = Decoder.extractWithRegex("http://www.streamlive.to/server.php?id=",'"',html2)
@@ -896,7 +868,7 @@ class Decoder():
         host = url[url.find("://")+3:]
         if host.find("/")>-1:
             host = host[:host.find("/")]
-        logger.info("Host: "+host)
+        logger.debug("Host: "+host)
         request.add_header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36")
         if len(referer)>0:
             request.add_header("Referer", referer)
@@ -909,7 +881,7 @@ class Decoder():
         request.add_header("Host", host)
 
         form = urllib.urlencode(data)
-        logger.info("form: "+form)
+        logger.debug("form: "+form)
         if len(form)>0:
             response = urllib2.urlopen(request,form)
         else:

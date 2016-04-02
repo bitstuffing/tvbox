@@ -14,9 +14,9 @@ class Downloader():
             host = host[0:host.find("/")]
             subUrl = url[url.find(host)+len(host):]
         if host.find(":")==-1:
-            logger.info("host: "+host+":80 , subUrl: "+subUrl)
+            logger.debug("host: "+host+":80 , subUrl: "+subUrl)
         else:
-            logger.info("host: "+host+" , subUrl: "+subUrl)
+            logger.debug("host: "+host+" , subUrl: "+subUrl)
         headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0",
             "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
@@ -41,7 +41,7 @@ class Downloader():
         else:
             h = httplib.HTTPConnection(host)
         if data == "":
-            logger.info("launching GET...")
+            logger.debug("launching GET...")
             h.request('GET', subUrl, data, headers)
             r = h.getresponse()
             headersReturned = r.getheaders()
@@ -51,7 +51,7 @@ class Downloader():
                 if returnedHeader == 'set-cookie':
                     #print "header1: "+returnedHeader+", value1: "+rValue
                     if rValue.find("__cfduid=")>-1:
-                        logger.info("detected cfduid: "+rValue)
+                        logger.debug("detected cfduid: "+rValue)
                         cfduid = rValue[rValue.find("__cfduid="):]
                         if cfduid.find(";")>-1:
                             cfduid = cfduid[0:cfduid.find(";")]
@@ -59,7 +59,7 @@ class Downloader():
                     logger.info("Location detected: using location: "+rValue)
                     location = rValue
                 else:
-                    logger.info("rejected cookie: "+returnedHeader+", "+rValue)
+                    logger.debug("rejected cookie: "+returnedHeader+", "+rValue)
             if cfduid!= '':
                 Downloader.cookie = cfduid
             logger.info("cookie was updated to: "+Downloader.cookie)
@@ -72,7 +72,7 @@ class Downloader():
                 logger.info("launching redirection to: "+location)
                 html = Downloader.getContentFromUrl(location,data,Downloader.cookie,url)
         else:
-            logger.info("launching POST...")
+            logger.debug("launching POST...")
             req = urllib2.Request(url, data, headers)
             r = urllib2.urlopen(req)
             logger.debug(str(r.info()))

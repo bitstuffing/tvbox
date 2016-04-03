@@ -12,4 +12,8 @@
 		<setting id="splive_channel" type="text" label="30021" value="" default="" enable="true"/>
 		<setting id="online_pbewithmd5anddes_decoder" type="text" label="30031" value="http://decoder.x10host.com/decoder.php" default="http://decoder.x10host.com/decoder.php" enable="true"/>
 	</category>
+	<category label="30040">
+		<setting id="enable_plexus" type="bool" label="30041" default="true" visible="false"/>
+		<setting id="download_plexus" type="action" label="30042" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=99&page=None&provider=None)"/>
+	</category>
 </settings>

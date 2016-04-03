@@ -33,4 +33,11 @@
     <string id="30022">Habilitar listas del programa splive (experimental)</string>
 
     <string id="30031">Decoder online</string>
+
+    <string id="30040">Plexus</string>
+    <string id="30041">Habilitar soporte de plexus</string>
+    <string id="30042">Descargar e instalar plexus</string>
+
+    <string id="30050">¿Desea instalar plexus?</string>
+    <string id="30051">Addon instalado, por favor ejecútelo en addons de programas para configurar y lanzar el asistente. Si no aparece por favor reinicie Kodi.</string>
 </strings>

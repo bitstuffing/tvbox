@@ -33,4 +33,11 @@
     <string id="30022">Enable SPlive app lists (experimental)</string>
 
     <string id="30031">Online decoder</string>
+
+    <string id="30040">Plexus</string>
+    <string id="30041">Enable support for plexus</string>
+    <string id="30042">Download and install plexus</string>
+
+    <string id="30050">Do you want to install plexus?</string>
+    <string id="30051">Addon installed, please run it into programs addons to configure and launch wizard. If it doesn't appear please restart Kodi.</string>
 </strings>

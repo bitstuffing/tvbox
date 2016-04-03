@@ -4,6 +4,7 @@ import CommonFunctions as common
 import urllib
 import urllib2
 import os,sys
+import xbmc
 import xbmcplugin
 import xbmcgui
 import xbmcaddon
@@ -644,6 +645,20 @@ def init():
 			if xbmcgui.Dialog().yesno(addon.getLocalizedString(10011),updater.getUpdateInfo(), "", "", addon.getLocalizedString(11013), addon.getLocalizedString(11014) ):
 				updater.update()
 			get_main_dirs()
+		elif mode == 99:
+			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30050),addon.getLocalizedString(30050), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
+				updater.install("http://decoder.x10host.com/images/program.plexus-0.1.4.zip","program.plexus")
+				logger.debug("addon installed!")
+				try:
+					addonPlexus = xbmcaddon.Addon("program.plexus")
+					logger.debug("obtained addon")
+					addonPlexus.setSetting("autoconfig","true")
+					logger.debug("setting done, launching...")
+				except:
+					logger.debug("Addon not detected, needs to be restarted!")
+					pass
+				xbmcgui.Dialog().ok(addon.getLocalizedString(30051),addon.getLocalizedString(30051))
+				logger.debug("launch done!")
 		elif mode == 100: #decode provider link
 			logger.info("decoding: "+url)
 			link = Decoder.decodeLink(url)

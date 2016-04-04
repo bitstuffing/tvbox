@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>71</version>
+	<version>72</version>
 	<date>04/04/2016</date>
-	<changes>Added support for plexus installer into settings</changes>
+	<changes>Added support for arenavision provider (in dev)</changes>
 </plugin>

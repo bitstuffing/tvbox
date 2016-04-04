@@ -25,6 +25,7 @@ from providers.zonasportsme import Zonasportsme
 from providers.sportstream365com import Sportstream365com
 from providers.showsporttvcom import ShowsportTvCom
 from providers.mamahdcom import Mamahdcom
+from providers.arenavisionin import Arenavisionin
 splive = True
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -45,7 +46,7 @@ MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "remote_repository")
 
 ##CONSTANTS PARTS##
 BROWSE_CHANNELS = "browse_channels"
-MAX = 113
+MAX = 114
 
 def get_params():
 	param=[]
@@ -279,6 +280,9 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	enableSplive = xbmcplugin.getSetting(int(sys.argv[1]), "enable_splive")
 	if enableSplive=="true" and splive:
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
+	enablePlexus = xbmcplugin.getSetting(int(sys.argv[1]), "enable_plexus")
+	if enablePlexus=="true":
+		add_dir("Arenavision.in", 'arenavisionin', 4, "", 'arenavisionin' , 0)
 	#sports with event
 	add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0)
 	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
@@ -554,6 +558,23 @@ def drawShowsporttvcom(page):
 			image = icon
 		add_dir(title,link,mode,image,"showsporttvcom",link)
 
+def drawArenavisionin(page):
+	mode = 4
+	jsonChannels = Arenavisionin.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		if title=='Display by event':
+			title = addon.getLocalizedString(10006)
+		link = item["link"]
+		if link!='1':
+			mode = 114
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: "+image)
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"arenavisionin",link)
+
 def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	if provider == "filmoncom":
 		drawFilmon(page)
@@ -587,6 +608,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawMamahdcom(page)
 	elif provider == 'showsporttvcom':
 		drawShowsporttvcom(page)
+	elif provider == 'arenavisionin':
+		drawArenavisionin(page)
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):
@@ -720,6 +743,10 @@ def init():
 			open(channel[0]["link"],page)
 		elif mode == 113:
 			channel = ShowsportTvCom.getChannels(url)
+			logger.info("found link: "+channel[0]["link"]+", launching...")
+			open(channel[0]["link"],page)
+		elif mode == 114:
+			channel = Arenavisionin.getChannels(url)
 			logger.info("found link: "+channel[0]["link"]+", launching...")
 			open(channel[0]["link"],page)
 	except Exception as e:

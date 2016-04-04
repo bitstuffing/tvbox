@@ -17,3 +17,5 @@ Now all providers are marked like "supported-stable" list.
 
 0.0.6 Added support for the Kore fork to receive links.
 Also added support for torrent, magnet, sopcast, acestream links (linked to external addons like vimeo or youtube).
+
+0.0.7 Added support for plexus comunication between addon and providers

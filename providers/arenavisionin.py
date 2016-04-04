@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import httplib
+import xbmcaddon, xbmcgui
 import urllib
 import os
 import binascii
@@ -24,7 +24,20 @@ class Arenavisionin(Downloader):
             x = Arenavisionin.extractElements(html)
         else:
             if page.find("/")>-1:
-                link = "http://www.arenavision.in/"+page[:page.find("/")]
+                #put a context menu and the user should decice, if not use the first one (default action)
+                dialog = xbmcgui.Dialog()
+                cmenu = []
+                for contextItem in page.split("/"):
+                    if len(contextItem)>1:
+                        cmenu.append(contextItem)
+                addon = xbmcaddon.Addon(id='org.harddevelop.kodi.tv')
+                result = dialog.select(addon.getLocalizedString(11016), cmenu) #choose
+                logger.debug("result was: "+str(result))
+                if result == None or result==-1:
+                    link = "http://www.arenavision.in/"+page[:page.find("/")]
+                else:
+                    logger.debug("has choosed "+str(result)+": "+cmenu[result])
+                    link = "http://www.arenavision.in/"+(cmenu[result])
             else:
                 link = "http://www.arenavision.in/"+page
             html = Arenavisionin.getContentFromUrl(link,"",Arenavisionin.cookie,Arenavisionin.MAIN_URL)

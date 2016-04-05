@@ -675,14 +675,9 @@ def init():
 					logger.debug("addon installed!")
 					#try with request dependency
 					updater.install("https://github.com/beenje/script.module.requests/archive/gotham.zip","script.module.requests","script.module.requests")
-					#plexus part, if it should launch an exception because Kodi has not recognised it
-					#addonPlexus = xbmcaddon.Addon("program.plexus")
-					#logger.debug("obtained addon")
-					#addonPlexus.setSetting("autoconfig","true")
-					logger.debug("setting done!")
-
+					logger.debug("dependency installed, finished!")
 				except:
-					logger.debug("Addon not detected, needs to be restarted!")
+					logger.error("Addon not installed, something wrong happened!")
 					pass
 				xbmcgui.Dialog().ok(addon.getLocalizedString(30051),addon.getLocalizedString(30051))
 				logger.debug("launch done!")

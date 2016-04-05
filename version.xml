@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>74</version>
+	<version>75</version>
 	<date>05/04/2016</date>
-	<changes>Fix related to new setting button</changes>
+	<changes>Fix related to new setting button. Also texts have been updated.</changes>
 </plugin>

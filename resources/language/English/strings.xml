@@ -39,6 +39,6 @@
     <string id="30041">Enable channels managed by plexus (experimental)</string>
     <string id="30042">Download and install plexus (experimental)</string>
 
-    <string id="30050">Do you want to install plexus? The plexus install could require additional libraries, if you have installed a previous version it's not going to override nothing.</string>
-    <string id="30051">Addon installed, please run it into programs addons to configure and launch wizard. If it doesn't appear please restart Kodi. The manual installation is available on Downloads</string>
+    <string id="30050">Do you want to install plexus? The plexus install require additional libraries, if you have installed a previous version it's not going to be overwritten.</string>
+    <string id="30051">Addon installed, please run it into programs addons to configure and launch wizard. If it doesn't appear please restart Kodi.</string>
 </strings>

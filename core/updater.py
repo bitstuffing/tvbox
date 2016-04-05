@@ -13,35 +13,28 @@ REMOTE_FILE_XML = xbmcplugin.getSetting(int(sys.argv[1]), "remote_updater")
 ROOT_DIR = xbmcaddon.Addon(id='org.harddevelop.kodi.tv').getAddonInfo('path')
 
 def install(remote_file,id,folder):
-    logger.debug("detecting existing "+id+"...")
     #first check if plexus exists, and where
-    installed = False
-    try:
-        addon = xbmcaddon.Addon(id)
-        logger.debug("checking localized string command... "+str(addon.getLocalizedString))
-        installed = True
-    except:
-        logger.info(id+" is not installed, continue...")
+    logger.info("installing "+id+"... ")
 
-        separatorChar = '/'
-        if xbmc.getCondVisibility("system.platform.windows"):
-            logger.debug("Detected Windows system...")
-            separatorChar = "\\"
-        addons_dir = xbmc.translatePath("special://home"+separatorChar+"addons"+separatorChar)
-        logger.debug("Addons dir set to: "+addons_dir)
+    separatorChar = '/'
+    if xbmc.getCondVisibility("system.platform.windows"):
+        logger.debug("Detected Windows system...")
+        separatorChar = "\\"
+    addons_dir = xbmc.translatePath("special://home"+separatorChar+"addons"+separatorChar)
+    logger.debug("Addons dir set to: "+addons_dir)
 
-        localfile = ROOT_DIR+"/install.zip"
+    localfile = ROOT_DIR+"/install.zip"
 
-        downloadtools.downloadfile(remote_file, localfile, notStop=False)
-        logger.debug("Download done, now it's time to unzip")
-        unzipper = ziptools.ziptools()
-        if folder == '':
-            unzipper.extract(localfile,addons_dir) #github issues
-        else:
-            unzipper.extractReplacingMainFolder(localfile,addons_dir,folder)
-        logger.debug("Unzip done! cleaning...")
-        os.remove(localfile)
-        logger.info("Additional addon clean done!")
+    downloadtools.downloadfile(remote_file, localfile, notStop=False)
+    logger.debug("Download done, now it's time to unzip")
+    unzipper = ziptools.ziptools()
+    if folder == '':
+        unzipper.extract(localfile,addons_dir) #github issues
+    else:
+        unzipper.extractReplacingMainFolder(localfile,addons_dir,folder)
+    logger.debug("Unzip done! cleaning...")
+    os.remove(localfile)
+    logger.info("Additional addon clean done!")
 
 def update():
     #download ZIP file

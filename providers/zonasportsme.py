@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import httplib
+import urllib2,urlparse
 import urllib
-import os
+import os,re
 import base64
 import binascii
 from core.decoder import Decoder
@@ -104,10 +104,20 @@ class Zonasportsme(Downloader):
                 id = Decoder.extract('<script type="text/javascript"> id="','"',html)
                 newUrl = "http://castalba.tv/embed.php?cid="+id+"&wh=740&ht=430&r=zonasports.me"
                 url = Decoder.decodeCastalbatv(newUrl,page)
+            elif html.find('src="https://streamup.com/')>-1:
+                url2 = Decoder.extractWithRegex('https://streamup.com/','"',html).replace('"',"")
+                html2 = Decoder.getContent(url2,"",page,"",False).read()
+                channel = Decoder.extract('"roomSlug": "','"',html2)
+                #response = Downloader.getContent("https://lancer.streamup.com/api/channels/"+channel+"/playlists",url2,"https://streamup.com").read()
+                result = Zonasportsme.getContent("https://lancer.streamup.com/api/channels/"+channel+"/playlists", referer=url2)
+                url = re.findall('.*(http[^"\']+\.m3u8[^"\']*).*',result)[0]
+                #url+='|%s' %urllib.urlencode({'Referer':url2,'User-agent':client.agent()})
+                swf = Decoder.extract('assetsPath: "','"',html2)+"/flashlsChromeless.swf"
+                url +="|"+Downloader.getHeaders(swf)
             else:
                 #http://www.byetv.org/channel.php?file=2099&width=700&height=400&autostart=true
                 logger.debug("unescape logic...")
-                logger.debug(html)
+                #logger.debug(html)
                 extracted = Decoder.extract('document.write(unescape("','"));',html).decode('unicode-escape', 'ignore')
                 logger.debug("extracted unicode was (no cases 2): "+extracted)
                 #search for .m3u8 file
@@ -142,3 +152,28 @@ class Zonasportsme(Downloader):
                 x.append(element)
             i+=1
         return x
+
+    @staticmethod
+    def getContent(url, referer="",proxy=None, post=None):
+        timeout='14'
+        result = ""
+        headers = {}
+        try:
+            handlers = []
+            handlers += [urllib2.ProxyHandler({'http':'%s'%(proxy)}),urllib2.HTTPHandler]
+            opener = urllib2.build_opener(*handlers)
+            opener = urllib2.install_opener(opener)
+            headers['User-Agent'] = Downloader.USER_AGENT
+            if referer != "":
+                headers['referer'] = referer
+            headers['Accept-Language'] = 'en-US'
+            request = urllib2.Request(url, data=post, headers=headers)
+            try:
+                response = urllib2.urlopen(request, timeout=int(timeout))
+            except urllib2.HTTPError as response:
+                pass
+            result = response.read(1024 * 1024) #without buffer sometimes it does not work :'(
+            response.close()
+        except:
+            logger.error("something wrong happened with this url: "+url)
+        return result

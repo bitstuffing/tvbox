@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>76</version>
+	<version>77</version>
 	<date>05/04/2016</date>
-	<changes>Improves related to cinestrenos provider.</changes>
+	<changes>Improves related to zonasports provider.</changes>
 </plugin>

@@ -4,6 +4,7 @@ from core import logger
 class Downloader():
 
     cookie = ""
+    USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
 
     @staticmethod
     def getContentFromUrl(url,data="",cookie="",referer="",ajax=False,launchLocation=True):
@@ -18,7 +19,7 @@ class Downloader():
         else:
             logger.debug("host: "+host+" , subUrl: "+subUrl)
         headers = {
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0",
+            "User-Agent": Downloader.USER_AGENT,
             "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
             #"Accept-Encoding" : "gzip, deflate",
             "Conection" : "keep-alive",
@@ -106,3 +107,16 @@ class Downloader():
                 Downloader.cookie = cookie
                 logger.info("Cookie was updated to: "+cookie)
         return html
+
+    @staticmethod
+    def getHeaders(iframeReferer):
+        headers = "Referer="+urllib.quote_plus(iframeReferer)
+        headers += "&User-Agent="+urllib.quote_plus(Downloader.USER_AGENT)
+        headers += "&Accept-Language="+urllib.quote_plus("en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3")
+        headers += "&Accept="+urllib.quote_plus("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+        headers += "&Connection="+urllib.quote_plus("keep-alive")
+        headers += "&Accept-Charset="+urllib.quote_plus('UTF-8,*;q=0.8')
+        headers += "&DNT=1"
+        headers += "&Icy-MetaData" # Good luck, have fun! we're proud you're looking that ;) ... at least we don't get bored
+        #headers += "&Range"
+        return headers

@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>73</version>
-	<date>04/04/2016</date>
-	<changes>Added support for arenavision provider</changes>
+	<version>74</version>
+	<date>05/04/2016</date>
+	<changes>Fix related to new setting button</changes>
 </plugin>

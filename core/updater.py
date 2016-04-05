@@ -12,8 +12,8 @@ REMOTE_FILE_XML = xbmcplugin.getSetting(int(sys.argv[1]), "remote_updater")
 
 ROOT_DIR = xbmcaddon.Addon(id='org.harddevelop.kodi.tv').getAddonInfo('path')
 
-def install(remote_file='http://decoder.x10host.com/images/program.plexus-0.1.4.zip',id="program.plexus"):
-    logger.debug("detecting existing plexus...")
+def install(remote_file,id,folder):
+    logger.debug("detecting existing "+id+"...")
     #first check if plexus exists, and where
     installed = False
     try:
@@ -21,8 +21,8 @@ def install(remote_file='http://decoder.x10host.com/images/program.plexus-0.1.4.
         logger.debug("checking localized string command... "+str(addon.getLocalizedString))
         installed = True
     except:
-        logger.info("plexus is not installed/activated")
-    if not installed:
+        logger.info(id+" is not installed, continue...")
+
         separatorChar = '/'
         if xbmc.getCondVisibility("system.platform.windows"):
             logger.debug("Detected Windows system...")
@@ -30,11 +30,15 @@ def install(remote_file='http://decoder.x10host.com/images/program.plexus-0.1.4.
         addons_dir = xbmc.translatePath("special://home"+separatorChar+"addons"+separatorChar)
         logger.debug("Addons dir set to: "+addons_dir)
 
-        localfile = ROOT_DIR+"/update.zip"
+        localfile = ROOT_DIR+"/install.zip"
+
         downloadtools.downloadfile(remote_file, localfile, notStop=False)
         logger.debug("Download done, now it's time to unzip")
         unzipper = ziptools.ziptools()
-        unzipper.extract(localfile,addons_dir) #github issues
+        if folder == '':
+            unzipper.extract(localfile,addons_dir) #github issues
+        else:
+            unzipper.extractReplacingMainFolder(localfile,addons_dir,folder)
         logger.debug("Unzip done! cleaning...")
         os.remove(localfile)
         logger.info("Additional addon clean done!")

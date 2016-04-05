@@ -670,13 +670,17 @@ def init():
 			get_main_dirs()
 		elif mode == 99:
 			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30050),addon.getLocalizedString(30050), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
-				updater.install("http://decoder.x10host.com/images/program.plexus-0.1.4.zip","program.plexus")
+				updater.install("http://decoder.x10host.com/images/program.plexus-0.1.4.zip","program.plexus","program.plexus")
 				logger.debug("addon installed!")
 				try:
-					addonPlexus = xbmcaddon.Addon("program.plexus")
-					logger.debug("obtained addon")
-					addonPlexus.setSetting("autoconfig","true")
-					logger.debug("setting done, launching...")
+					#try with request dependency
+					updater.install("https://github.com/beenje/script.module.requests/archive/gotham.zip","script.module.requests","script.module.requests")
+					#plexus part, if it should launch an exception because Kodi has not recognised it
+					#addonPlexus = xbmcaddon.Addon("program.plexus")
+					#logger.debug("obtained addon")
+					#addonPlexus.setSetting("autoconfig","true")
+					logger.debug("setting done!")
+
 				except:
 					logger.debug("Addon not detected, needs to be restarted!")
 					pass

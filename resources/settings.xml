@@ -6,6 +6,7 @@
 	<category label="30010">
 		<setting id="debug" type="bool" label="30011" default="false"/>
 		<setting id="extended_channels" type="bool" label="30003" default="false"/>
+		<setting id="ffmpeg_patch" type="bool" label="30004" default="false"/>
 	</category>
 	<category label="30020">
 		<setting id="enable_splive" type="bool" label="30022" default="false"/>

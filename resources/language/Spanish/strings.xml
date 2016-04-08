@@ -24,6 +24,7 @@
     <string id="30001">Lista remota de canales</string>
     <string id="30002">Actualizador XML remoto</string>
     <string id="30003">Habilitar canales alternativos (más canales)</string>
+    <string id="30004">Confirmar ffmpeg parcheado (algunos proveedores necesitas la modificación)</string>
 
     <string id="30010">Desarrollo</string>
     <string id="30011">Debug</string>

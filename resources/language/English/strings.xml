@@ -24,6 +24,7 @@
     <string id="30001">Remote channel list</string>
     <string id="30002">XML remote for updates</string>
     <string id="30003">Enable alternative channels (more channels)</string>
+    <string id="30004">Confirm ffmpeg patched (some providers need this patch)</string>
 
     <string id="30010">Development</string>
     <string id="30011">Debug</string>

@@ -117,6 +117,6 @@ class Downloader():
         headers += "&Connection="+urllib.quote_plus("keep-alive")
         headers += "&Accept-Charset="+urllib.quote_plus('UTF-8,*;q=0.8')
         headers += "&DNT=1"
-        headers += "&Icy-MetaData" # Good luck, have fun! we're proud you're looking that ;) ... at least we don't get bored
+        #headers += "&Icy-MetaData" #Now it's fixed from ffmpeg
         #headers += "&Range"
         return headers

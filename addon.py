@@ -674,7 +674,7 @@ def init():
 		elif mode == 99:
 			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30050),addon.getLocalizedString(30050), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
 				try:
-					updater.install("http://decoder.x10host.com/images/program.plexus-0.1.4.zip","program.plexus","program.plexus")
+					updater.install("http://repo.adryanlist.org/program.plexus-0.1.4.zip","program.plexus","program.plexus")
 					logger.debug("addon installed!")
 					#try with request dependency
 					updater.install("https://github.com/beenje/script.module.requests/archive/gotham.zip","script.module.requests","script.module.requests")

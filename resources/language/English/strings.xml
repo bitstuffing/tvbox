@@ -43,4 +43,6 @@
 
     <string id="30050">Do you want to install plexus? The plexus install require additional libraries, if you have installed a previous version it's not going to be overwritten.</string>
     <string id="30051">Addon installed, please run it into programs addons to configure and launch wizard. If it doesn't appear please restart Kodi.</string>
+    <string id="30052">Do you want to install quasar? If you have installed a previous version it's not going to be overwritten.</string>
+
 </strings>

@@ -672,7 +672,7 @@ def init():
 				updater.update()
 			get_main_dirs()
 		elif mode == 98:
-			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30050),addon.getLocalizedString(30050), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
+			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30052),addon.getLocalizedString(30052), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
 				try:
 					updater.install("https://github.com/scakemyer/plugin.video.quasar/archive/master.zip","plugin.video.quasar","plugin.video.quasar")
 					logger.debug("addon installed!")

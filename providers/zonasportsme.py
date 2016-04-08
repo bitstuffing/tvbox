@@ -13,7 +13,7 @@ from providers.cricfreetv import Cricfreetv
 
 class Zonasportsme(Downloader):
 
-    MAIN_URL = "http://zonasports.me/"
+    MAIN_URL = "http://zonasports.to/"
 
     @staticmethod
     def getChannels(page):
@@ -102,7 +102,7 @@ class Zonasportsme(Downloader):
                 url+= "|Referer=http://cdn.p2pcast.tech/jwplayer.flash.swf&User-Agent="+"Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0".replace(" ","+")
             elif html.find("http://www.castalba.tv/js/embed.js")>-1:
                 id = Decoder.extract('<script type="text/javascript"> id="','"',html)
-                newUrl = "http://castalba.tv/embed.php?cid="+id+"&wh=740&ht=430&r=zonasports.me"
+                newUrl = "http://castalba.tv/embed.php?cid="+id+"&wh=740&ht=430&r=zonasports.to"
                 url = Decoder.decodeCastalbatv(newUrl,page)
             elif html.find('src="https://streamup.com/')>-1:
                 url2 = Decoder.extractWithRegex('https://streamup.com/','"',html).replace('"',"")

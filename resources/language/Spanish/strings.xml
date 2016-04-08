@@ -39,7 +39,7 @@
     <string id="30040">Plexus</string>
     <string id="30041">Habilitar canales gestionados por plexus (experimental)</string>
     <string id="30042">Descargar e instalar plexus (experimental)</string>
-    <string id="30042">Descargar e instalar quasar (experimental)</string>
+    <string id="30043">Descargar e instalar quasar (experimental)</string>
 
     <string id="30050">¿Desea instalar plexus? La instalación de plexus sobreescribirá las dependencias en su sistema, si ha instalado una versión anterior será sobreescrita.</string>
     <string id="30051">Addon instalado, por favor ejecútelo en addons de programas para configurar y lanzar el asistente. Si no aparece por favor reinicie Kodi. Si aparece y tiene problemas pruebe a deshabilitar y habilitar la extensión o reinstalar.</string>

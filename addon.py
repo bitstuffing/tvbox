@@ -36,6 +36,7 @@ except:
 from core.downloader import Downloader
 from core.decoder import Decoder
 import re
+import platform
 
 ##INIT GLOBALS##
 
@@ -673,8 +674,41 @@ def init():
 			get_main_dirs()
 		elif mode == 98:
 			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30052),addon.getLocalizedString(30052), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
+				quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/archive/master.zip"
+				if xbmc.getCondVisibility( "system.platform.windows" ):
+					logger.debug("Detected Windows system...")
+					if "x64" in platform.machine():
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.windows_x64.zip"
+					else:
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.windows_x86.zip"
+				elif xbmc.getCondVisibility( "System.Platform.Android" ):
+					logger.debug("Detected Android system...")
+					if os.uname()[4].startswith("arm"):
+						logger.debug("android system...")
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.android_arm.zip"
+					else:
+						logger.debug("Androidx86 system...")
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.android_x86.zip"
+				elif xbmc.getCondVisibility("System.Platform.Linux.RaspberryPi"):
+					logger.debug("raspberry system...")
+					if "armv7" in platform.machine():
+						logger.debug("raspberry pi 2!")
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_armv7.zip"
+					elif "armv6" in platform.machine():
+						logger.debug("raspberry pi 1!")
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_arm.zip"
+					else:
+						logger.debug("raspberry pi 3!")
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_arm64.zip"
+				elif xbmc.getCondVisibility("System.Platform.Linux"):
+					if "x64" in platform.machine():
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_x64.zip"
+					else:
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_x86.zip"
+				else:
+					logger.info("no detected platform, using default (could be a osx?)")
 				try:
-					updater.install("https://github.com/scakemyer/plugin.video.quasar/archive/master.zip","plugin.video.quasar","plugin.video.quasar")
+					updater.install(quasarUrl,"plugin.video.quasar","plugin.video.quasar")
 					logger.debug("addon installed!")
 				except:
 					logger.error("Addon not installed, something wrong happened!")

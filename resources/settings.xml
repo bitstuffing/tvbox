@@ -16,5 +16,6 @@
 	<category label="30040">
 		<setting id="enable_plexus" type="bool" label="30041" default="false" visible="true"/>
 		<setting id="download_plexus" type="action" label="30042" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=99&page=None&provider=None)"/>
+		<setting id="download_quasar" type="action" label="30043" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=98&page=None&provider=None)"/>
 	</category>
 </settings>

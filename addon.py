@@ -149,8 +149,7 @@ def get_main_dirs():
 
 def get_dirs(url,name,page):
 	#print "using url: "+url
-	response = urllib2.urlopen(url)
-	html = response.read()
+	html = Downloader.getContentFromUrl(url)
 	if url.endswith(".xml"): #main channels, it's a list to browse
 		lists = common.parseDOM(html,"list")
 		if len(lists)>0:

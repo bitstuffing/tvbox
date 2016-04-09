@@ -1,4 +1,4 @@
-import httplib
+import urllib2
 import urllib
 from core.decoder import Decoder
 from core import logger
@@ -17,12 +17,14 @@ class Cricfreetv(Downloader):
         x = []
         if str(page) == "0":
             html = Cricfreetv.getContentFromUrl(Cricfreetv.MAIN_URL)
+            logger.debug("total html is: "+html)
             element = {}
             element["link"] = '1'
             element["title"] = 'Display by event'
             x.append(element)
             if html.find("<div id='cssmenu'>")>-1:
-                cssMenu = Decoder.extract("<div id='cssmenu'>",'</a><li> </ul>',html)
+                cssMenu = Decoder.extract("<div id='cssmenu'>",'</ul>',html)
+                logger.debug("html menu: "+cssMenu)
                 for htmlElement in cssMenu.split('<li'):
                     if htmlElement.find('<a href="')>-1:
                         element = {}
@@ -50,8 +52,7 @@ class Cricfreetv(Downloader):
                     element["link"] = href
                     x.append(element)
         else:
-            response = Decoder.getContent(page)
-            html = response.read()
+            html = Cricfreetv.getContentFromUrl(page)
             x.append(Cricfreetv.extractIframe(html,page))
         return x
 
@@ -351,22 +352,3 @@ class Cricfreetv(Downloader):
             height = Decoder.extract("; v_height=",";",html)
             subUrl = "&vw="+width+"&vh="+height
         return subUrl
-
-    @staticmethod
-    def getContentFromUrl(url,data="",cookie="",referer=""):
-
-        response = Decoder.getContent(url,data,referer,cookie,True)
-        #logger.debug(response.info())
-        rValue = response.info().getheader('Set-Cookie')
-        cfduid = ""
-        if rValue!=None:
-            logger.debug("header value: "+rValue)
-            if rValue.find("__cfduid=")>-1:
-                cfduid = rValue[rValue.find("__cfduid="):]
-                if cfduid.find(";")>-1:
-                    cfduid = cfduid[0:cfduid.find(";")]
-        if cfduid!= '':
-            Cricfreetv.cookie = cfduid
-            logger.debug("Cookie has been updated to: "+cfduid)
-        html = response.read()
-        return html

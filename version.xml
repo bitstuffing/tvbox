@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.6</tag>
-	<version>81</version>
-	<date>08/04/2016</date>
-	<changes>Included a "Download and install" for some dependencies from settings.</changes>
+	<version>82</version>
+	<date>09/04/2016</date>
+	<changes>Fixed code for some providers.</changes>
 </plugin>

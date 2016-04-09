@@ -841,10 +841,10 @@ class Decoder():
 
     @staticmethod
     def decodeStreamliveto(html,page=''):
-        iframeUrl = "http://www.streamlive.to/view/"+Decoder.extract('http://www.streamlive.to/embed/','&width=',html)
-        html2 = Downloader.getContentFromUrl(iframeUrl,urllib.urlencode({"captcha":"yes"}),"",iframeUrl)
+        iframeUrl = "http://www.streamlive.to/embedplayer_new2.php?width=653&height=410&channel="+Decoder.extract('http://www.streamlive.to/embed/','&width=',html)+"&autoplay=true"
+        html2 = Downloader.getContentFromUrl(iframeUrl,"","",page)
         if html2.find("Question:")>-1:#captcha
-            #logger.debug(html2)
+            logger.debug(html2)
             captcha = Decoder.rExtract(': ','<br /><br />',html2)
             if captcha.find("(")>-1:
                 logger.debug("resolving captcha with math..."+captcha)
@@ -859,11 +859,11 @@ class Decoder():
             time.sleep(3)
             html2 = Downloader.getContentFromUrl(iframeUrl,captchaPost,Downloader.cookie,iframeUrl)
         link = "https://www.github.com" # dummy url, f.i. ;)
-        if html2.find("http://www.streamlive.to/ads/ilive_player.swf")>-1: #builds the link
-            swfUrl = "http://www.streamlive.to/ads/streamlive.swf"
-            tokenUrl = Decoder.extractWithRegex("http://www.streamlive.to/server.php?id=",'"',html2)
+        if html2.find("http://www.streamlive.to/player/ilive-plugin.swf")>-1: #builds the link
+            swfUrl = "http://www.streamlive.to/player/ilive-plugin.swf"
+            tokenUrl = Decoder.extractWithRegex("www.streamlive.to/server.php?id=",'"',html2)
             tokenUrl = tokenUrl[:(len(tokenUrl)-1)]
-            token = Downloader.getContentFromUrl(tokenUrl,"",Downloader.cookie,page)
+            token = Downloader.getContentFromUrl("http://"+tokenUrl,"",Downloader.cookie,page)
             token = Decoder.extract('{"token":"','"}',token)
             file = Decoder.extract('file: "','",',html2).replace('.flv','')
             streamer = Decoder.extract('streamer: "','",',html2).replace("\\","")

@@ -12,7 +12,7 @@ from core.downloader import Downloader
 
 class Vipracinginfo(Downloader):
 
-    MAIN_URL = "http://vipracing.info"
+    MAIN_URL = "http://vipracing.us"
 
     @staticmethod
     def getChannels(page):
@@ -54,6 +54,7 @@ class Vipracinginfo(Downloader):
                 x.append(element)
             else:
                 logger.debug("launching Vipracing else ELSE logic (other provider embed - max-deportv)")
+                logger.debug(html)
                 iframeUrl = Decoder.extract(' SRC="','"',html)
                 html2 = Vipracinginfo.getContentFromUrl(iframeUrl,"",Vipracinginfo.cookie,page)
                 iframeUrl2 = Decoder.extractWithRegex("http://max-deportv",'"',html2)
@@ -82,7 +83,7 @@ class Vipracinginfo(Downloader):
                 title = Decoder.extract('"','"',value).replace('- ','')
                 link = Decoder.extract('shortcut":"','"',value)
                 element["title"] = title
-                element["link"] = "http://vipracing.info/channel/"+link+"/frame"
+                element["link"] = "http://vipracing.us/channel/"+link+"/frame"
                 logger.debug("append: "+title+", link: "+element["link"])
                 x.append(element)
             i+=1

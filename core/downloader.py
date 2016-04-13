@@ -114,8 +114,8 @@ class Downloader():
         headers += "&User-Agent="+urllib.quote_plus(Downloader.USER_AGENT)
         headers += "&Accept-Language="+urllib.quote_plus("en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3")
         headers += "&Accept="+urllib.quote_plus("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-        headers += "&Connection="+urllib.quote_plus("keep-alive")
-        headers += "&Accept-Charset="+urllib.quote_plus('UTF-8,*;q=0.8')
+        #headers += "&Connection="+urllib.quote_plus("keep-alive")
+        headers += "&Accept-Encoding="+urllib.quote_plus('gzip, deflate')
         headers += "&DNT=1"
         #headers += "&Icy-MetaData" #Now it's fixed from ffmpeg
         #headers += "&Range"

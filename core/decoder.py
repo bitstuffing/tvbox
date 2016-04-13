@@ -609,12 +609,12 @@ class Decoder():
                 if iframeReferer.find("ponlatv.com")>-1 or finalSimpleLink.find("http://cdn.sstream.pw/live/")>-1:
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
                 logger.debug("using referer url: "+iframeReferer)
-                response = Decoder.getContent2(finalSimpleLink,iframeReferer)
-                logger.debug(response)
+                response = Decoder.getContent(finalSimpleLink,"",iframeReferer,"").read()
+                logger.debug("response: "+response)
                 if response.find("chunklist.m3u8")>-1:
                     finalSimpleLink2 = finalSimpleLink[:finalSimpleLink.rfind("/")+1]+response[response.find("chunklist.m3u8"):].strip()
-                    response = Decoder.getContent(finalSimpleLink2,"",iframeReferer).read()
-                    logger.debug("response for m3u8(a): "+response)
+                    #response = Decoder.getContent(finalSimpleLink2,"",iframeReferer,"").read()
+                    #logger.debug("response for m3u8(a): "+response)
                     #extract an internal link to use, m3u8 list doesn't work anymore
                     logger.debug("appending headers to link...")
                     response = finalSimpleLink2+"|"+Downloader.getHeaders(iframeReferer)

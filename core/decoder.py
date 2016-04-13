@@ -499,31 +499,6 @@ class Decoder():
         return rtmpUrl
 
     @staticmethod
-    def getContent2(url, referer="",proxy=None, post=None):
-        timeout='14'
-        result = ""
-        headers = {}
-        try:
-            handlers = []
-            handlers += [urllib2.ProxyHandler({'http':'%s'%(proxy)}),urllib2.HTTPHandler]
-            opener = urllib2.build_opener(*handlers)
-            opener = urllib2.install_opener(opener)
-            headers['User-Agent'] = Downloader.USER_AGENT
-            if referer != "":
-                headers['referer'] = referer
-            headers['Accept-Language'] = 'en-US'
-            request = urllib2.Request(url, data=post, headers=headers)
-            try:
-                response = urllib2.urlopen(request, timeout=int(timeout))
-            except urllib2.HTTPError as response:
-                pass
-            result = response.read(1024 * 1024) #without buffer sometimes it does not work :'(
-            response.close()
-        except:
-            logger.error("something wrong happened with this url: "+url)
-        return result
-
-    @staticmethod
     def decodeBussinessApp(html,iframeReferer):
         response = ""
 
@@ -563,7 +538,21 @@ class Decoder():
                 if iframeReferer.find("ponlatv.com")>-1:
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
                 logger.debug("using referer url: "+iframeReferer)
-                response = Downloader.getContentFromUrl(decodedssx4,"","",iframeReferer)
+                host = decodedssx4[decodedssx4.find("://")+len("://"):]
+                subUrl = ""
+                logger.info("url is: "+host)
+                if host.find("/")>-1:
+                    host = host[0:host.find("/")]
+                headers = {
+                    "User-Agent": Downloader.USER_AGENT,
+                    "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
+                    "Accept-Encoding" : "gzip, deflate",
+                    "Referer" : iframeReferer,
+                    "Host":host,
+                    "DNT":"1",
+                    "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                }
+                response = Downloader.getContentFromUrl(url=decodedssx4,referer=iframeReferer,headers=headers)
                 logger.debug("html is: "+response)
                 if response.find("chunklist.m3u8")>-1:
                     finalSimpleLink2 = decodedssx4[:decodedssx4.rfind("/")+1]+"chunklist.m3u8"
@@ -609,8 +598,21 @@ class Decoder():
                 if iframeReferer.find("ponlatv.com")>-1 or finalSimpleLink.find("http://cdn.sstream.pw/live/")>-1:
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
                 logger.debug("using referer url: "+iframeReferer)
-                response = Decoder.getContent(finalSimpleLink,"",iframeReferer,"").read()
-                logger.debug("response: "+response)
+                host = finalSimpleLink[finalSimpleLink.find("://")+len("://"):]
+                subUrl = ""
+                logger.info("url is: "+host)
+                if host.find("/")>-1:
+                    host = host[0:host.find("/")]
+                headers = {
+                    "User-Agent": Downloader.USER_AGENT,
+                    "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
+                    "Accept-Encoding" : "gzip, deflate",
+                    "Referer" : iframeReferer,
+                    "Host":host,
+                    "DNT":"1",
+                    "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                }
+                response = Downloader.getContentFromUrl(url=finalSimpleLink,referer=iframeReferer,headers=headers)
                 if response.find("chunklist.m3u8")>-1:
                     finalSimpleLink2 = finalSimpleLink[:finalSimpleLink.rfind("/")+1]+response[response.find("chunklist.m3u8"):].strip()
                     #response = Decoder.getContent(finalSimpleLink2,"",iframeReferer,"").read()
@@ -927,3 +929,28 @@ class Decoder():
         else:
             response = urllib2.urlopen(request)
         return response
+
+    @staticmethod
+    def getContent2(url, referer="",proxy=None, post=None):
+        timeout='14'
+        result = ""
+        headers = {}
+        try:
+            handlers = []
+            handlers += [urllib2.ProxyHandler({'http':'%s'%(proxy)}),urllib2.HTTPHandler]
+            opener = urllib2.build_opener(*handlers)
+            opener = urllib2.install_opener(opener)
+            headers['User-Agent'] = Downloader.USER_AGENT
+            if referer != "":
+                headers['referer'] = referer
+            headers['Accept-Language'] = 'en-US'
+            request = urllib2.Request(url, data=post, headers=headers)
+            try:
+                response = urllib2.urlopen(request, timeout=int(timeout))
+            except urllib2.HTTPError as response:
+                pass
+            result = response.read(1024 * 1024) #without buffer sometimes it does not work :'(
+            response.close()
+        except:
+            logger.error("something wrong happened with this url: "+url)
+        return result

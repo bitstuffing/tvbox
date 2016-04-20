@@ -109,7 +109,7 @@ class Decoder():
 
     @staticmethod
     def getFinalHtmlFromLink(link,waitTime=10,inhu=False):
-        data = Downloader.getContentFromUrl(link,"","lang=english")
+        data = Downloader.getContentFromUrl(url=link,data="",cookie="lang=english")
         html = ""
         if data.find("<script type='text/javascript'>eval(function(p,a,c,k,e")==-1:
             finalCookie = "lang=english"
@@ -225,7 +225,11 @@ class Decoder():
     def decodeIdowatch(link):
         logger.debug("decoding idowatch link: "+link)
         html = Decoder.getContent(link,'').read()
-        file = Decoder.extract('file:"','",',html)
+        logger.debug(html)
+        if html.find('file:"')>-1:
+            file = Decoder.extract('file:"','",',html)
+        else:
+            file = Decoder.rExtractWithRegex('http:','.mp4',html)
         logger.debug("found file: "+file)
         return file
 
@@ -304,7 +308,21 @@ class Decoder():
         #get cookies
         mediaId = Decoder.extract("/f/","/",link)
         embedUrl = 'https://openload.io/embed/'+mediaId
-        html = Downloader.getContentFromUrl(embedUrl,"","","",False,False)
+        headers = {}
+        headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        headers["Accept-Encoding"] = "gzip, deflate, br"
+        headers["Accept-Language"] = "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3"
+        headers["Connection"] = "keep-alive"
+        headers["DNT"] = "1"
+        headers["Host"] = "openload.co"
+        headers["User-Agent"] = Downloader.USER_AGENT
+        html = ""
+        try:
+            html = Downloader.getContentFromUrl(embedUrl,data="",cookie="",headers=headers,launchLocation=True,ajax=False)
+        except:
+            logger.debug("trying with the old method, before it was working fine so...")
+            html = Decoder.getContent2(embedUrl)
+            pass
         logger.debug("html is: "+html)
         logger.debug("using cookie 1: "+Downloader.cookie)
         logger.debug("Media id for openload is: "+mediaId)
@@ -673,16 +691,15 @@ class Decoder():
 
     @staticmethod
     def decodeGamovideo(link):
-        html = Decoder.getContent(link,'').read()
-        try:
-            encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
-        except:
-            pass
-        mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
-        ip = Decoder.extract("http://",'/',mp4File)
-        code = Decoder.extract("mp4?h=",'"',mp4File)
-        link = "http://"+ip+"/"+code+"/v.mp4"
-
+        html = Downloader.getContentFromUrl(url=link)
+        logger.debug(html)
+        extracted = Decoder.extract("rtmp://",'"',html)
+        logger.debug("extracted is: "+extracted)
+        split = extracted.split('mp4:')
+        extracted = split[0]+'mp4:'+split[1]
+        logger.debug(str(len(split)))
+        extracted = extracted.replace('_n?','_n.mp4?')
+        link = "rtmp://"+extracted.replace("/mp4"," playpath=mp4")+" pageUrl="+link+" swfUrl=http://gamovideo.com/player61/jwplayer.flash.swf live=1"
         return link
 
     @staticmethod
@@ -708,17 +725,24 @@ class Decoder():
     @staticmethod
     def decodeFlashx(link):
         html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with streamcloud and others
-        try:
-            encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
-        except:
-            pass
-        mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
-        mp4File = Decoder.extractWithRegex("http://play.",".mp4",mp4File)
-        return mp4File
+        mp4File = ""
+        for line in html.split("<script"):
+            if line.find("eval(function(p,a,c,k,e,d)")>-1:
+                try:
+                    encodedMp4File = Decoder.extract("eval(function(p,a,c,k,e,d)","</script>",html)
+                    logger.debug("extracted code is: "+encodedMp4File)
+                except:
+                    pass
+                mp4File += jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
+                logger.debug("At this moment mp4 script is: "+mp4File)
+        if mp4File.find("http://play.")>-1:
+            mp4File = Decoder.extractWithRegex("http://play.",".mp4",mp4File)
+        return mp4File+"|"+Downloader.getHeaders()
 
     @staticmethod
     def decodePowvideo(link):
         html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with streamcloud and others
+        logger.debug(html)
         try:
             encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
         except:

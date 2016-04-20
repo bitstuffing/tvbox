@@ -19,6 +19,7 @@ class Downloader():
         else:
             logger.debug("host: "+host+" , subUrl: "+subUrl)
         if headers == {}:
+            logger.debug("building default headers...")
             headers = {
                 "User-Agent": Downloader.USER_AGENT,
                 "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
@@ -38,14 +39,27 @@ class Downloader():
                 headers["X-Requested-With"] = "XMLHttpRequest"
                 headers["Accept"] = "application/json, text/javascript, */*; q=0.01"
         if host.find(":")==-1:
-            h = httplib.HTTPConnection(host+":80")
+            if url.find("https://")>-1:
+                h = httplib.HTTPSConnection(host+":443")
+                logger.debug("launching https to port 443")
+            else:
+                h = httplib.HTTPConnection(host+":80")
+                logger.debug("launching http to port 80")
         else:
             h = httplib.HTTPConnection(host)
         if data == "":
-            logger.debug("launching GET...")
+            logger.debug("launching GET for "+url+"...")
             req = urllib2.Request(url, headers=headers)
-            r = urllib2.urlopen(req)
-            logger.debug(str(r.info()))
+            try:
+                r = urllib2.urlopen(req)
+            except BaseException as e:
+                logger.error("Something went wrong with urllib :'(: "+str(e))
+                pass
+            try:
+                logger.debug("connection info: "+str(r.info()))
+            except:
+                logger.error("could not be converted")
+                pass
             cookie = ""
             logger.debug("reading...")
             html = r.read()
@@ -128,9 +142,11 @@ class Downloader():
         return html
 
     @staticmethod
-    def getHeaders(iframeReferer):
-        headers = "Referer="+urllib.quote_plus(iframeReferer)
-        headers += "&User-Agent="+urllib.quote_plus(Downloader.USER_AGENT)
+    def getHeaders(iframeReferer=''):
+        headers = ""
+        if iframeReferer!='':
+            headers += "Referer="+urllib.quote_plus(iframeReferer)+"&"
+        headers += "User-Agent="+urllib.quote_plus(Downloader.USER_AGENT)
         headers += "&Accept-Language="+urllib.quote_plus("en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3")
         headers += "&Accept="+urllib.quote_plus("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
         #headers += "&Connection="+urllib.quote_plus("keep-alive")

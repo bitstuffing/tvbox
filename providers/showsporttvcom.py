@@ -86,6 +86,33 @@ class ShowsportTvCom(Downloader):
                 tokenResponse = ShowsportTvCom.getContentFromUrl("http://www.caston.tv/sssss.php",urllib.urlencode(ajaxContent),ShowsportTvCom.cookie,url2,True)
                 logger.debug("token response: "+tokenResponse)
                 file = Decoder.extract("file:\"","\"",finalScriptContent)+Decoder.extract('","','",',tokenResponse)+"&e="+Decoder.rExtract(',',']',tokenResponse)+"|Referer=http://p.jwpcdn.com/6/12/jwplayer.flash.swf"
+            elif html2.find("http://www.sostart.pw/js/embed.js")>-1:
+                fid = Decoder.extract('<script type="text/javascript"> fid="','"',html2)
+                url3 = "http://www.sostart.pw/jwplayer6.php?channel="+fid
+                html3 = ShowsportTvCom.getContentFromUrl(url3,"",ShowsportTvCom.cookie,iframeUrl)
+                if html3.find("http://static.bro.adca.st/broadcast/player.js")>-1:
+                    id2 = Decoder.extract("<script type='text/javascript'>id='","';",html3)
+                    logger.debug("using id = "+id2)
+                    url4 = "http://bro.adcast.site/stream.php?id="+id2+"&width=700&height=450&stretching=uniform"
+                    html4 = ShowsportTvCom.getContentFromUrl(url4,"",ShowsportTvCom.cookie,url3)
+                    logger.debug("html4: "+html4)
+            elif html2.find("http://www.iguide.to/embed")>-1:
+                nextIframeUrl = Decoder.extractWithRegex('http://www.iguide.to/embed','"',html2).replace('"',"")
+                file = Decoder.decodeIguide(nextIframeUrl,iframeUrl)
+            elif html2.find("http://static.bro.adca.st/broadcast/player.js")>-1:
+                id2 = Decoder.extract("<script type='text/javascript'>id='","';",html2)
+                logger.debug("using id = "+id2)
+                url4 = "http://bro.adcast.site/stream.php?id="+id2+"&width=700&height=450&stretching=uniform"
+                html4 = ShowsportTvCom.getContentFromUrl(url4,"",ShowsportTvCom.cookie,iframeUrl)
+                logger.debug("html4: "+html4)
+                curl = Decoder.extract('curl = "','"',html4)
+                token = ShowsportTvCom.getContentFromUrl('http://bro.adcast.site/getToken.php',"",ShowsportTvCom.cookie,url4,True)
+                logger.debug("token: "+token)
+                token = Decoder.extract('":"','"',token)
+                file = base64.decodestring(curl)+token+"|"+Downloader.getHeaders('http://cdn.bro.adcast.site/jwplayer.flash.swf')
+                logger.debug("final url is: "+file)
+            else:
+                logger.debug("none: "+html2)
             logger.debug("final remote url: "+file)
             element = {}
             element["link"] = file

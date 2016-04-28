@@ -61,7 +61,7 @@ class Decoder():
             link = Decoder.decodeCastalbatv(link,referer)
         elif link.find("http://www.dinostream.pw/")>-1:
             link = Decoder.extractDinostreamPart(link)["link"]
-        elif link.find("http://www.iguide.to/embedplayer")>-1:
+        elif link.find("http://www.iguide.to/embed")>-1:
             link = Decoder.decodeIguide(link)
         return link
 

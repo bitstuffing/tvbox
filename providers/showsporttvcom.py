@@ -96,6 +96,12 @@ class ShowsportTvCom(Downloader):
                     url4 = "http://bro.adcast.site/stream.php?id="+id2+"&width=700&height=450&stretching=uniform"
                     html4 = ShowsportTvCom.getContentFromUrl(url4,"",ShowsportTvCom.cookie,url3)
                     logger.debug("html4: "+html4)
+                    curl = Decoder.extract('curl = "','"',html4)
+                    token = ShowsportTvCom.getContentFromUrl('http://bro.adcast.site/getToken.php',"",ShowsportTvCom.cookie,url4,True)
+                    logger.debug("token: "+token)
+                    token = Decoder.extract('":"','"',token)
+                    file = base64.decodestring(curl)+token+"|"+Downloader.getHeaders('http://cdn.bro.adcast.site/jwplayer.flash.swf')
+                    logger.debug("final url is: "+file)
             elif html2.find("http://www.iguide.to/embed")>-1:
                 nextIframeUrl = Decoder.extractWithRegex('http://www.iguide.to/embed','"',html2).replace('"',"")
                 file = Decoder.decodeIguide(nextIframeUrl,iframeUrl)

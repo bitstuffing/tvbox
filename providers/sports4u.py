@@ -10,7 +10,7 @@ from core.downloader import Downloader
 
 class Sports4u(Downloader):
 
-    MAIN_URL = "http://live.sports4u.tv/"
+    MAIN_URL = "http://sports4u.tv/"
 
     @staticmethod
     def getChannels(page):

@@ -53,12 +53,13 @@ class Cricfreetv(Downloader):
                     x.append(element)
         else:
             html = Cricfreetv.getContentFromUrl(page)
+            logger.debug(html)
             x.append(Cricfreetv.extractIframe(html,page))
         return x
 
     @staticmethod
     def extractIframe(html,referer):
-        iframeUrl = Decoder.extract('<iframe frameborder="0" marginheight="0" marginwidth="0" height="555" src="','"',html)
+        iframeUrl = Decoder.extract('<iframe frameborder="0" marginheight="0" allowfullscreen="true" marginwidth="0" height="555" src="','"',html)
         logger.debug("level 1, iframeUrl: "+iframeUrl+", cookie: "+Cricfreetv.cookie)
         html = Cricfreetv.getContentFromUrl(iframeUrl,"",Cricfreetv.cookie,referer)
         file = Cricfreetv.seekIframeScript(html,referer,iframeUrl)
@@ -102,7 +103,11 @@ class Cricfreetv(Downloader):
         elif html.find("http://violadito.biggestplayer.me/playercr.js")>-1:
             id = Decoder.extract("<script type='text/javascript'>id='","'",html)
             logger.debug("violadito id="+id)
-            newUrl = "http://lqgq.biggestplayer.me/streamcr.php?id="+id+"&width=620&height=460" #TODO, decode to the js
+            #newUrl = "http://lqgq.biggestplayer.me/streamcr.php?id="+id+"&width=620&height=460"
+            jsLogic = Cricfreetv.getContentFromUrl('http://violadito.biggestplayer.me/playercr.js',"",Cricfreetv.cookie,iframeUrl)
+            jsLogic = jsunpack.unpack(jsLogic)
+            logger.debug("jsLogic: "+jsLogic)
+            newUrl = Decoder.extractWithRegex('http://','"',jsLogic).replace("\\'+id+\\'",str(id))
             logger.debug("using referer: "+iframeUrl)
             html2 = Cricfreetv.getContentFromUrl(newUrl,"",Cricfreetv.cookie,iframeUrl)
             logger.debug("extracting file from "+newUrl)

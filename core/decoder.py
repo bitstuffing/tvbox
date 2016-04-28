@@ -432,13 +432,15 @@ class Decoder():
 
     @staticmethod
     def decodeSawliveUrl(encryptedHtml):
+        logger.debug("encrypted iframe is: "+encryptedHtml)
         #first extract var values and append it to an array
         varPart = encryptedHtml[0:encryptedHtml.find(';document.write')]
         vars = {}
-        for varElement in varPart.split('var '): #loop each var
+        for varElement in varPart.split(';'): #loop each var
             if varElement.find('=')>-1:
                 bruteElement = varElement.split('=')
                 extractedElement = Decoder.extract("'","'",bruteElement[1])
+                bruteElement[0] = bruteElement[0].replace("var ","")
                 vars[bruteElement[0]] = extractedElement
                 if extractedElement.find("+")>-1:
                     for currentVarSubElement in extractedElement.split("+"):

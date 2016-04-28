@@ -12,7 +12,7 @@ from core.downloader import Downloader
 
 class Vipracinginfo(Downloader):
 
-    MAIN_URL = "http://vipracing.us"
+    MAIN_URL = "http://vipracing.net"
 
     @staticmethod
     def getChannels(page):
@@ -83,7 +83,7 @@ class Vipracinginfo(Downloader):
                 title = Decoder.extract('"','"',value).replace('- ','')
                 link = Decoder.extract('shortcut":"','"',value)
                 element["title"] = title
-                element["link"] = "http://vipracing.us/channel/"+link+"/frame"
+                element["link"] = "http://vipracing.net/channel/"+link+"/frame"
                 logger.debug("append: "+title+", link: "+element["link"])
                 x.append(element)
             i+=1

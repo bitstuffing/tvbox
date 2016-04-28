@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.7</tag>
-	<version>83</version>
-	<date>20/04/2016</date>
-	<changes>Improves related to browser decoder.</changes>
+	<version>84</version>
+	<date>28/04/2016</date>
+	<changes>Improves related to some providers.</changes>
 </plugin>

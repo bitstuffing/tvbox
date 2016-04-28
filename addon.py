@@ -291,7 +291,6 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
 	#sports without event (at least not implemented yet)
 	add_dir("Mamahd.com", 'mamahdcom', 4, "http://mamahd.com/images/logo.png", 'mamahdcom' , 0)
-	add_dir("Vipracing.us", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
 	#world tv
 	if patchedFfmpeg=="true":
 		add_dir("Cinestrenostv.tv", 'cineestrenos', 4, "http://i.imgur.com/z3CINCU.jpg", 'cineestrenos' , 0) #TODO, put in settings a download and install ffmpeg patched by platform
@@ -301,6 +300,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	add_dir("Zonasports.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme' , 0)
 	add_dir("Sports4u.tv", 'sports4u', 4, "http://live.sports4u.tv/wp-content/uploads/logo3.png", 'sports4u' , 0)
 	add_dir("Showsport-tv.com", 'showsporttvcom', 4, "http://showsport-tv.com/images/logoh.png", 'showsporttvcom' , 0)
+	add_dir("Vipracing.net", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
 	#static streaming lists
 	add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
 	#webcams and others

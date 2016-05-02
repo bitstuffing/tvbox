@@ -231,7 +231,7 @@ class Decoder():
         else:
             file = Decoder.rExtractWithRegex('http:','.mp4',html)
         logger.debug("found file: "+file)
-        return file
+        return file+"|"+Downloader.getHeaders("http://idowatch.net/player6/jwplayer.flash.swf")
 
     @staticmethod
     def decodeIguide(iframeUrl3,iframeUrl2=''):

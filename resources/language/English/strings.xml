@@ -25,7 +25,9 @@
     <string id="30001">Remote channel list</string>
     <string id="30002">XML remote for updates</string>
     <string id="30003">Enable alternative channels (more channels)</string>
-    <string id="30004">Confirm ffmpeg patched (some providers need this patch)</string>
+    <string id="30004">Confirm ffmpeg patch (in some providers is required)</string>
+    <string id="30005">Use local patch for special servers</string>
+    <string id="30006">Install universal patch</string>
 
     <string id="30010">Development</string>
     <string id="30011">Debug</string>
@@ -46,4 +48,5 @@
     <string id="30051">Addon installed, please run it into programs addons to configure and launch wizard. If it doesn't appear please restart Kodi.</string>
     <string id="30052">Do you want to install quasar? If you have installed a previous version it's not going to be overwritten.</string>
 
+    <string id="30060">Patch installed. Please restart Kodi to take effect</string>
 </strings>

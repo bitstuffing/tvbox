@@ -615,34 +615,48 @@ class Decoder():
                 #i+=1
             if finalSimpleLink!="":
                 logger.debug("Found simple link: "+finalSimpleLink)
+                import xbmcaddon
+                enabled = bool(xbmcaddon.Addon(id='org.harddevelop.kodi.tv').getSetting("localproxy_patch")=="true")
                 if iframeReferer.find("ponlatv.com")>-1 or finalSimpleLink.find("http://cdn.sstream.pw/live/")>-1:
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
-                logger.debug("using referer url: "+iframeReferer)
-                host = finalSimpleLink[finalSimpleLink.find("://")+len("://"):]
-                subUrl = ""
-                logger.info("url is: "+host)
-                if host.find("/")>-1:
-                    host = host[0:host.find("/")]
-                headers = {
-                    "User-Agent": Downloader.USER_AGENT,
-                    "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
-                    "Accept-Encoding" : "gzip, deflate",
-                    "Referer" : iframeReferer,
-                    "Host":host,
-                    "DNT":"1",
-                    "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-                }
-                response = Downloader.getContentFromUrl(url=finalSimpleLink,referer=iframeReferer,headers=headers)
-                if response.find("chunklist.m3u8")>-1:
-                    finalSimpleLink2 = finalSimpleLink[:finalSimpleLink.rfind("/")+1]+response[response.find("chunklist.m3u8"):].strip()
-                    #response = Decoder.getContent(finalSimpleLink2,"",iframeReferer,"").read()
-                    #logger.debug("response for m3u8(a): "+response)
-                    #extract an internal link to use, m3u8 list doesn't work anymore
-                    logger.debug("appending headers to link...")
-                    response = finalSimpleLink2+"|"+Downloader.getHeaders(iframeReferer)
+                    logger.debug("setting is: "+str(enabled))
+                    if enabled:
+                        response = "http://127.0.0.1:46720?original-request="+finalSimpleLink.replace("/playlist.m3u8","/chunklist.m3u8")
+                    else:
+                        response = finalSimpleLink+"|"+Downloader.getHeaders(iframeReferer)
                 else:
-                    logger.debug("response for m3u8(b): "+response)
-                    response = finalSimpleLink+"|"+Downloader.getHeaders(iframeReferer)
+                    logger.debug("using referer url: "+iframeReferer)
+                    host = finalSimpleLink[finalSimpleLink.find("://")+len("://"):]
+                    subUrl = ""
+                    logger.info("url is: "+host)
+                    if host.find("/")>-1:
+                        host = host[0:host.find("/")]
+                    headers = {
+                        "User-Agent": Downloader.USER_AGENT,
+                        "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
+                        "Accept-Encoding" : "gzip, deflate",
+                        "Referer" : iframeReferer,
+                        "Host":host,
+                        "DNT":"1",
+                        "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                    }
+                    response = Downloader.getContentFromUrl(url=finalSimpleLink,referer=iframeReferer,headers=headers)
+                    if response.find("chunklist.m3u8")>-1:
+                        finalSimpleLink2 = finalSimpleLink[:finalSimpleLink.rfind("/")+1]+response[response.find("chunklist.m3u8"):].strip()
+                        #response = Decoder.getContent(finalSimpleLink2,"",iframeReferer,"").read()
+                        #logger.debug("response for m3u8(a): "+response)
+                        #extract an internal link to use, m3u8 list doesn't work anymore
+                        logger.debug("appending headers to link...")
+                        if enabled:
+                            response = "http://127.0.0.1:46720?original-request="+finalSimpleLink2
+                        else:
+                            response = finalSimpleLink2+"|"+Downloader.getHeaders(iframeReferer)
+                    else:
+                        logger.debug("response for m3u8(b): "+response)
+                        if enabled:
+                            response = "http://127.0.0.1:46720?original-request="+finalSimpleLink
+                        else:
+                            response = finalSimpleLink+"|"+Downloader.getHeaders(iframeReferer)
             elif rtmpValue.find("vod/?token=")>-1:
                 app = rtmpValue[rtmpValue.find("vod/?token="):]
                 iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters

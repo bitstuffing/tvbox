@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.7</tag>
-	<version>84</version>
-	<date>28/04/2016</date>
-	<changes>Improves related to some providers.</changes>
+	<version>85</version>
+	<date>03/05/2016</date>
+	<changes>Added universal fix for all platforms. Now the patch related to ffmpeg is controlled by Kodi</changes>
 </plugin>

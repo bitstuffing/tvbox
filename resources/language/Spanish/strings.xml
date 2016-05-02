@@ -25,7 +25,9 @@
     <string id="30001">Lista remota de canales</string>
     <string id="30002">Actualizador XML remoto</string>
     <string id="30003">Habilitar canales alternativos (más canales)</string>
-    <string id="30004">Confirmar ffmpeg parcheado (algunos proveedores necesitas la modificación)</string>
+    <string id="30004">Confirmar ffmpeg patch (algunos proveedores lo requieren)</string>
+    <string id="30005">Usar local patch para servidores especiales</string>
+    <string id="30006">Instalar parche universal</string>
 
     <string id="30010">Desarrollo</string>
     <string id="30011">Debug</string>
@@ -45,4 +47,6 @@
     <string id="30050">¿Desea instalar plexus? La instalación de plexus sobreescribirá las dependencias en su sistema, si ha instalado una versión anterior será sobreescrita.</string>
     <string id="30051">Addon instalado, por favor ejecútelo en addons de programas para configurar y lanzar el asistente. Si no aparece por favor reinicie Kodi. Si aparece y tiene problemas pruebe a deshabilitar y habilitar la extensión o reinstalar.</string>
     <string id="30052">¿Desea instalar quasar? Si ha instalado una versión anterior será sobreescrita.</string>
+
+    <string id="30060">Parche instalado. Por favor, reinicie Kodi para que los cambios tengan efecto</string>
 </strings>

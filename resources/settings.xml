@@ -8,6 +8,8 @@
 		<setting id="debug" type="bool" label="30011" default="false"/>
 		<setting id="extended_channels" type="bool" label="30003" default="false"/>
 		<setting id="ffmpeg_patch" type="bool" label="30004" default="false"/>
+		<setting id="localproxy_patch" type="bool" label="30005" default="false"/>
+		<setting id="download_httpproxy" type="action" label="30006" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=97&page=None&provider=None)"/>
 	</category>
 	<category label="30020">
 		<setting id="enable_splive" type="bool" label="30022" default="false"/>

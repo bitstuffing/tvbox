@@ -4,6 +4,7 @@
 		<setting id="remote_updater" type="text" label="30002" value="https://github.com/harddevelop/tvbox/raw/master/version.xml" default="https://github.com/harddevelop/tvbox/raw/master/version.xml" enable="true"/>
 	</category>
 	<category label="30010">
+		<setting id="force_update" type="action" label="11017" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=0&page=None&provider=None)"/>
 		<setting id="debug" type="bool" label="30011" default="false"/>
 		<setting id="extended_channels" type="bool" label="30003" default="false"/>
 		<setting id="ffmpeg_patch" type="bool" label="30004" default="false"/>

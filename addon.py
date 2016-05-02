@@ -671,6 +671,15 @@ def init():
 			if xbmcgui.Dialog().yesno(addon.getLocalizedString(10011),updater.getUpdateInfo(), "", "", addon.getLocalizedString(11013), addon.getLocalizedString(11014) ):
 				updater.update()
 			get_main_dirs()
+		elif mode == 97:
+			masterPatchUrl = "https://github.com/harddevelop/httpproxy-service/archive/master.zip"
+			try:
+				updater.install(masterPatchUrl,"org.harddevelop.kodi.proxy","org.harddevelop.kodi.proxy")
+				xbmcgui.Dialog().ok(addon.getLocalizedString(30060),addon.getLocalizedString(30060))
+				logger.debug("patch installed!")
+			except:
+				logger.error("Patch not installed, something wrong happened!")
+				pass
 		elif mode == 98:
 			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30052),addon.getLocalizedString(30052), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
 				quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/archive/master.zip"

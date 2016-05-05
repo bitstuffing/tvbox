@@ -686,33 +686,33 @@ def init():
 				if xbmc.getCondVisibility( "system.platform.windows" ):
 					logger.debug("Detected Windows system...")
 					if "x64" in platform.machine():
-						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.windows_x64.zip"
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.windows_x64.zip"
 					else:
-						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.windows_x86.zip"
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.windows_x86.zip"
 				elif xbmc.getCondVisibility( "System.Platform.Android" ):
 					logger.debug("Detected Android system...")
 					if os.uname()[4].startswith("arm"):
 						logger.debug("android system...")
-						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.android_arm.zip"
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.android_arm.zip"
 					else:
 						logger.debug("Androidx86 system...")
-						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.android_x86.zip"
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.android_x86.zip"
 				elif xbmc.getCondVisibility("System.Platform.Linux.RaspberryPi"):
 					logger.debug("raspberry system...")
 					if "armv7" in platform.machine():
 						logger.debug("raspberry pi 2!")
-						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_armv7.zip"
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.linux_armv7.zip"
 					elif "armv6" in platform.machine():
 						logger.debug("raspberry pi 1!")
-						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_arm.zip"
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.linux_arm.zip"
 					else:
 						logger.debug("raspberry pi 3!")
-						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_arm64.zip"
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.linux_arm64.zip"
 				elif xbmc.getCondVisibility("System.Platform.Linux"):
 					if "x64" in platform.machine():
-						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_x64.zip"
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.linux_x64.zip"
 					else:
-						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.33/plugin.video.quasar-0.9.33.linux_x86.zip"
+						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.linux_x86.zip"
 				else:
 					logger.info("no detected platform, using default (could be a osx?)")
 				try:
@@ -726,7 +726,9 @@ def init():
 		elif mode == 99:
 			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30050),addon.getLocalizedString(30050), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
 				try:
-					updater.install("http://repo.adryanlist.org/program.plexus-0.1.4.zip","program.plexus","program.plexus")
+					#url = "http://repo.adryanlist.org/program.plexus-0.1.4.zip"
+					url = "https://github.com/AlexMorales85/program.plexus/archive/1.2.2.zip" #better and updated with an acestream fixed client for raspberry platforms
+					updater.install(url,"program.plexus","program.plexus")
 					logger.debug("addon installed!")
 					#try with request dependency
 					updater.install("https://github.com/beenje/script.module.requests/archive/gotham.zip","script.module.requests","script.module.requests")

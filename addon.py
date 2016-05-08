@@ -180,14 +180,10 @@ def get_dirs(url,name,page):
 							value +=", referer: "+referer
 						logger.info("Added: "+name+", url: "+value)
 						add_dir(name, value, 2, img,'', 0)
-			else:
-				lists = common.parseDOM(html,"track") #rusian acelive format
-				if len(lists)>0:
-					for item in lists:
-						name = common.parseDOM(item,"title")[0].encode("utf-8")
-						value = common.parseDOM(item,"location")[0].encode("utf-8")
-						logger.info("Added: "+name+", url: "+value)
-						add_dir(name, value, 2, icon,'', 0)
+			else: #tries xspf
+				drawXspf(html)
+	elif url.endswith(".xspf"):
+		drawXspf(html)
 	else: #it's the final list channel, split
 		bruteChannels = html.split("#EXTINF")
 		for item in bruteChannels:
@@ -198,6 +194,15 @@ def get_dirs(url,name,page):
 			#print "detected channel: "+name+" with url: "+value
 			if name != "" and value != "": ##check for empty channels, we don't want it in our list
 				add_dir(name, value, 2, icon, '', name)
+
+def drawXspf(html):
+	lists = common.parseDOM(html,"track") #rusian acelive format
+	if len(lists)>0:
+		for item in lists:
+			name = common.parseDOM(item,"title")[0].encode("utf-8")
+			value = common.parseDOM(item,"location")[0].encode("utf-8")
+			logger.info("Added: "+name+", url: "+value)
+			add_dir(name, value, 2, icon,'', 0)
 	
 def open(url,page):
 	if url.find("rtmp://")==-1 and url.find("|Referer=")==-1 and ( url.find("http://privatestream.tv/")>-1 or url.find("http://www.dinostream.pw/")>-1 or url.find("http://www.embeducaster.com/")>-1 or url.find("http://tv.verdirectotv.org/channel.php")>-1 or url.find("http://mamahd.com/")>-1):

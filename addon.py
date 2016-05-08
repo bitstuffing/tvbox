@@ -180,6 +180,14 @@ def get_dirs(url,name,page):
 							value +=", referer: "+referer
 						logger.info("Added: "+name+", url: "+value)
 						add_dir(name, value, 2, img,'', 0)
+			else:
+				lists = common.parseDOM(html,"track") #rusian acelive format
+				if len(lists)>0:
+					for item in lists:
+						name = common.parseDOM(item,"title")[0].encode("utf-8")
+						value = common.parseDOM(item,"location")[0].encode("utf-8")
+						logger.info("Added: "+name+", url: "+value)
+						add_dir(name, value, 2, icon,'', 0)
 	else: #it's the final list channel, split
 		bruteChannels = html.split("#EXTINF")
 		for item in bruteChannels:

@@ -229,7 +229,7 @@ def open(url,page):
 			logger.info("decoder url launched an exception, probably could not be decoded")
 			pass
 	#launch redirects to his better addons
-	if url.find("sop://")>-1 or url.find("acestream://")>-1: #required plexus or something similar installed, this dependency is external from this addon so needs to be installed
+	if url.find("sop://")>-1 or url.find("acestream://")>-1 or url.find(".acelive")>-1: #required plexus or something similar installed, this dependency is external from this addon so needs to be installed
 		logger.info("trying to send link to plexus: "+url)
 		mode = "1"
 		if url.find("sop://")>-1:
@@ -789,6 +789,8 @@ def init():
 			if url.find(".m3u8")==-1 and url.find("rtmp://")==-1:
 				channel = Spliveappcom.decodeUrl(url,provider)
 				link = channel[0]["link"]
+				if link.find(", referer:")>-1:
+					link = link[0:link.find(", referer:")]
 			else:
 				link = url
 			logger.info("found link: "+link+", launching...")

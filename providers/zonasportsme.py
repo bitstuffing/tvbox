@@ -128,7 +128,7 @@ class Zonasportsme(Downloader):
                 elif extracted.find(' src="'+Zonasportsme.MAIN_URL)>-1:
                     page = Decoder.extractWithRegex(Zonasportsme.MAIN_URL,'"',extracted)
                     logger.debug("detected embed other channel, relaunching with page: \""+page)
-                    return Zonasportsme.getChannels(base64.b64encode(page[:len(page)-1])) ##TODO, remake this part because there are some links that could not being working
+                    return Zonasportsme.getChannels(base64.b64encode(page[:len(page)-1])) #TODO, remake this part because there are some links that could not being working
             element = {}
             element["title"] = "Stream"
             element["link"] = url

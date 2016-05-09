@@ -26,6 +26,8 @@ from providers.sportstream365com import Sportstream365com
 from providers.showsporttvcom import ShowsportTvCom
 from providers.mamahdcom import Mamahdcom
 from providers.arenavisionin import Arenavisionin
+from providers.acetvru import Acetvru
+
 splive = True
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -296,6 +298,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	enablePlexus = xbmcplugin.getSetting(int(sys.argv[1]), "enable_plexus")
 	if enablePlexus=="true":
 		add_dir("Arenavision.in", 'arenavisionin', 4, "http://www.arenavision.in/sites/default/files/logo_av2015.png", 'arenavisionin' , 0)
+		add_dir("Ace-tv.ru", 'acetvru', 4, "http://ace-tv.eu/logo.png", 'acetvru' , 0)
 	#sports with event
 	patchedFfmpeg = xbmcplugin.getSetting(int(sys.argv[1]), "ffmpeg_patch")
 	if patchedFfmpeg=="true":
@@ -591,6 +594,21 @@ def drawArenavisionin(page):
 			image = icon
 		add_dir(title,link,mode,image,"arenavisionin",link)
 
+def drawAcetvru(page):
+	mode = 2
+	jsonChannels = Acetvru.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		if title=='Display by event':
+			title = addon.getLocalizedString(10006)
+		link = item["link"]
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: "+image)
+		else:
+			image = icon
+		add_dir(title,link,mode,image,"acetvru",link)
+
 def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	if provider == "filmoncom":
 		drawFilmon(page)
@@ -626,6 +644,9 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawShowsporttvcom(page)
 	elif provider == 'arenavisionin':
 		drawArenavisionin(page)
+	elif provider == 'acetvru':
+		drawAcetvru(page)
+
 	logger.info(provider)
 
 def open_channel(url,page,provider=""):

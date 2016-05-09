@@ -244,6 +244,7 @@ class Decoder():
         tokenUrl = Decoder.extractWithRegex("http://www.iguide.to/serverfile.php?id=",'"',html4)
         tokenUrl = tokenUrl[:(len(tokenUrl)-1)]
         token = Downloader.getContentFromUrl(tokenUrl,"",Downloader.cookie)
+        logger.debug("obtained token from iguide: "+token)
         token = Decoder.extract('{"token":"','"}',token)
         file = Decoder.extract("'file': '","',",html4).replace('.flv','')
         streamer = Decoder.extract("'streamer': '","',",html4).replace("\\","")

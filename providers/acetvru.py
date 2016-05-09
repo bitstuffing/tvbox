@@ -29,7 +29,7 @@ class Acetvru(Downloader):
         for value in table.split('\n'):
             if value.find("acestream://")>-1:
                 element = {}
-                element["title"] = Decoder.extract("// ",'(',value)
+                element["title"] = unicode(Decoder.extract("// ",'(',value), errors='replace')
                 element["link"] = Decoder.extractWithRegex("acestream:",'\"',value).replace('"',"")
                 logger.debug("append: "+element["title"]+", link: "+element["link"])
                 x.append(element)

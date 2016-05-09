@@ -29,10 +29,8 @@ class Acetvru(Downloader):
         for value in table.split('\n'):
             if value.find("acestream://")>-1:
                 element = {}
-                title = Decoder.extractWithRegex("acestream:",'\"',value).replace('"',"")
-                link = Decoder.extract("// ",'(',value)
-                element["title"] = title
-                element["link"] = link
-                logger.debug("append: "+title+", link: "+element["link"])
+                element["title"] = Decoder.extract("// ",'(',value)
+                element["link"] = Decoder.extractWithRegex("acestream:",'\"',value).replace('"',"")
+                logger.debug("append: "+element["title"]+", link: "+element["link"])
                 x.append(element)
         return x

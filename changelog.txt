@@ -22,4 +22,7 @@ Also added support for torrent, magnet, sopcast, acestream links (linked to exte
 Also has been added installers for external addons and dependencies.
 Added support for change headers with simple call in player
 
-0.0.8 (dev) Added support for internal patch (httpproxy service)
+0.0.8 Added support for internal patch (httpproxy service)
+Added external dependencies (with some fixes and new binaries)
+
+0.0.9 (dev) Added new provider (with external dependencies)

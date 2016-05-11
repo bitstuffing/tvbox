@@ -622,6 +622,7 @@ class Decoder():
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
                     logger.debug("setting is: "+str(enabled))
                     if enabled:
+                        Decoder.launchLocalHttpProxy()
                         response = "http://127.0.0.1:46720?original-request="+finalSimpleLink.replace("/playlist.m3u8","/chunklist.m3u8")
                     else:
                         response = finalSimpleLink+"|"+Downloader.getHeaders(iframeReferer)
@@ -649,12 +650,14 @@ class Decoder():
                         #extract an internal link to use, m3u8 list doesn't work anymore
                         logger.debug("appending headers to link...")
                         if enabled:
+                            Decoder.launchLocalHttpProxy()
                             response = "http://127.0.0.1:46720?original-request="+finalSimpleLink2
                         else:
                             response = finalSimpleLink2+"|"+Downloader.getHeaders(iframeReferer)
                     else:
                         logger.debug("response for m3u8(b): "+response)
                         if enabled:
+                            Decoder.launchLocalHttpProxy()
                             response = "http://127.0.0.1:46720?original-request="+finalSimpleLink
                         else:
                             response = finalSimpleLink+"|"+Downloader.getHeaders(iframeReferer)
@@ -668,6 +671,20 @@ class Decoder():
                 token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
                 response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
         return response
+
+    @staticmethod
+    def launchLocalHttpProxy():
+        import os,xbmc,xbmcaddon
+        httpproxypath = xbmcaddon.Addon(id='org.harddevelop.kodi.proxy').getAddonInfo('path')
+        serverPath = os.path.join(httpproxypath, 'proxy2.py')
+        try:
+            import requests
+            requests.get('http://127.0.0.1:46720?original-request=http://mobile.harddevelop.com/index2.html')
+            proxyIsRunning = True
+        except:
+            proxyIsRunning = False
+        if not proxyIsRunning:
+            xbmc.executebuiltin('RunScript(' + serverPath + ')')
 
     @staticmethod
     def extractBusinessappToken(iframeReferer,jsUrl="http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js"):

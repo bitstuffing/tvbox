@@ -13,6 +13,7 @@ from core.downloader import Downloader
 class Vipracinginfo(Downloader):
 
     MAIN_URL = "http://vipracing.net"
+    MAIN_URL2 = "http://vipracing.us"
 
     @staticmethod
     def getChannels(page):
@@ -26,6 +27,15 @@ class Vipracinginfo(Downloader):
                 table = Decoder.extract("var channels = JSON.parse('","'),",html)
                 table = table.replace('\u00f3','ó').replace('\u00f1','ñ').replace('\/',"-")#.replace('"',"'")
                 x = Vipracinginfo.extractElements(table)
+                if len(x) == 0:
+                    #change domain to alternative and repeat the same logic
+                    html = Vipracinginfo.getContentFromUrl(Vipracinginfo.MAIN_URL2,"",Vipracinginfo.cookie,"")
+                    #print html
+                    if html.find("var channels = JSON.parse('")>-1: #it's a list, needs decode
+                        table = Decoder.extract("var channels = JSON.parse('","'),",html)
+                        table = table.replace('\u00f3','ó').replace('\u00f1','ñ').replace('\/',"-")#.replace('"',"'")
+                        x = Vipracinginfo.extractElements(table)
+                        logger.debug("done with the second loop, detected channels: "+str(len(x)))
                 logger.debug("Vipracing channels logic done!")
         else:
             html = Vipracinginfo.getContentFromUrl(page,"",Vipracinginfo.cookie,Vipracinginfo.MAIN_URL)

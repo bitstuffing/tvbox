@@ -26,7 +26,7 @@ class Vipracinginfo(Downloader):
             if html.find("var channels = JSON.parse('")>-1: #it's a list, needs decode
                 table = Decoder.extract("var channels = JSON.parse('","'),",html)
                 table = table.replace('\u00f3','ó').replace('\u00f1','ñ').replace('\/',"-")#.replace('"',"'")
-                x = Vipracinginfo.extractElements(table)
+                x = Vipracinginfo.extractElements(table,Vipracinginfo.MAIN_URL)
                 logger.debug("Vipracing channels logic done!")
             else:
                 #change domain to alternative and repeat the same logic
@@ -35,7 +35,7 @@ class Vipracinginfo(Downloader):
                 if html.find("var channels = JSON.parse('")>-1: #it's a list, needs decode
                     table = Decoder.extract("var channels = JSON.parse('","'),",html)
                     table = table.replace('\u00f3','ó').replace('\u00f1','ñ').replace('\/',"-")#.replace('"',"'")
-                    x = Vipracinginfo.extractElements(table)
+                    x = Vipracinginfo.extractElements(table,Vipracinginfo.MAIN_URL2)
                     logger.debug("done with the second loop, detected channels: "+str(len(x)))
         else:
             html = Vipracinginfo.getContentFromUrl(page,"",Vipracinginfo.cookie,Vipracinginfo.MAIN_URL)
@@ -84,7 +84,7 @@ class Vipracinginfo(Downloader):
         return x
 
     @staticmethod
-    def extractElements(table):
+    def extractElements(table,domain):
         x = []
         i = 0
         for value in table.split('"name"'):
@@ -93,7 +93,7 @@ class Vipracinginfo(Downloader):
                 title = Decoder.extract('"','"',value).replace('- ','')
                 link = Decoder.extract('shortcut":"','"',value)
                 element["title"] = title
-                element["link"] = "http://vipracing.net/channel/"+link+"/frame"
+                element["link"] = domain+"/channel/"+link+"/frame"
                 logger.debug("append: "+title+", link: "+element["link"])
                 x.append(element)
             i+=1

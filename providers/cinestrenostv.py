@@ -38,6 +38,8 @@ class Cineestrenostv(Downloader):
                     if element["title"].find(".")>-1:
                         element["title"] = element["title"][:element["title"].rfind(".")]
                 element["thumbnail"] = Decoder.extract(' src="','"',fieldHtml)
+                if element["thumbnail"].find("://")==-1:
+                    element["thumbnail"] = Cineestrenostv.MAIN_URL+element["thumbnail"]
                 element["title"] = element["title"].replace("-"," ")
                 logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
                 if element["thumbnail"].find("http")==0 and not(element["title"]=="1" or element["title"]=="venus"):

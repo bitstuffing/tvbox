@@ -808,7 +808,7 @@ def init():
 			logger.info("found link: "+channel[0]["link"]+", launching...")
 			open(channel[0]["link"],page)
 		elif mode == 108:
-			channel = Skylinewebcamscom.getChannels(page)
+			channel = Skylinewebcamscom.getChannels(page,True)
 			logger.info("found link: "+channel[0]["link"]+", launching...")
 			open(channel[0]["link"],page)
 		elif mode == 109:

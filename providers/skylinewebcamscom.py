@@ -14,18 +14,18 @@ class Skylinewebcamscom(Downloader):
     MAIN_URL = "http://www.skylinewebcams.com/"
 
     @staticmethod
-    def getChannels(page):
+    def getChannels(page,decode=False):
         x = []
         if str(page) == '0':
             page=Skylinewebcamscom.MAIN_URL
         html = Skylinewebcamscom.getContentFromUrl(page,"",Skylinewebcamscom.cookie,"")
-        if page.find(".html")==-1:
+        if page.find(".html")==-1 and not decode:
             logger.debug("browsing main menu...")
             menu = Decoder.extract('<ul class="nav" id="main-menu">',"</li></ul></li></ul>",html)
             x = Skylinewebcamscom.extractElements(menu)
         else:
             logger.debug("browsing page...")
-            if html.find('<ul class="hidden-xs nav nav-tabs')>-1:
+            if html.find('<ul class="hidden-xs nav nav-tabs')>-1 and not decode:
                 logger.debug("browsing submenu")
                 menu = Decoder.extract('<ul class="hidden-xs nav nav-tabs','</li></ul>',html) #first tries to extract submenu
                 x = Skylinewebcamscom.extractElements(menu)
@@ -35,12 +35,14 @@ class Skylinewebcamscom(Downloader):
                     x = Skylinewebcamscom.extractElements(content)
             else:
                 logger.debug("building url for webcam...")
-                if html.find(",url:'")==-1: #needs subchannels
+                if html.find(",url:'")==-1 and not decode: #needs subchannels
                     logger.debug("browsing webcams")
                     content = Decoder.extract('<ul class="row list-unstyled block webcams">','</li></ul>',html)
                     x = Skylinewebcamscom.extractElements(content)
                 else: #final channel
+                    logger.debug("html is: "+html)
                     url = Decoder.rExtract('"',"\" type='application/x-mpegURL'",html)
+                    logger.debug("url is: "+url)
                     logger.debug("building final link: "+url)
                     element = {}
                     element["title"] = "Webcam"

@@ -30,20 +30,21 @@ class Cineestrenostv(Downloader):
             for fieldHtml in table.split('<div class="content">'):
                 element = {}
                 element["link"] = Cineestrenostv.MAIN_URL+Decoder.extract("<div><a href=\"javascript:popUp('..","')",fieldHtml)
-                if element["link"].find('/multi')!=-1:
-                    logger.debug("found multi link: "+element["link"])
-                    element["title"] = Decoder.extract("/multi","/",element["link"])
-                else:
-                    element["title"] = Decoder.rExtract("/",".html",element["link"])
-                    if element["title"].find(".")>-1:
-                        element["title"] = element["title"][:element["title"].rfind(".")]
-                element["thumbnail"] = Decoder.extract(' src="','"',fieldHtml)
-                if element["thumbnail"].find("://")==-1:
-                    element["thumbnail"] = Cineestrenostv.MAIN_URL+element["thumbnail"]
-                element["title"] = element["title"].replace("-"," ")
-                logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
-                if element["thumbnail"].find("http")==0 and not(element["title"]=="1" or element["title"]=="venus"):
-                    x.append(element)
+                if element["link"] != Cineestrenostv.MAIN_URL:
+                    if element["link"].find('/multi')!=-1:
+                        logger.debug("found multi link: "+element["link"])
+                        element["title"] = Decoder.extract("/multi","/",element["link"])
+                    else:
+                        element["title"] = Decoder.rExtract("/",".html",element["link"])
+                        if element["title"].find(".")>-1:
+                            element["title"] = element["title"][:element["title"].rfind(".")]
+                    element["thumbnail"] = Decoder.extract(' src="','"',fieldHtml)
+                    if element["thumbnail"].find("://")==-1:
+                        element["thumbnail"] = Cineestrenostv.MAIN_URL+element["thumbnail"]
+                    element["title"] = element["title"].replace("-"," ")
+                    logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
+                    if element["thumbnail"].find("http")==0 and not(element["title"]=="1" or element["title"]=="venus"):
+                        x.append(element)
         elif page == Cineestrenostv.MAIN_URL:
             table = Decoder.extract('<center><table>','</td></tr></table></center>',html)
             for fieldHtml in table.split('<td>'):
@@ -72,7 +73,9 @@ class Cineestrenostv(Downloader):
                 element["thumbnail"] = Decoder.extract('<img src="','" height',fieldHtml)
                 if element["thumbnail"].find('"')>-1:
                     element["thumbnail"] = element["thumbnail"][0:element["thumbnail"].find('"')]
-                if element["thumbnail"].find("http")==0:
+                if element["thumbnail"].find("://")==-1:
+                    element["thumbnail"] = Cineestrenostv.MAIN_URL+element["thumbnail"]
+                if element["thumbnail"]!=Cineestrenostv.MAIN_URL:
                     logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
                     if element["thumbnail"].find("http")==0 and not(element["title"]=="1" or element["title"]=="gran hermano mexico" or element["title"]=="alx syfy" or element["title"]=="intereconomia punto pelota" or element["title"]=="cine" or element["title"].find("-LATINOAMERICA")>-1):
                         x.append(element)

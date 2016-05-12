@@ -40,7 +40,7 @@ class Skylinewebcamscom(Downloader):
                     content = Decoder.extract('<ul class="row list-unstyled block webcams">','</li></ul>',html)
                     x = Skylinewebcamscom.extractElements(content)
                 else: #final channel
-                    url = Decoder.extract(",url:'","'",html)
+                    url = Decoder.rExtract('"',"\" type='application/x-mpegURL'",html)
                     logger.debug("building final link: "+url)
                     element = {}
                     element["title"] = "Webcam"

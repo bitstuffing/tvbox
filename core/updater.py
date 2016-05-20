@@ -1,26 +1,20 @@
 import urllib2,os,sys
-import xbmcplugin
-import xbmcaddon
-import xbmc
+from core.xbmcutils import XBMCUtils
 from core import logger
 from core import downloadtools
 from core import ziptools
 import time
 import CommonFunctions as common
 
-REMOTE_FILE_XML = xbmcplugin.getSetting(int(sys.argv[1]), "remote_updater")
+REMOTE_FILE_XML = XBMCUtils.getSettingFromContext(sys.argv[1],"remote_updater")
 
-ROOT_DIR = xbmcaddon.Addon(id='org.harddevelop.kodi.tv').getAddonInfo('path')
+ROOT_DIR = XBMCUtils.getAddonInfo('path')
 
 def install(remote_file,id,folder):
     #first check if plexus exists, and where
     logger.info("installing "+id+"... ")
 
-    separatorChar = '/'
-    if xbmc.getCondVisibility("system.platform.windows"):
-        logger.debug("Detected Windows system...")
-        separatorChar = "\\"
-    addons_dir = xbmc.translatePath("special://home"+separatorChar+"addons"+separatorChar)
+    addons_dir = XBMCUtils.getAddonsDir()
     logger.debug("Addons dir set to: "+addons_dir)
 
     localfile = ROOT_DIR+"/install.zip"
@@ -50,17 +44,13 @@ def update():
     end = time.clock()
     logger.info("org.harddevelop.kodi.tv Downloaded in %d seconds " % (end-start+1))
 
-    separatorChar = "/"
-
-    if xbmc.getCondVisibility( "system.platform.windows" ):
-        logger.debug("Detected Windows system...")
-        separatorChar = "\\"
+    separatorChar = XBMCUtils.getSeparatorChar()
 
     #unzip
     unzipper = ziptools.ziptools()
     logger.info("org.harddevelop.kodi.tv destpathname=%s" % ROOT_DIR)
-    addons_dir = xbmc.translatePath(ROOT_DIR[:ROOT_DIR.rfind(separatorChar)+1])
-    current_plugin_dir = xbmc.translatePath(ROOT_DIR[ROOT_DIR.rfind(separatorChar)+1:])
+    addons_dir = XBMCUtils.getAddonsDir()
+    current_plugin_dir = XBMCUtils.getPathFixedFrom(XBMCUtils.getAddonInfo('path'))
     logger.debug("using dir: "+addons_dir+" to extract content")
 
     unzipper.extractReplacingMainFolder(localfile,addons_dir,current_plugin_dir) #github issues

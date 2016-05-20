@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-
-import xbmcaddon, xbmcgui
-import urllib
+from core.xbmcutils import XBMCUtils
 import os
-import binascii
 from core.decoder import Decoder
 from core import jsunpack
 from core import logger
@@ -25,13 +22,12 @@ class Arenavisionin(Downloader):
         else:
             if page.find("/")>-1:
                 #put a context menu and the user should decice, if not use the first one (default action)
-                dialog = xbmcgui.Dialog()
+                dialog = XBMCUtils.getDialog()
                 cmenu = []
                 for contextItem in page.split("/"):
                     if len(contextItem)>1:
                         cmenu.append(contextItem)
-                addon = xbmcaddon.Addon(id='org.harddevelop.kodi.tv')
-                result = dialog.select(addon.getLocalizedString(11016), cmenu) #choose
+                result = dialog.select(XBMCUtils.getString(11016), cmenu) #choose
                 logger.debug("result was: "+str(result))
                 if result == None or result==-1:
                     link = "http://www.arenavision.in/"+page[:page.find("/")]

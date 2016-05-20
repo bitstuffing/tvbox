@@ -1,5 +1,3 @@
-import httplib
-import urllib
 import os
 import binascii
 from core.decoder import Decoder

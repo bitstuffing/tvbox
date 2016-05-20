@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import xbmcaddon, xbmcgui
-import urllib
-import os
-import binascii
 from core.decoder import Decoder
 from core import jsunpack
 from core import logger

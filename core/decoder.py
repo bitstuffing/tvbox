@@ -12,6 +12,7 @@ try:
 except:
     import simplejson as json
 from core import jsunpack
+from core.xbmcutils import XBMCUtils
 
 class Decoder():
 
@@ -616,8 +617,7 @@ class Decoder():
                 #i+=1
             if finalSimpleLink!="":
                 logger.debug("Found simple link: "+finalSimpleLink)
-                import xbmcaddon
-                enabled = bool(xbmcaddon.Addon(id='org.harddevelop.kodi.tv').getSetting("localproxy_patch")=="true")
+                enabled = bool(XBMCUtils.getSetting("localproxy_patch")=="true")
                 if iframeReferer.find("ponlatv.com")>-1 or finalSimpleLink.find("http://cdn.sstream.pw/live/")>-1:
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
                     logger.debug("setting is: "+str(enabled))
@@ -674,8 +674,8 @@ class Decoder():
 
     @staticmethod
     def launchLocalHttpProxy():
-        import os,xbmc,xbmcaddon
-        httpproxypath = xbmcaddon.Addon(id='org.harddevelop.kodi.proxy').getAddonInfo('path')
+        import os
+        httpproxypath = XBMCUtils.getAddonInfo('path')
         serverPath = os.path.join(httpproxypath, 'proxy2.py')
         try:
             import requests
@@ -684,7 +684,7 @@ class Decoder():
         except:
             proxyIsRunning = False
         if not proxyIsRunning:
-            xbmc.executebuiltin('RunScript(' + serverPath + ')')
+            XBMCUtils.executeScript(serverPath)
 
     @staticmethod
     def extractBusinessappToken(iframeReferer,jsUrl="http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js"):

@@ -1,8 +1,6 @@
-import httplib
 import urllib
 import os
 import re
-import binascii
 import base64
 from core.decoder import Decoder
 from core import jsunpack

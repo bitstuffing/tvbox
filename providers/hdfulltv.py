@@ -1,7 +1,5 @@
 # coding=utf-8
-
-import xbmc
-
+from core.xbmcutils import XBMCUtils
 import urllib2
 import httplib
 import urllib
@@ -198,7 +196,7 @@ class HdfullTv():
             x = HdfullTv.extractItems(html)
         elif page=='http://hdfull.tv/search':
             #display keyboard, it will wait for result
-            keyboard = xbmc.Keyboard("")
+            keyboard = XBMCUtils.getKeyboard()
             keyboard.doModal()
             text = ""
             if (keyboard.isConfirmed()):

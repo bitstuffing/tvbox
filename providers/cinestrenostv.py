@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-
-import httplib
-import urllib
 import os,sys
-import xbmcplugin
+from core.xbmcutils import XBMCUtils
 from core.decoder import Decoder
 from core import logger
 from core.downloader import Downloader
@@ -16,7 +13,7 @@ class Cineestrenostv(Downloader):
     def getChannels(page):
         logger.debug("starting with page from cineestrenos section: "+page)
         if str(page) == '0':
-            tradicionalChannels = xbmcplugin.getSetting(int(sys.argv[1]), "extended_channels")
+            tradicionalChannels = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "extended_channels")
             logger.debug("using carrusel: "+str(tradicionalChannels))
             if tradicionalChannels=="false":
                 page = Cineestrenostv.MAIN_URL+'/carrusel/tv.html'

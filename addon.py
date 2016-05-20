@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
-
 import CommonFunctions as common
 import urllib
 import urllib2
 import os,sys
-import xbmc
-import xbmcplugin
-import xbmcgui
-import xbmcaddon
+from core.xbmcutils import XBMCUtils
 from core import updater
 from core import logger
 from providers.filmoncom import Filmoncom
@@ -33,7 +29,7 @@ try:
 	from providers.spliveappcom import Spliveappcom
 except:
 	splive = False
-	logger.error("Crypto-problems detected, probably you need better environment")
+	logger.error("Crypto-problems detected, probably you need a better platform")
 	pass
 from core.downloader import Downloader
 from core.decoder import Decoder
@@ -42,10 +38,8 @@ import platform
 
 ##INIT GLOBALS##
 
-addon = xbmcaddon.Addon(id='org.harddevelop.kodi.tv')
-home = addon.getAddonInfo('path')
-icon = xbmc.translatePath( os.path.join( home, 'icon.png' ) )
-MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "remote_repository")
+icon = XBMCUtils.getAddonFilePath('icon.png')
+MAIN_URL = XBMCUtils.getSettingFromContext(sys.argv[1],"remote_repository")
 
 ##CONSTANTS PARTS##
 BROWSE_CHANNELS = "browse_channels"
@@ -109,12 +103,6 @@ def get_params():
 
 def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	type = "Video"
-	#print url
-	#print mode
-	#print page
-
-	#name = re.sub('[^A-Za-z0-9]+', '',name)
-	#print page
 	u=sys.argv[0]+"?url="+urllib.quote_plus(url.decode('utf-8', 'replace').encode('iso-8859-1', 'replace'))
 	u+="&mode="+str(mode)+"&page="
 	try:
@@ -124,28 +112,25 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 		pass
 	provider = str(provider)
 	u+="&provider="+urllib.quote_plus(provider.decode('utf-8', 'replace').encode('iso-8859-1', 'replace'))
-
 	ok=True
-
-	liz=xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
+	liz=XBMCUtils.getList(name, iconImage=iconimage, thumbnailImage=iconimage)
 	liz.setInfo(type='Video', infoLabels={'Title': name})
-
 	if mode == 2 or (mode >=100 and mode<=MAX): #playable, not browser call, needs decoded to be playable or rtmp to be obtained
 		liz.setProperty("IsPlayable", "true")
 		liz.setPath(url)
-		ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False) #Playable
+		ok=XBMCUtils.addPlayableDirectory(handle=int(sys.argv[1]),url=u,listitem=liz) #Playable)
 	else:
 		liz.setProperty('Fanart_Image', thumbnailImage)
-		ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True) #Folder
+		ok=XBMCUtils.addDirectory(sys.argv[1],url=u,listitem=liz) #Folder
 
 	return ok
 
 def get_main_dirs():
-	add_dir(addon.getLocalizedString(10001), MAIN_URL, 1, icon,'', 0)
-	add_dir(addon.getLocalizedString(10010), BROWSE_CHANNELS, 3, '', icon, 0)
+	add_dir(XBMCUtils.getString(10001), MAIN_URL, 1, icon,'', 0)
+	add_dir(XBMCUtils.getString(10010), BROWSE_CHANNELS, 3, '', icon, 0)
 	try:
 		if updater.isUpdatable():
-			add_dir(addon.getLocalizedString(10011), '', 0, icon, 0)
+			add_dir(XBMCUtils.getString(10011), '', 0, icon, 0)
 	except:
 		logger.error("Couldn't add update option: probably server is down!")
 
@@ -269,21 +254,13 @@ def open(url,page):
 	play(url,page)
 
 def play(url,page):
-	listitem = xbmcgui.ListItem(page)
+	listitem = XBMCUtils.getSimpleList(page)
 	listitem.setProperty('IsPlayable','true')
 	listitem.setPath(url)
 	listitem.setInfo("video",page)
 	try:
-		player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
-		if player.isPlaying() :
-			player.stop()
-		#xbmc.sleep(1000)
-		player.showSubtitles(False)
-		#urlPlayer = urllib.unquote_plus(url.replace("+","@#@")).replace("@#@","+")
-		#urlPlayer = urllib.unquote_plus(url) ##THIS METHOD FAILS IN SOME CASES SHOWING A POPUP (server petition and ffmpeg internal problem)
-		#player.play(urlPlayer,listitem) ##THIS METHOD FAILS IN SOME CASES SHOWING A POPUP (server petition and ffmpeg internal problem)
-		#print 'opening... '+url
-		xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem) ##FIX FOR PREVIEWS LINE##
+		#XBMCUtils.play(url,listitem)
+		XBMCUtils.resolveListItem(sys.argv[1],listitem) ##FIX FOR PREVIEWS LINE##
 		#xbmc.executebuiltin('Dialog.Close(all, true)') ## could be returned an empty element in a list, so player open the next and shows a invalid popup
 	except:
 		pass
@@ -292,15 +269,15 @@ def play(url,page):
 def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	#static content
 	add_dir("HDFull.tv", 'hdfulltv', 4, "http://hdfull.tv/templates/hdfull/images/logo.png", 'hdfulltv' , 0)
-	enableSplive = xbmcplugin.getSetting(int(sys.argv[1]), "enable_splive")
+	enableSplive = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_splive")
 	if enableSplive=="true" and splive:
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
-	enablePlexus = xbmcplugin.getSetting(int(sys.argv[1]), "enable_plexus")
+	enablePlexus = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_plexus")
 	if enablePlexus=="true":
 		add_dir("Arenavision.in", 'arenavisionin', 4, "http://www.arenavision.in/sites/default/files/logo_av2015.png", 'arenavisionin' , 0)
 		add_dir("Ace-tv.ru", 'acetvru', 4, "http://ace-tv.eu/logo.png", 'acetvru' , 0)
 	#sports with event
-	patchedFfmpeg = xbmcplugin.getSetting(int(sys.argv[1]), "ffmpeg_patch")
+	patchedFfmpeg = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "ffmpeg_patch")
 	if patchedFfmpeg=="true":
 		add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal' , 0)
 	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
@@ -393,7 +370,7 @@ def drawVipgoal(page):
 	for item in jsonChannels:
 		title = item["title"]
 		if title=='Display by event':
-			title = addon.getLocalizedString(10006)
+			title = XBMCUtils.getString(10006)
 		link = item["link"]
 		if link != '1':
 			mode = 101 #next step returns a final link
@@ -422,7 +399,7 @@ def drawCricfree(page):
 	for item in jsonChannels:
 		title = item["title"]
 		if title=='Display by event':
-			title = addon.getLocalizedString(10006)
+			title = XBMCUtils.getString(10006)
 		link = item["link"]
 		if link=='1':
 			mode = 4
@@ -439,9 +416,9 @@ def drawZoptv(page):
 	for item in jsonChannels:
 		title = item["title"]
 		if title=='Browse by Country':
-			title = addon.getLocalizedString(10007)
+			title = XBMCUtils.getString(10007)
 		elif title=='Browse by Genre':
-			title = addon.getLocalizedString(10008)
+			title = XBMCUtils.getString(10008)
 		link = item["link"]
 		mode = 4
 		if item.has_key("thumbnail"):
@@ -566,7 +543,7 @@ def drawShowsporttvcom(page):
 	for item in jsonChannels:
 		title = item["title"]
 		if title=='Display by event':
-			title = addon.getLocalizedString(10006)
+			title = XBMCUtils.getString(10006)
 		link = item["link"]
 		if link!='1':
 			mode = 113
@@ -583,7 +560,7 @@ def drawArenavisionin(page):
 	for item in jsonChannels:
 		title = item["title"]
 		if title=='Display by event':
-			title = addon.getLocalizedString(10006)
+			title = XBMCUtils.getString(10006)
 		link = item["link"]
 		if link!='1':
 			mode = 114
@@ -600,7 +577,7 @@ def drawAcetvru(page):
 	for item in jsonChannels:
 		title = item["title"]
 		if title=='Display by event':
-			title = addon.getLocalizedString(10006)
+			title = XBMCUtils.getString(10006)
 		link = item["link"]
 		if item.has_key("thumbnail"):
 			image = item["thumbnail"]
@@ -702,28 +679,28 @@ def init():
 		elif mode == 5:
 			open_channel(url,page)
 		elif mode == 0: #update
-			if xbmcgui.Dialog().yesno(addon.getLocalizedString(10011),updater.getUpdateInfo(), "", "", addon.getLocalizedString(11013), addon.getLocalizedString(11014) ):
+			if XBMCUtils.getDialogYesNo(XBMCUtils.getString(10011),updater.getUpdateInfo()):
 				updater.update()
 			get_main_dirs()
 		elif mode == 97:
 			masterPatchUrl = "https://github.com/harddevelop/httpproxy-service/archive/master.zip"
 			try:
 				updater.install(masterPatchUrl,"org.harddevelop.kodi.proxy","org.harddevelop.kodi.proxy")
-				xbmcgui.Dialog().ok(addon.getLocalizedString(30060),addon.getLocalizedString(30060))
+				XBMCUtils.getOkDialog(XBMCUtils.getString(30060),XBMCUtils.getString(30060))
 				logger.debug("patch installed!")
 			except:
 				logger.error("Patch not installed, something wrong happened!")
 				pass
 		elif mode == 98:
-			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30052),addon.getLocalizedString(30052), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
+			if XBMCUtils.getDialogYesNo(XBMCUtils.getString(30052),XBMCUtils.getString(30052)):
 				quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/archive/master.zip"
-				if xbmc.getCondVisibility( "system.platform.windows" ):
+				if XBMCUtils.isWindowsPlatform():
 					logger.debug("Detected Windows system...")
 					if "x64" in platform.machine():
 						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.windows_x64.zip"
 					else:
 						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.windows_x86.zip"
-				elif xbmc.getCondVisibility( "System.Platform.Android" ):
+				elif XBMCUtils.isAndroidPlatform():
 					logger.debug("Detected Android system...")
 					if os.uname()[4].startswith("arm"):
 						logger.debug("android system...")
@@ -731,7 +708,7 @@ def init():
 					else:
 						logger.debug("Androidx86 system...")
 						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.android_x86.zip"
-				elif xbmc.getCondVisibility("System.Platform.Linux.RaspberryPi"):
+				elif XBMCUtils.isRaspberryPlatform():
 					logger.debug("raspberry system...")
 					if "armv7" in platform.machine():
 						logger.debug("raspberry pi 2!")
@@ -742,7 +719,7 @@ def init():
 					else:
 						logger.debug("raspberry pi 3!")
 						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.linux_arm64.zip"
-				elif xbmc.getCondVisibility("System.Platform.Linux"):
+				elif XBMCUtils.isLinuxPlatform():
 					if "x64" in platform.machine():
 						quasarUrl = "https://github.com/scakemyer/plugin.video.quasar/releases/download/v0.9.34/plugin.video.quasar-0.9.34.linux_x64.zip"
 					else:
@@ -755,10 +732,10 @@ def init():
 				except:
 					logger.error("Addon not installed, something wrong happened!")
 					pass
-				xbmcgui.Dialog().ok(addon.getLocalizedString(30051),addon.getLocalizedString(30051))
+				XBMCUtils.getOkDialog(XBMCUtils.getString(30051),XBMCUtils.getString(30051))
 				logger.debug("launch done!")
 		elif mode == 99:
-			if xbmcgui.Dialog().yesno(addon.getLocalizedString(30050),addon.getLocalizedString(30050), "", "", addon.getLocalizedString(11011), addon.getLocalizedString(11010) ):
+			if XBMCUtils.getDialogYesNo(XBMCUtils.getString(30050),XBMCUtils.getString(30050)):
 				try:
 					#url = "http://repo.adryanlist.org/program.plexus-0.1.4.zip"
 					url = "https://github.com/AlexMorales85/program.plexus/archive/1.2.2.zip" #better and updated with an acestream fixed client for raspberry platforms
@@ -770,7 +747,7 @@ def init():
 				except:
 					logger.error("Addon not installed, something wrong happened!")
 					pass
-				xbmcgui.Dialog().ok(addon.getLocalizedString(30051),addon.getLocalizedString(30051))
+				XBMCUtils.getOkDialog(XBMCUtils.getString(30051),XBMCUtils.getString(30051))
 				logger.debug("launch done!")
 		elif mode == 100: #decode provider link
 			logger.info("decoding: "+url)
@@ -842,9 +819,9 @@ def init():
 			logger.info("found link: "+channel[0]["link"]+", launching...")
 			open(channel[0]["link"],page)
 	except Exception as e:
-		logger.error(addon.getLocalizedString(10009)+", "+str(e))
-		xbmcgui.Dialog().notification("Error",addon.getLocalizedString(10009))
+		logger.error(XBMCUtils.getString(10009)+", "+str(e))
+		XBMCUtils.getNotification("Error",XBMCUtils.getString(10009))
 		pass
-	xbmcplugin.endOfDirectory(int(sys.argv[1]))
+	XBMCUtils.setEndOfDirectory(int(sys.argv[1]))
 
 init()

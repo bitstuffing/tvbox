@@ -1,6 +1,5 @@
 import urllib2
 import re
-
 from core.decoder import Decoder
 from core import logger
 

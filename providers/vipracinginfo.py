@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import httplib
-import urllib
-import os
-import binascii
 import time
 from core.decoder import Decoder
 from core import jsunpack

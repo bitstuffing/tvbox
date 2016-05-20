@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
-
-import httplib
-import urllib
-import binascii
 import sys
-import xbmcplugin
-
+from core.xbmcutils import XBMCUtils
 from core.decoder import Decoder
 from core import jsunpack
 from core import logger
@@ -22,8 +17,8 @@ except:
 
 class Spliveappcom(Downloader):
 
-    MAIN_URL = xbmcplugin.getSetting(int(sys.argv[1]), "splive_channel")
-    DECODER_URL = xbmcplugin.getSetting(int(sys.argv[1]), "online_pbewithmd5anddes_decoder")
+    MAIN_URL = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "splive_channel")
+    DECODER_URL = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "online_pbewithmd5anddes_decoder")
 
     PASSWORD = 'c6ka74t4b2dv'
 

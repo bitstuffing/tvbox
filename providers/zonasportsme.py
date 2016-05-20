@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-
-import urllib2,urlparse
+import urllib2
 import urllib
 import os,re
 import base64
-import binascii
 from core.decoder import Decoder
 from core import jsunpack
 from core import logger

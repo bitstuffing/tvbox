@@ -4,14 +4,10 @@ import urllib,urllib2
 import time
 import socket
 import logger
-import xbmc
-import xbmcaddon
-import xbmcgui
 import traceback # for download problems
 import StringIO
 import gzip
-
-addon = xbmcaddon.Addon(id='org.harddevelop.kodi.tv')
+from core.xbmcutils import XBMCUtils
 
 def sec_to_hms(seconds):
     m,s = divmod(int(seconds), 60)
@@ -41,7 +37,7 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
     try:
 
         try:
-            fileName = xbmc.makeLegalFilename(fileName)
+            fileName = XBMCUtils.getRightString(fileName)
         except:
             pass
         logger.debug("downloadfile with fileName="+fileName)
@@ -66,8 +62,8 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
             recordedSize = 0
 
         if not silent:
-            progressDialog = xbmcgui.DialogProgress() # Open dialog
-            progressDialog.create( "plugin" , addon.getLocalizedString(10002) , url , fileName )
+            progressDialog = XBMCUtils.getDialog() # Open dialog
+            progressDialog.create("plugin",XBMCUtils.getString(10002) ,url,fileName)
         else:
             progressDialog = ""
 
@@ -147,7 +143,7 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
                                 remainingTime=0 #infinite
 
                             if not silent:
-                                progressDialog.update( percent , addon.getLocalizedString(10003) % ( downloadedMB , totalMB , percent , speed/1024 , sec_to_hms(remainingTime))) #respect syntax in translations
+                                progressDialog.update( percent , XBMCUtils.getString(10003) % ( downloadedMB , totalMB , percent , speed/1024 , sec_to_hms(remainingTime))) #respect syntax in translations
                         break
                     except:
                         retries = retries + 1

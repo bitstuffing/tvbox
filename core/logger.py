@@ -30,5 +30,3 @@ def error(text):
             validChars = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&'()-@[]^_`{}~."
             stripped = ''.join(c for c in text if c in validChars)
             xbmc.log("(stripped) "+stripped)
-
-

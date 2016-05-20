@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import httplib
 import urllib
 from core.decoder import Decoder
 from core import logger

@@ -1,4 +1,3 @@
-import urllib2
 import urllib
 from core.decoder import Decoder
 from core import logger

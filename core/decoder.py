@@ -3,6 +3,8 @@ import httplib
 import urllib2
 import urllib
 import time
+import random
+import sys
 import re
 import base64
 from core import logger
@@ -523,21 +525,20 @@ class Decoder():
     @staticmethod
     def decodeBussinessApp(html,iframeReferer):
         response = ""
-
-        jsFile = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.js"
+        token = ""
+        jsFile = "http://www.sunhd.info/jwplayer6/jwplayer.js"
         if html.find("jwplayer5/addplayer/jwplayer.js")>-1:
             jsFile = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.js",html)
             logger.debug("updated js player to: "+jsFile)
         elif html.find("http://www.playerhd1.pw")>-1:
             jsFile = "http://www.playerhd1.pw/jwplayer5/addplayer/jwplayer.js"
-        token = ""
         try:
             token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
         except:
             logger.error("Error, trying without token")
             pass
 
-        swfUrl = "http://www.businessapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf"
+        swfUrl = "http://www.sunhd.info/jwplayer6/jwplayer.flash.swf"
         if html.find("jwplayer5/addplayer/jwplayer.flash.swf")>-1: #http://www.playerapp1.pw/jwplayer5/addplayer/jwplayer.flash.swf
             swfUrl = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.flash.swf",html)
             logger.debug("updated swf player to: "+swfUrl)
@@ -597,27 +598,74 @@ class Decoder():
         else:
             playPath = ""
             rtmpValue = ""
+            hasPatch = str(XBMCUtils.getSettingFromContext(int(sys.argv[1]), "localproxy_patch"))
+            logger.debug("has patch = "+hasPatch)
+            enabled = bool(hasPatch == "true")
             #i = 0
             finalSimpleLink = ""
             logger.debug("html is: "+html)
-            for splittedHtml in html.split('<input type="hidden" id="'):
-                if splittedHtml.find("DOCTYPE html PUBLIC")==-1 and splittedHtml.find(' value=""')==-1:
-                    logger.debug("processing hidden: "+splittedHtml)
-                    extracted = splittedHtml[splittedHtml.find('value="')+len('value="'):]
-                    extracted = extracted[0:extracted.find('"')]
-                    logger.debug("extracted hidden value: "+extracted)
-                    if playPath == "":
-                        playPath = base64.standard_b64decode(extracted)
-                    else:
-                        rtmpValue = base64.standard_b64decode(extracted)
-                    decodedAndExtracted = base64.standard_b64decode(extracted)
-                    logger.info("original: "+extracted+", extracted: "+decodedAndExtracted)
-                    if decodedAndExtracted.find(".m3u8")>-1:
-                        finalSimpleLink = decodedAndExtracted
-                #i+=1
+            if html.find('<input type="hidden" id="')>-1:
+                for splittedHtml in html.split('<input type="hidden" id="'):
+                    if splittedHtml.find("DOCTYPE html PUBLIC")==-1 and splittedHtml.find(' value=""')==-1:
+                        logger.debug("processing hidden: "+splittedHtml)
+                        extracted = splittedHtml[splittedHtml.find('value="')+len('value="'):]
+                        extracted = extracted[0:extracted.find('"')]
+                        logger.debug("extracted hidden value: "+extracted)
+                        if playPath == "":
+                            playPath = base64.standard_b64decode(extracted)
+                        else:
+                            rtmpValue = base64.standard_b64decode(extracted)
+                        decodedAndExtracted = base64.standard_b64decode(extracted)
+                        logger.info("original: "+extracted+", extracted: "+decodedAndExtracted)
+                        if decodedAndExtracted.find(".m3u8")>-1:
+                            finalSimpleLink = decodedAndExtracted
+                        else:
+                            logger.debug("not used: "+decodedAndExtracted)
+                    #i+=1
+            else:
+                #ok, lets do it
+                targetVar = html[html.rfind('Base64.decode(')+len('Base64.decode('):]
+                targetVar = targetVar[:targetVar.find(")")]
+                targetValue = Decoder.extract('var '+targetVar+' = "','"',html)
+                tokenPage = base64.decodestring(targetValue)
+                if "http" not in tokenPage:
+                    host = iframeReferer[iframeReferer.find("://") + 3:]
+                    host = host[:host.find("/")]
+                    tokenPage = "http://"+host+"/"+tokenPage
+                #now get vars v_cod1 and v_cod2
+                cod1 = Decoder.extract('v_cod1: ',',',html)
+                cod2 = Decoder.extract('v_cod2: ', '}', html).strip()
+                v_cod1 = Decoder.extract('var ' + cod1 + ' = "', '"', html)
+                v_cod2 = Decoder.extract('var ' + cod2 + ' = "', '"', html)
+                logger.debug("v_cod1: "+v_cod1+", v_cod2: "+v_cod2)
+                #form = {'v_cod1':v_cod1,'v_cod2':v_cod2}
+                #formUrl = urllib.urlencode(form)
+                rand13 = Decoder.getTimestamp()
+                logger.debug("rand: "+rand13)
+                #rand13="145"+str(random.random())[2:12]
+                rand16 = '170' + str(random.random())[2:15]
+                rand13_2 = Decoder.getTimestamp()#"145" + str(random.random())[2:12]
+                tokenPage2=tokenPage+"?_="+rand13_2+"&callback=jQuery"+rand16+"_"+rand13#+"&v_cod1="+v_cod1+"&v_cod2="+v_cod2
+                tokens = urllib.urlencode({"v_cod1":v_cod1,"v_cod2":v_cod2})
+                logger.debug("using first pseudourl: "+tokenPage2)
+                logger.debug("using tokens: " + tokens)
+                ajaxResponse = Downloader.getContentFromUrl(url=tokenPage2+"&"+tokens,data='',cookie='',referer=iframeReferer,ajax=True)
+                jsonString = ajaxResponse[ajaxResponse.find("{"):ajaxResponse.find(")")]
+                logger.debug(jsonString)
+                jsonResponse = json.loads(jsonString)
+                referer = str(jsonResponse["result1"])
+                if "http" not in referer:
+                    referer = "http://"+referer
+                finalSimpleLink = response = str(jsonResponse["result2"])
+                logger.debug("proxy server is: "+str(enabled))
+                if enabled:
+                    response = "http://127.0.0.1:46720?original-request=" + finalSimpleLink+"&referer="+referer
+                    Decoder.launchLocalHttpProxy()
+                else:
+                    response = finalSimpleLink+"|"+Downloader.getHeaders(referer)
+                logger.debug(response)
             if finalSimpleLink!="":
                 logger.debug("Found simple link: "+finalSimpleLink)
-                enabled = bool(XBMCUtils.getSetting("localproxy_patch")=="true")
                 if iframeReferer.find("ponlatv.com")>-1 or finalSimpleLink.find("http://cdn.sstream.pw/live/")>-1:
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
                     logger.debug("setting is: "+str(enabled))
@@ -666,11 +714,18 @@ class Decoder():
                 iframeReferer = urllib.unquote_plus(iframeReferer.replace("+","@#@")).replace("@#@","+") #unquote_plus replaces '+' characters
                 token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
                 response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
-            else:
+            elif rtmpValue.find("?token=play@")>-1:
                 app = "redirect"+rtmpValue[rtmpValue.find("?token=play@"):]
                 token = Decoder.extractBusinessappToken(iframeReferer,jsFile)
                 response = rtmpValue+" playpath="+playPath+" app="+app+" swfUrl="+swfUrl+" token="+token+" flashver=WIN/2019,0,0,226 live=true timeout=14 pageUrl="+iframeReferer
         return response
+
+    @staticmethod
+    def getTimestamp():
+        timestamp = str(time.time()).replace('.', '') + '0'
+        if len(timestamp) == 12:
+            timestamp = timestamp + '0'
+        return timestamp
 
     @staticmethod
     def launchLocalHttpProxy():

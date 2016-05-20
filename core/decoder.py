@@ -397,7 +397,7 @@ class Decoder():
         decryptedUrl = Decoder.decodeSawliveUrl(encryptedHtml)
         html3 = Downloader.getContentFromUrl(decryptedUrl,"",Downloader.cookie,iframeUrl) #fix, it must use the same referer
         logger.debug("decrypted sawlive url content obtained!")
-        #logger.debug("final html is: "+html3)
+        logger.debug("final html is: "+html3)
         #ok, now extract flash script content
         flashContent = Decoder.extract("var so = new SWFObject('","</script>",html3)
         file = Decoder.extract("'file', ",");",flashContent)
@@ -431,7 +431,12 @@ class Decoder():
         if rtmpUrl=='' and file.find("http://")>-1 and file.find(".jpg")==-1:
             finalRtmpUrl = file #it's a redirect with an .m3u8, so it's used
         else:
-            finalRtmpUrl = rtmpUrl+" playpath="+file+" swfUrl="+swfUrl+" live=1 conn=S:OK pageUrl="+decryptedUrl+" timeout=12"
+            if 'function' in rtmpUrl:
+                content2 = Downloader.getContentFromUrl(file,"","",swfUrl)
+                logger.debug(content2)
+                finalRtmpUrl = file+"|"+Downloader.getHeaders(swfUrl)
+            else:
+                finalRtmpUrl = rtmpUrl+" playpath="+file+" swfUrl="+swfUrl+" live=1 conn=S:OK pageUrl="+decryptedUrl+" timeout=12"
         return finalRtmpUrl
 
     @staticmethod
@@ -492,6 +497,15 @@ class Decoder():
                             else:
                                 for bruteUrlPart2 in vars[bruteUrlPart].split("+"):
                                     logger.debug("seek key: "+bruteUrlPart2)
+                                    if vars.has_key(bruteUrlPart2):
+                                        #get value
+                                        valueVar = vars[bruteUrlPart2]
+                                        if '.replace(' in valueVar:
+                                            #jzje=jzje.replace(ejzj,"MTRmYW");
+                                            logger.debug("replacing second value un vars... "+valueVar)
+                                            valueVar = Decoder.extract(",",");",valueVar)
+                                            vars[bruteUrlPart2] = valueVar
+                                            logger.debug("replaced! " + valueVar)
                                     if vars.has_key(bruteUrlPart2) and bruteUrlPart2.find('"')==-1:
                                         finalUrl += vars[bruteUrlPart2].replace('"',"")
                                     elif len(bruteUrlPart.strip())>2:

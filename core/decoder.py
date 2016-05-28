@@ -664,13 +664,19 @@ class Decoder():
                 logger.debug("using first pseudourl: "+tokenPage2)
                 logger.debug("using tokens: " + tokens)
                 ajaxResponse = Downloader.getContentFromUrl(url=tokenPage2+"&"+tokens,data='',cookie='',referer=iframeReferer,ajax=True)
-                jsonString = ajaxResponse[ajaxResponse.find("{"):ajaxResponse.find(")")]
-                logger.debug(jsonString)
-                jsonResponse = json.loads(jsonString)
-                referer = str(jsonResponse["result1"])
-                if "http" not in referer:
-                    referer = "http://"+referer
-                finalSimpleLink = response = str(jsonResponse["result2"])
+                logger.debug("response is: "+ajaxResponse)
+                referer = ''
+                if "file: '" in ajaxResponse:
+                    finalSimpleLink = Decoder.extract("file: '","',",ajaxResponse).replace("\\","")
+                    logger.debug("extracted with new way: "+finalSimpleLink)
+                else:
+                    jsonString = ajaxResponse[ajaxResponse.find("{"):ajaxResponse.find(")")]
+                    logger.debug(jsonString)
+                    jsonResponse = json.loads(jsonString)
+                    referer = str(jsonResponse["result1"])
+                    if "http" not in referer:
+                        referer = "http://"+referer
+                    finalSimpleLink = response = str(jsonResponse["result2"])
                 logger.debug("proxy server is: "+str(enabled))
                 if enabled:
                     response = "http://127.0.0.1:46720?original-request=" + finalSimpleLink+"&referer="+referer

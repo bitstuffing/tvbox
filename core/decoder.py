@@ -441,87 +441,138 @@ class Decoder():
 
     @staticmethod
     def decodeSawliveUrl(encryptedHtml):
-        logger.debug("encrypted iframe is: "+encryptedHtml)
-        #first extract var values and append it to an array
-        varPart = encryptedHtml[0:encryptedHtml.find(';document.write')]
         vars = {}
-        for varElement in varPart.split(';'): #loop each var
-            if varElement.find('=')>-1:
-                bruteElement = varElement.split('=')
-                extractedElement = Decoder.extract("'","'",bruteElement[1])
-                bruteElement[0] = bruteElement[0].replace("var ","")
-                vars[bruteElement[0]] = extractedElement
-                if extractedElement.find("+")>-1:
-                    for currentVarSubElement in extractedElement.split("+"):
-                        if len(currentVarSubElement)>0 and currentVarSubElement.find('"')==-1:
-                            logger.debug("using var: "+currentVarSubElement)
-                            preSubFix = "var "+currentVarSubElement+"=";
-                            valueInternalVar = varPart[varPart.find(preSubFix)+len(preSubFix)+1:]
-                            logger.debug("Internal var provisional is: "+valueInternalVar)
-                            valueInternalVar = valueInternalVar[:valueInternalVar.find('"')]
-                            logger.debug("Internal var final is: "+valueInternalVar)
-        #second extract src part for a diagnostic
-        if encryptedHtml.find(' src="')>-1:
-            bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
-        elif encryptedHtml.find(" src=\"")>-1:
-            bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
-        logger.debug("bruteSrc is: "+bruteSrc)
-        finalUrl = ""
-        if bruteSrc.find("+")>-1:
-            for bruteUrlPart in bruteSrc.split("+"):
-                if bruteUrlPart.find("unescape")>-1:
-                    extractedValue = Decoder.extract("(",")",bruteUrlPart)
-                    if extractedValue.find("'")>-1: #it means encoded html
-                        extractedValue = Decoder.extract("'","'",extractedValue)
-                        logger.debug("trace 1 for brutesrc")
-                        finalUrl += urllib.unquote(extractedValue)
-                    else: #it means a var, seek it
-                        if vars.has_key(extractedValue):
-                            finalUrl += vars[extractedValue]
-                    logger.debug("trace 2 for brutesrc")
-                else:
-                    if bruteUrlPart.find("'")==0:#there is a var
-                        if vars.has_key(bruteUrlPart):
-                            finalUrl += vars[bruteUrlPart]
-                            logger.debug("trace 3 for brutesrc")
+        logger.debug("encrypted iframe is: "+encryptedHtml)
+        if "eval(function(p,a,c,k,e" in encryptedHtml:
+            encryptedHtml = jsunpack.unpack(encryptedHtml)
+            encryptedHtml = encryptedHtml.replace("\\'","'")
+            logger.debug("now encrypted iframe content is: "+encryptedHtml)
+
+        varPart = ""
+        if ";document.write" in encryptedHtml:
+            #first extract var values and append it to an array
+            varPart = encryptedHtml[0:encryptedHtml.find(';document.write')]
+
+        if len(varPart)>0:
+            for varElement in varPart.split(';'): #loop each var
+                logger.debug("checking javascript assign: "+varElement)
+                if varElement.find('=')>-1:
+                    bruteElement = varElement.split('=')
+                    logger.debug("Brute element is at this time: "+bruteElement[1])
+                    if "'" in bruteElement[1]:
+                        logger.debug("checking content: "+bruteElement[1])
+                        if "+'/'+" not in bruteElement[1]:
+                            extractedElement = Decoder.executeExtractedElement(bruteElement[1],varPart)
+                            bruteElement[0] = bruteElement[0].replace("var ", "")
+                            vars[bruteElement[0]] = extractedElement
                         else:
-                            bruteUrlPart = bruteUrlPart.replace("'","")
-                            finalUrl+=bruteUrlPart
-                            logger.debug("trace 4 for brutesrc")
-                    else: #brute text, paste it without the final "'" if it contains that character
-                        bruteUrlPart = bruteUrlPart.replace("'","")
-                        if vars.has_key(bruteUrlPart):
-                            logger.debug("trace 5 for brutesrc: "+bruteUrlPart+","+vars[bruteUrlPart])
-                            if vars[bruteUrlPart].find('"')==-1:
+                            bruteElements = bruteElement[1].split("+'/'+")
+                            extractedContent = ""
+                            for bruteElementSplit in bruteElements:
+                                logger.debug("using for this part brute element splited by: "+bruteElementSplit)
+                                first = (len(extractedContent)==0)
+                                extractedContent += vars[bruteElementSplit]  # Decoder.executeExtractedElement(target, varPart)
+                                if first:
+                                    logger.debug("detected first time... appending / character (needed)")
+                                    extractedContent += "/"
+
+                                logger.debug("at this moment extracted content is: "+extractedContent)
+
+                            logger.debug("done! now saving logic...")
+                            bruteElement[0] = bruteElement[0].replace("var ", "")
+                            logger.debug("extracted value is: " + extractedContent + ", assigning it to " + bruteElement[0])
+                            vars[bruteElement[0]] = extractedContent
+                    else:
+                        logger.debug("Not found ' character in value "+bruteElement[1]+". Probably it's an append. ("+bruteElement[0]+")")
+                        if '+' in bruteElement[1]:
+                            bruteElements = bruteElement[1].split("+")
+                            extractedContent = ""
+                            for target in bruteElements:
+                                logger.debug("proccessing... "+target)
+                                extractedContent += vars[target] #Decoder.executeExtractedElement(target, varPart)
+                            bruteElement[0] = bruteElement[0].replace("var ", "")
+                            logger.debug("extracted value is: " + extractedContent + ", assigning it to " + bruteElement[0])
+                            vars[bruteElement[0]] = extractedContent
+            #second extract src part for a diagnostic
+            if encryptedHtml.find(' src="')>-1:
+                bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
+            elif encryptedHtml.find(" src=\"")>-1:
+                bruteSrc = Decoder.extract(' src="','"></iframe>',encryptedHtml)
+            logger.debug("bruteSrc is: "+bruteSrc)
+            finalUrl = ""
+            if bruteSrc.find("+")>-1:
+                for bruteUrlPart in bruteSrc.split("+"):
+                    if bruteUrlPart.find("unescape")>-1:
+                        extractedValue = Decoder.extract("(",")",bruteUrlPart)
+                        if extractedValue.find("'")>-1: #it means encoded html
+                            extractedValue = Decoder.extract("'","'",extractedValue)
+                            logger.debug("trace 1 for brutesrc")
+                            finalUrl += urllib.unquote(extractedValue)
+                        else: #it means a var, seek it
+                            if vars.has_key(extractedValue):
+                                finalUrl += vars[extractedValue]
+                        logger.debug("trace 2 for brutesrc")
+                    else:
+                        if bruteUrlPart.find("'")==0:#there is a var
+                            if vars.has_key(bruteUrlPart):
                                 finalUrl += vars[bruteUrlPart]
+                                logger.debug("trace 3 for brutesrc")
                             else:
-                                for bruteUrlPart2 in vars[bruteUrlPart].split("+"):
-                                    logger.debug("seek key: "+bruteUrlPart2)
-                                    if vars.has_key(bruteUrlPart2):
-                                        #get value
-                                        valueVar = vars[bruteUrlPart2]
-                                        if '.replace(' in valueVar:
-                                            #jzje=jzje.replace(ejzj,"MTRmYW");
-                                            logger.debug("replacing second value un vars... "+valueVar)
-                                            valueVar = Decoder.extract(",",");",valueVar)
-                                            vars[bruteUrlPart2] = valueVar
-                                            logger.debug("replaced! " + valueVar)
-                                    if vars.has_key(bruteUrlPart2) and bruteUrlPart2.find('"')==-1:
-                                        finalUrl += vars[bruteUrlPart2].replace('"',"")
-                                    elif len(bruteUrlPart.strip())>2:
-                                        logger.debug("brute url part: "+bruteUrlPart)
-                                        finalUrl+=bruteUrlPart
-                                        logger.debug("brute text included2: "+bruteUrlPart)
-                        else:
-                            logger.debug("It's not waste, text is: "+bruteUrlPart)
-                            finalUrl+=bruteUrlPart
-                logger.debug("now finalUrl is: "+urllib.unquote(finalUrl))
-        finalUrl = urllib.unquote(finalUrl) #finally translate to good url
-        if finalUrl.find("unezcapez(")>-1:
-            logger.debug("replacing url new encoding...")
-            finalUrl = finalUrl.replace("unezcapez(","").replace(')','') #little fix for new coding, it will be included in the previews revision
-        logger.info("Decrypted url is: "+finalUrl)
+                                bruteUrlPart = bruteUrlPart.replace("'","")
+                                finalUrl+=bruteUrlPart
+                                logger.debug("trace 4 for brutesrc")
+                        else: #brute text, paste it without the final "'" if it contains that character
+                            bruteUrlPart = bruteUrlPart.replace("'","")
+                            logger.debug("len of "+bruteUrlPart+" part is: "+str(len(bruteUrlPart)))
+                            if vars.has_key(bruteUrlPart):
+                                logger.debug("trace 5 for brutesrc: "+bruteUrlPart+","+vars[bruteUrlPart])
+                                if vars[bruteUrlPart].find('"')==-1:
+                                    finalUrl += vars[bruteUrlPart]
+                                else:
+                                    for bruteUrlPart2 in vars[bruteUrlPart].split("+"):
+                                        logger.debug("seek key: "+bruteUrlPart2)
+                                        if vars.has_key(bruteUrlPart2):
+                                            #get value
+                                            valueVar = vars[bruteUrlPart2]
+                                            if '.replace(' in valueVar:
+                                                #jzje=jzje.replace(ejzj,"MTRmYW");
+                                                logger.debug("replacing second value un vars... "+valueVar)
+                                                valueVar = Decoder.extract(",",");",valueVar)
+                                                vars[bruteUrlPart2] = valueVar
+                                                logger.debug("replaced! " + valueVar)
+                                        if vars.has_key(bruteUrlPart2) and bruteUrlPart2.find('"')==-1:
+                                            finalUrl += vars[bruteUrlPart2].replace('"',"")
+                                        elif len(bruteUrlPart.strip())>2:
+                                            logger.debug("brute url part: "+bruteUrlPart)
+                                            finalUrl+=bruteUrlPart
+                                            logger.debug("brute text included2: "+bruteUrlPart)
+                            else:
+                                for key in vars:
+                                    logger.debug("discarted: "+key)
+                                logger.debug("It's not waste, text is: "+bruteUrlPart)
+                                finalUrl+=bruteUrlPart
+                    logger.debug("now finalUrl is: "+urllib.unquote(finalUrl))
+            finalUrl = urllib.unquote(finalUrl) #finally translate to good url
+            if finalUrl.find("unezcapez(")>-1:
+                logger.debug("replacing url new encoding...")
+                finalUrl = finalUrl.replace("unezcapez(","").replace(')','') #little fix for new coding, it will be included in the previews revision
+            logger.info("Decrypted url is: "+finalUrl)
         return finalUrl
+
+    @staticmethod
+    def executeExtractedElement(value,varPart):
+        extractedElement = Decoder.extract("'", "'", value)
+        if extractedElement.find("+") > -1:
+            for currentVarSubElement in extractedElement.split("+"):
+                if len(currentVarSubElement) > 0 and '"' not in currentVarSubElement:
+                    logger.debug("IF: " + currentVarSubElement)
+                    logger.debug("using var: " + currentVarSubElement)
+                    preSubFix = "var " + currentVarSubElement + "=";
+                    valueInternalVar = varPart[varPart.find(preSubFix) + len(preSubFix) + 1:]
+                    logger.debug("Internal var provisional is: " + valueInternalVar)
+                    valueInternalVar = valueInternalVar[:valueInternalVar.find("'")]  # TODO, change splitter char
+                    logger.debug("Internal var final is: " + valueInternalVar)
+        return extractedElement
 
     @staticmethod
     def decodeLetonTv(html,referer):
@@ -540,6 +591,7 @@ class Decoder():
     def decodeBussinessApp(html,iframeReferer):
         response = ""
         token = ""
+        doIt = False
         jsFile = "http://www.sunhd.info/jwplayer6/jwplayer.js"
         if html.find("jwplayer5/addplayer/jwplayer.js")>-1:
             jsFile = Decoder.rExtractWithRegex("http://","jwplayer5/addplayer/jwplayer.js",html)
@@ -635,8 +687,18 @@ class Decoder():
                             finalSimpleLink = decodedAndExtracted
                         else:
                             logger.debug("not used: "+decodedAndExtracted)
+                            #TODO extracted
+                            if '/' in extracted:
+                                #new way, use API
+                                doIt = True
+                                html = Decoder.extract("<script type='text/javascript'>","</script>",html)
+                                logger.debug("new html is: "+html)
+                                html = urllib.unquote(html)
+                                logger.debug("parsed html is: " + html)
                     #i+=1
             else:
+                doIt = True
+            if doIt:
                 #ok, lets do it
                 targetVar = html[html.rfind('Base64.decode(')+len('Base64.decode('):]
                 targetVar = targetVar[:targetVar.find(")")]

@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.9</tag>
-	<version>89</version>
-	<date>28/05/2016</date>
-	<changes>Fix and improves related to cinestenostv and vipgoal providers</changes>
+	<version>90</version>
+	<date>11/06/2016</date>
+	<changes>Fix live9 issue (see github.com issues)</changes>
 </plugin>

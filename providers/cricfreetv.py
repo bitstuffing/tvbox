@@ -122,20 +122,57 @@ class Cricfreetv(Downloader):
             logger.debug("found final link: "+file)
         elif html.find('return(["r","t","m","p"')>-1: #changed order to build final url first
             swfUrl = "http://cdn.ibrod.tv/player/jwplayer.flash.swf"
-            bruteData = Decoder.extract('return(["r","t","m","p"',"</script>",html)
-            line = bruteData[:bruteData.find(');')]
-            rtmp = "rtmp:"+Decoder.extract("return([","].join(",line).replace('","',"").replace('"','').replace('\\',"")
-            bruteVar = Decoder.extract('].join("") + ',".join("") + ",line)
-            splitter = "var "+bruteVar+" = ["
-            if html.find(splitter)>-1:
-                arrayContent = Decoder.extract(splitter,"];",html).replace('"',"").replace(',',"")
-                #rtmp += arrayContent
-            if line.find('document.getElementById("')>-1:
-                element = Decoder.extract('document.getElementById("','").',line)
-                span = Decoder.extract('id='+element+'>','</span>',html) #it doesn't need decode
-                #rtmp += span
-            playpath = Decoder.rExtract('return([','].join(""));',bruteData).replace('","',"").replace('"','').replace('\\',"")
-            file = rtmp+" playpath="+playpath+" timeout=12 live=1 swfUrl="+swfUrl+" pageUrl="+iframeUrl
+            if 'cast4u.tv' in html:
+                swfUrl = "http://cast4u.tv/jwplayer/jwplayer.flash.swf"
+            bruteData = Decoder.extract('<script type="text/javascript">\nvar',"</script>",html)
+
+            rtmp = ""
+            file = Decoder.extract('file: ','}],',bruteData).replace(' ','')
+            logger.debug("file form is: "+file)
+            playpath = ""
+            for functionName in file.split('+'):
+                if functionName.find("/")==-1:
+                    logger.debug("using function: "+functionName)
+                    bruteData2 = Decoder.extract('function '+functionName+' {',"}",bruteData)
+                    line = Decoder.extract('return([',');',bruteData2)
+                    #now begin the fix
+                    for linePart in line.split("+"):
+                        if '].join' in linePart:
+                            linePart = linePart[:linePart.find('].join')]
+                            linePart2 = linePart.replace('","',"").replace('"','').replace('\\',"").replace(",","")
+                            logger.debug("at this moment linePart1 is: "+linePart2)
+                            rtmp+=linePart2
+                            if '/' not in linePart2:
+                                playpath = linePart2
+                        elif 'document.getElementById' in linePart:
+                            #extract id and get content
+                            idSpan = Decoder.extract('(',')',linePart).replace("\"","").replace("'","")
+                            content = Decoder.extract(' id='+idSpan+'>','</span>',html)
+                            logger.debug("at this moment linePart2 is: " + content)
+                            rtmp+=content
+                        elif 'join("")' in linePart:
+                            #array to join with a replace like first condition
+                            idArrayVar = linePart.replace('.join("")','').replace(' ','')
+                            content = Decoder.extract('var '+idArrayVar+" = [","];",bruteData).replace(",","").replace('"','')
+                            logger.debug("at this moment linePart3 is: " + content)
+                            rtmp+=content
+                else:
+                    rtmp+="/"
+                logger.debug("at this moment final rtmp is: " + rtmp)
+
+            token = ""
+
+            if bruteData.find('securetoken: ')>-1:
+                token = Decoder.extract('securetoken: ','\n',bruteData)
+                htmlToken = Cricfreetv.getContentFromUrl(url='http://cast4u.tv/jwplayer/jwplayer.js?v=3.3')
+                token = Decoder.extract('var '+token+' = "','"',htmlToken)
+
+            logger.debug("Fresh token is: "+token)
+
+            app = 'live'+Decoder.extract('/live','==/',rtmp)+"==/"
+
+            file = rtmp+" app="+app+" playpath="+playpath+r" token=%XB00(nKH@#. flashver=WIN\2021,0,0,182 timeout=30 live=1 swfUrl="+swfUrl+" pageUrl="+iframeUrl+""
+
             logger.debug("Built a rtmp with data: "+file)
         elif html.find('securetoken:')>-1:
             logger.debug("building final link...")

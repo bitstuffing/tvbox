@@ -516,8 +516,10 @@ def drawSportstream365(page):
 def drawSplive(page):
 	mode = 4
 	jsonChannels = Spliveappcom.getChannels(page)
+	image = icon
 	for item in jsonChannels:
-		title = item["title"]
+		logger.debug("trying splive item...")
+		title = urllib.unquote_plus(item["title"].decode('iso-8859-1', 'ignore'))
 		link = item["link"]
 		referer = "splive"
 		if item.has_key("permaLink"):

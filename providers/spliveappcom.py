@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
+try:
+    import json
+except:
+    import simplejson as json
+
+import urllib
 from core.xbmcutils import XBMCUtils
 from core.decoder import Decoder
 from core import jsunpack
@@ -23,15 +29,60 @@ class Spliveappcom(Downloader):
     PASSWORD = 'c6ka74t4b2dv'
 
     @staticmethod
-    def getChannels(page,decode=False):
+    def getChannels(page,decode=False,group=''):
         x = []
         if str(page) == '0':
             page=Spliveappcom.MAIN_URL
             if page.find("pastebin.com/")>-1 and page.find("/raw/")==-1:
                 page = page.replace(".com/",".com/raw/")
         html = Spliveappcom.getContentFromUrl(page,"",Spliveappcom.cookie,"")
-        x = Spliveappcom.extractElements(html,decode)
+        try:
+            x = Spliveappcom.extractElements(html,decode)
+        except:
+            logger.debug("trying json way...")
+            x = Spliveappcom.extractJSONElements(html,grouped=group,url=page)
+            logger.debug("finished json way...")
+            pass
         return x
+
+    @staticmethod
+    def extractJSONElements(html,grouped='',url=''):
+        x = []
+        jsonGlobal = json.loads(html)
+        logger.debug("charged json...")
+        groups = jsonGlobal["groups"]
+        logger.debug("get groups: "+str(len(groups)))
+        for group in groups:
+            element = {}
+            element["title"] = urllib.quote_plus(group["name"].encode('ascii', 'ignore').encode('iso-8859-1', 'ignore'))
+            element["thumbnail"] = group["image"]
+            element["link"] = url
+            if group.has_key("url"):
+                logger.debug("extracted station...")
+                element["link"] = group["url"]
+                element["permaLink"] = True
+            elif group.has_key("stations"):
+                if grouped is '':
+                    element["link"] = group["name"]
+                elif group["name"] == grouped:
+                    logger.debug("searching for group: "+grouped)
+                    for elementLink in group["stations"]:
+                        if not elementLink.has_key("isAd"):
+                            element = {}
+                            element["title"] = elementLink["name"].encode('ascii', 'ignore')
+                            element["thumbnail"] = elementLink["image"]
+                            element["link"] = elementLink["url"]
+                            if len(element["link"])>0:
+                                logger.debug("appended grouped: " + element["title"])
+                                element["permaLink"] = True
+                                x.append(element)
+
+                logger.debug("group station... "+group["name"])
+            if element.has_key("link") and grouped is '':
+                logger.debug("appended: " + element["title"])
+                x.append(element)
+        return x
+
 
     @staticmethod
     def extractElements(table,decode=False):

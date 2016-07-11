@@ -454,6 +454,7 @@ class Decoder():
             varPart = encryptedHtml[0:encryptedHtml.find(';document.write')]
 
         if len(varPart)>0:
+            logger.debug("launching varPart logic...")
             for varElement in varPart.split(';'): #loop each var
                 logger.debug("checking javascript assign: "+varElement)
                 if varElement.find('=')>-1:
@@ -557,6 +558,26 @@ class Decoder():
                 logger.debug("replacing url new encoding...")
                 finalUrl = finalUrl.replace("unezcapez(","").replace(')','') #little fix for new coding, it will be included in the previews revision
             logger.info("Decrypted url is: "+finalUrl)
+        else:
+            #use alternative logic with encrypted iframe
+            logger.debug('Using alternative algorithm...')
+            partialUrl = Decoder.extract(' src="','+\'">',encryptedHtml)
+            logger.debug("brute url with logic call is: "+partialUrl)
+            finalUrl = ""
+            for urlPart in partialUrl.split("+"):
+                if "('" in urlPart:
+                    partialURI = ""
+                    target = Decoder.extract("('","')",urlPart)
+                    logger.debug("target is: "+target)
+                    if '"'+target+'"){return"' in encryptedHtml:
+                        partialURI = Decoder.extract('"'+target+'"){return"','"',encryptedHtml)
+                    else:
+                        partialURI = Decoder.extract('else{return"','"',encryptedHtml)
+                    logger.debug("partialURI is: "+partialURI)
+                    if len(partialURI)>0:
+                        finalUrl += partialURI
+                else:
+                    finalUrl += urlPart.replace("'","")
         return finalUrl
 
     @staticmethod
@@ -700,10 +721,16 @@ class Decoder():
                 doIt = True
             if doIt:
                 #ok, lets do it
-                targetVar = html[html.rfind('Base64.decode(')+len('Base64.decode('):]
-                targetVar = targetVar[:targetVar.find(")")]
+                targetVar = Decoder.extract("v_cod1: ",",",html)
+                logger.debug("v_cod1: "+targetVar)
+                if 'var '+targetVar+' = "document.getElementById(\'' in html:
+                    targetValue = Decoder.extract('var '+targetVar+' = "document.getElementById(\'','\'',html)
+                    logger.debug("logged var at this time is: "+targetValue)
+
                 targetValue = Decoder.extract('var '+targetVar+' = "','"',html)
+                logger.debug("based64 var is: " + targetValue)
                 tokenPage = base64.decodestring(targetValue)
+                logger.debug("tokenPage is: " + tokenPage)
                 if "http" not in tokenPage:
                     host = iframeReferer[iframeReferer.find("://") + 3:]
                     host = host[:host.find("/")]

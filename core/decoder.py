@@ -729,7 +729,8 @@ class Decoder():
 
                 targetValue = Decoder.extract('var '+targetVar+' = "','"',html)
                 logger.debug("based64 var is: " + targetValue)
-                tokenPage = base64.decodestring(targetValue)
+                #tokenPage = base64.decodestring(targetValue)
+                tokenPage = 'sc_tk.php'
                 logger.debug("tokenPage is: " + tokenPage)
                 if "http" not in tokenPage:
                     host = iframeReferer[iframeReferer.find("://") + 3:]

@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.9</tag>
-	<version>91</version>
-	<date>23/06/2016</date>
-	<changes>Fix sports4u parser issues (see github.com issues, not finished yet)</changes>
+	<version>92</version>
+	<date>11/07/2016</date>
+	<changes>Fix sports4u issue (complete finished)</changes>
 </plugin>

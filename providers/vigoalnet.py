@@ -26,7 +26,7 @@ class Vigoal(Downloader):
                 element["link"] = '1'
                 element["title"] = 'Display by event'
                 x.append(element)
-                table = Decoder.extract("<center><table><tbody><tr>","</center>",html)
+                table = Decoder.extract("<center><table><tr><td>","</tr></table></center>",html)
                 for fieldHtml in table.split('<a href="'):
                     element = {}
                     element["link"] = urllib.quote_plus(str(fieldHtml[0:fieldHtml.find('"')]))

@@ -7,8 +7,9 @@ from core.downloader import Downloader
 
 class Vipracinginfo(Downloader):
 
-    MAIN_URL = "http://vipracing.net"
+    MAIN_URL = "http://vipracing.tv"
     MAIN_URL2 = "http://vipracing.us"
+    MAIN_URL3 = "http://vipracing.info"
 
     @staticmethod
     def getChannels(page):
@@ -59,19 +60,29 @@ class Vipracinginfo(Downloader):
                 x.append(element)
             else:
                 logger.debug("launching Vipracing else ELSE logic (other provider embed - max-deportv)")
-                logger.debug(html)
-                iframeUrl = Decoder.extract(' SRC="','"',html)
-                html2 = Vipracinginfo.getContentFromUrl(iframeUrl,"",Vipracinginfo.cookie,page)
-                iframeUrl2 = Decoder.extractWithRegex("http://max-deportv",'"',html2)
-                iframeUrl2 = iframeUrl2[0:len(iframeUrl2)-1]
-                logger.debug("using iframeUrl: "+iframeUrl2)
-                html3 = Vipracinginfo.getContentFromUrl(iframeUrl2,"",Vipracinginfo.cookie,iframeUrl)
-                iframeUrl3 = Decoder.extractWithRegex('http://www.iguide.to/embed/','">',html3)
-                iframeUrl3 = iframeUrl3[:len(iframeUrl3)-1]
-                #extract channelId
-                channelId = Decoder.extract('embed/','&',iframeUrl3)
-                iframeUrl3 = "http://www.iguide.to/embedplayer_new.php?width=650&height=400&channel="+channelId+"&autoplay=true"
-                link = Decoder.decodeIguide(iframeUrl3,iframeUrl2)
+                if ' SRC="' in html:
+                    iframeUrl = Decoder.extract(' SRC="','"',html)
+                    html2 = Vipracinginfo.getContentFromUrl(iframeUrl, "", Vipracinginfo.cookie, page)
+                elif '<iframe name="vipracing" src="' in html:
+                    iframeUrl = Decoder.extract('<iframe name="vipracing" src="','"',html)
+                    html2 = Vipracinginfo.getContentFromUrl(iframeUrl)
+                logger.debug("html2 is: "+html2)
+                if 'http://max-deportv' in html2:
+                    logger.debug("using max-deportv way")
+                    iframeUrl2 = Decoder.extractWithRegex("http://max-deportv",'"',html2)
+                    iframeUrl2 = iframeUrl2[0:len(iframeUrl2)-1]
+                    logger.debug("using iframeUrl: "+iframeUrl2)
+                    html3 = Vipracinginfo.getContentFromUrl(iframeUrl2,"",Vipracinginfo.cookie,iframeUrl)
+                    iframeUrl3 = Decoder.extractWithRegex('http://www.iguide.to/embed/','">',html3)
+                    iframeUrl3 = iframeUrl3[:len(iframeUrl3)-1]
+                    #extract channelId
+                    channelId = Decoder.extract('embed/','&',iframeUrl3)
+                    iframeUrl3 = "http://www.iguide.to/embedplayer_new.php?width=650&height=400&channel="+channelId+"&autoplay=true"
+                    link = Decoder.decodeIguide(iframeUrl3,iframeUrl2)
+                elif 'http://www.streamlive.to' in html2:
+                    streamLiveScript = Decoder.extractWithRegex('http://www.streamlive.to','"',html2).replace('"','')
+                    link = Decoder.decodeStreamliveto(streamLiveScript, 'http://www.streamlive.to')
+                    logger.debug("using streamlive way...")
                 element["link"] = link
                 element["title"] = page
                 element["permalink"] = True

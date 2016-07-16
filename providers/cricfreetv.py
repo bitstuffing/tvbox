@@ -205,6 +205,12 @@ class Cricfreetv(Downloader):
                         #extract iframe value
                         iframe = Decoder.extract('<iframe frameborder="0" marginheight="0" marginWidth="0" height="490" id="iframe" src="','" id="',html).replace('"',"")
                         file = Cricfreetv.extractIframeValue(iframe,html,referer)
+        elif ' src="http://cricfree.sx/' in html:
+            #it's a cricfree.sx native page, so launch this logic
+            urlLink = Decoder.extractWithRegex('http://cricfree.sx/', '"', html).replace('"', "")
+            logger.debug("seek new http://cricfree.sx/ iframe url with: " + urlLink)
+            html2 = Cricfreetv.getContentFromUrl(urlLink, "", Cricfreetv.cookie, iframeUrl)
+            file = Cricfreetv.seekIframeScript(html2, iframeUrl, urlLink)
         else:
 
             if html.find('<iframe id="player" scrolling="no" width="620" height="490" allowtransparency="no" frameborder="0" src="')>-1:

@@ -5,7 +5,7 @@ from core.downloader import Downloader
 
 class Mamahdcom(Downloader):
 
-    MAIN_URL = "http://mamahd.com/"
+    MAIN_URL = "http://mamahd.com/live/"
 
     @staticmethod
     def getChannels(page):

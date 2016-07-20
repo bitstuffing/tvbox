@@ -66,6 +66,12 @@ class Decoder():
             link = Decoder.extractDinostreamPart(link)["link"]
         elif link.find("http://www.iguide.to/embed")>-1:
             link = Decoder.decodeIguide(link)
+        elif 'http://hdfull.tv/ext/' in link:
+            linkToDecode = link[link.rfind('/')+1:]
+            logger.debug("link to decode: " + linkToDecode)
+            linkDecoded = base64.decodestring(linkToDecode)
+            logger.debug("Launched process to decode link: "+linkDecoded)
+            link = Decoder.decodeLink(linkDecoded)
         return link
 
     @staticmethod

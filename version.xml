@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.9</tag>
-	<version>93</version>
-	<date>11/07/2016</date>
-	<changes>Improves related to Live9 provider</changes>
+	<version>94</version>
+	<date>20/07/2016</date>
+	<changes>Improves related to hdfull provider</changes>
 </plugin>

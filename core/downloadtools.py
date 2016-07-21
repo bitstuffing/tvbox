@@ -62,7 +62,7 @@ def downloadfile(url,fileName,headers=[],silent=False,notStop=False):
             recordedSize = 0
 
         if not silent:
-            progressDialog = XBMCUtils.getDialog() # Open dialog
+            progressDialog = XBMCUtils.getDialogProgress() # Open dialog
             progressDialog.create("plugin",XBMCUtils.getString(10002) ,url,fileName)
         else:
             progressDialog = ""

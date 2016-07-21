@@ -72,6 +72,10 @@ class XBMCUtils():
 
     @staticmethod
     def getDialog():
+        return xbmcgui.Dialog()
+
+    @staticmethod
+    def getDialogProgress():
         return xbmcgui.DialogProgress()
 
     @staticmethod

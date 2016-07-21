@@ -16,21 +16,21 @@ class Arenavisionin(Downloader):
         if str(page) == '0':
             page=Arenavisionin.MAIN_URL
             html = Arenavisionin.getContentFromUrl(page,"",Arenavisionin.cookie,"")
-            html = Decoder.extract('**CET Time -','<p>**All schedule',html)
-            html = Decoder.extract("<p>","</p>",html)
+            html = Decoder.extract('<table align="center" cellspacing="1" class="auto-style1" style="width: 100%; float: left"><tr><th class="auto-style4" style="width: 190px; height: 39px"><strong>DAY</strong></th>',"</tr></table></div></div></div>",html)
             x = Arenavisionin.extractElements(html)
         else:
-            if page.find("/")>-1:
+            if page.find("-")>-1:
                 #put a context menu and the user should decice, if not use the first one (default action)
                 dialog = XBMCUtils.getDialog()
                 cmenu = []
-                for contextItem in page.split("/"):
-                    if len(contextItem)>1:
-                        cmenu.append(contextItem)
+                for contextItem in page.split("-"):
+                    #if len(contextItem)>0:
+                    cmenu.append("av"+contextItem)
                 result = dialog.select(XBMCUtils.getString(11016), cmenu) #choose
                 logger.debug("result was: "+str(result))
                 if result == None or result==-1:
-                    link = "http://www.arenavision.in/"+page[:page.find("/")]
+                    target = page[:page.find("-")]
+                    link = "http://www.arenavision.in/"+target
                 else:
                     logger.debug("has choosed "+str(result)+": "+cmenu[result])
                     link = "http://www.arenavision.in/"+(cmenu[result])
@@ -51,13 +51,34 @@ class Arenavisionin(Downloader):
     def extractElements(table):
         x = []
         i = 0
-        for value in table.split('<br/>'):
-            element = {}
-            title = value[0:value.find(")/")+1]
-            link = value[value.find(")/")+2:]
-            element["title"] = title
-            element["link"] = link
-            logger.debug("append: "+title+", link: "+element["link"])
-            x.append(element)
+        for value in table.split('</tr>'):
+            if i>0:
+                element = {}
+                title = Arenavisionin.extractTextFromHTMLValue(value)
+                link = Decoder.rExtract('">',"</td>",value)
+                if "<" in link:
+                    link = link[:link.find("<")]
+                if "[" in link:
+                    link = link[:link.find("[")]
+                if " " in link:
+                    link = link[:link.find(' ')]
+                element["title"] = title.strip()
+                element["link"] = link.strip()
+                logger.debug("append: "+title+", link: "+link)
+                if len(link)>0 and len(title)>0 and title.find(":")==2:
+                    x.append(element)
             i+=1
         return x
+
+    @staticmethod
+    def extractTextFromHTMLValue(value):
+        #should be <td> so split with that
+        text = ""
+        for htmlValued in value.split('/td>'):
+            if len(text)>0:
+                text+= " - "
+            target = Decoder.extract(">","<",htmlValued).strip().strip(" ")
+            if len(target)>0:
+                logger.debug("appending target: "+target)
+                text += target
+        return text

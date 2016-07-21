@@ -23,6 +23,7 @@ from providers.showsporttvcom import ShowsportTvCom
 from providers.mamahdcom import Mamahdcom
 from providers.arenavisionin import Arenavisionin
 from providers.acetvru import Acetvru
+from providers.youtube import Youtube
 
 splive = True
 try:
@@ -43,7 +44,7 @@ MAIN_URL = XBMCUtils.getSettingFromContext(sys.argv[1],"remote_repository")
 
 ##CONSTANTS PARTS##
 BROWSE_CHANNELS = "browse_channels"
-MAX = 114
+MAX = 115
 
 def get_params():
 	param=[]
@@ -279,6 +280,7 @@ def play(url,page):
 def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	#static content
 	add_dir("HDFull.tv", 'hdfulltv', 4, "http://hdfull.tv/templates/hdfull/images/logo.png", 'hdfulltv' , 0)
+	add_dir("Youtube.com", 'youtube', 4, "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/YouTube_logo_2015.svg/120px-YouTube_logo_2015.svg.png", 'youtube', 0)
 	enableSplive = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_splive")
 	if enableSplive=="true" and splive:
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
@@ -598,6 +600,19 @@ def drawAcetvru(page):
 			image = icon
 		add_dir(title,link,mode,image,"acetvru",link)
 
+def drawYoutube(url='0'): #BROWSES ALL PROVIDERS (it has been re-sorted)
+	#static content
+	channels = Youtube.getChannels(url)
+	logger.debug("items obtained: "+str(len(channels)))
+	for channel in channels:
+		image = ''
+		level = 4
+		if channel.has_key('finalLink'):
+			level = 115
+		if channel.has_key('thumbnail'):
+			image = channel["thumbnail"]
+		add_dir(channel["title"], channel["page"], level, image, "youtube", channel["page"])
+
 def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	if provider == "filmoncom":
 		drawFilmon(page)
@@ -635,6 +650,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawArenavisionin(page)
 	elif provider == 'acetvru':
 		drawAcetvru(page)
+	elif provider == 'youtube':
+		drawYoutube(page)
 
 	logger.info(provider)
 
@@ -830,6 +847,11 @@ def init():
 			channel = Arenavisionin.getChannels(url)
 			logger.info("found link: "+channel[0]["link"]+", launching...")
 			open(channel[0]["link"],page)
+		elif mode == 115:
+			logger.info("decoding youtube link... " + url)
+			link = Decoder.decodeLink(url)
+			logger.info("decoded youtube link: " + link)
+			open(link, page)
 	except Exception as e:
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))
 		XBMCUtils.getNotification("Error",XBMCUtils.getString(10009))

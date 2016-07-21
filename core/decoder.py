@@ -7,6 +7,7 @@ import random
 import sys
 import re
 import base64
+import urlparse
 from core import logger
 from core.downloader import Downloader
 try:
@@ -72,7 +73,34 @@ class Decoder():
             linkDecoded = base64.decodestring(linkToDecode)
             logger.debug("Launched process to decode link: "+linkDecoded)
             link = Decoder.decodeLink(linkDecoded)
+        elif "youtube." in link:
+            logger.debug("trying to decode with youtube link decrypter: " + link)
+            code = link[link.find("v=") + 2:]
+            logger.debug("trying with code: " + code)
+            link = Decoder.downloadY(code)
         return link
+
+    @staticmethod
+    def downloadY(video_id):
+        listUrls = []
+        response = urllib2.urlopen("http://www.youtube.com/get_video_info?video_id=" + video_id)
+        data = response.read()
+        logger.debug(data)
+        info = urlparse.parse_qs(data)
+        title = info['title'][0]
+        logger.debug("youtube title: " + title)
+        stream_map = info['url_encoded_fmt_stream_map'][0]
+        video_info = stream_map.split(",")
+        for video in video_info:
+            item = urlparse.parse_qs(video)
+            # print item['quality'][0]
+            # print item['type'][0]
+            # print item['url'][0]
+            url = item['url'][0]
+            logger.debug("quality is: " + item['quality'][0])
+            logger.debug("url at this moment is (youtube): " + url)
+            listUrls.append(url)
+        return listUrls[0]
 
     @staticmethod
     def extractDinostreamPart(url,referer=''):

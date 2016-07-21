@@ -16,25 +16,25 @@ class Vipracinginfo(Downloader):
         x = []
         element = {}
         if str(page) == '0':
-            page=Vipracinginfo.MAIN_URL
+            page=Vipracinginfo.MAIN_URL3
             html = Vipracinginfo.getContentFromUrl(page,"",Vipracinginfo.cookie,"")
             #print html
             if html.find("var channels = JSON.parse('")>-1: #it's a list, needs decode
                 table = Decoder.extract("var channels = JSON.parse('","'),",html)
                 table = table.replace('\u00f3','ó').replace('\u00f1','ñ').replace('\/',"-")#.replace('"',"'")
-                x = Vipracinginfo.extractElements(table,Vipracinginfo.MAIN_URL)
+                x = Vipracinginfo.extractElements(table,Vipracinginfo.MAIN_URL3)
                 logger.debug("Vipracing channels logic done!")
             else:
                 #change domain to alternative and repeat the same logic
-                html = Vipracinginfo.getContentFromUrl(Vipracinginfo.MAIN_URL2,"",Vipracinginfo.cookie,"")
+                html = Vipracinginfo.getContentFromUrl(Vipracinginfo.MAIN_URL3,"",Vipracinginfo.cookie,"")
                 #print html
                 if html.find("var channels = JSON.parse('")>-1: #it's a list, needs decode
                     table = Decoder.extract("var channels = JSON.parse('","'),",html)
                     table = table.replace('\u00f3','ó').replace('\u00f1','ñ').replace('\/',"-")#.replace('"',"'")
-                    x = Vipracinginfo.extractElements(table,Vipracinginfo.MAIN_URL2)
+                    x = Vipracinginfo.extractElements(table,Vipracinginfo.MAIN_URL3)
                     logger.debug("done with the second loop, detected channels: "+str(len(x)))
         else:
-            html = Vipracinginfo.getContentFromUrl(page,"",Vipracinginfo.cookie,Vipracinginfo.MAIN_URL)
+            html = Vipracinginfo.getContentFromUrl(page,"",Vipracinginfo.cookie,Vipracinginfo.MAIN_URL3)
             logger.debug("launching Vipracing else logic")
             if html.find('http://www.streamlive.to/embed/')>-1:
                 link = Decoder.decodeStreamliveto(html,page)

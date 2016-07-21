@@ -77,8 +77,34 @@ class Decoder():
             logger.debug("trying to decode with youtube link decrypter: " + link)
             code = link[link.find("v=") + 2:]
             logger.debug("trying with code: " + code)
-            link = Decoder.downloadY(code)
+            try:
+                link = Decoder.downloadY(code)
+            except:
+                #trying second way, external page
+                link = Decoder.decodeKeepVid(link)
+                pass
         return link
+
+    @staticmethod
+    def decodeKeepVid(link):
+        html = Downloader.getContentFromUrl("http://keepvid.com/?url="+urllib.quote_plus(link))
+        tableHtml = Decoder.extract('<ul><li>',"</ul>",html)
+        logger.debug("extracting from html: "+tableHtml)
+        links = []
+        selectedLink = ""
+        for liHtml in tableHtml.split('</li>'):
+            link = Decoder.extract('a href="','"',liHtml)
+            title = Decoder.extract('alt="', '"', liHtml)
+            if "1080p" in title:
+                selectedLink = link
+            else:
+                logger.debug("not selected with title: "+title)
+            logger.debug("url at this moment is (youtube external): " + link)
+            links.append(link)
+        if len(selectedLink)==0:
+            selectedLink = links[0]
+        return selectedLink
+
 
     @staticmethod
     def downloadY(video_id):

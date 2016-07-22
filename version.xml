@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.0.9</tag>
-	<version>95</version>
-	<date>21/07/2016</date>
-	<changes>Fix for arenavision provider</changes>
+	<version>96</version>
+	<date>22/07/2016</date>
+	<changes>Development (youtube provider, not finished yet)</changes>
 </plugin>

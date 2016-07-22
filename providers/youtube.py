@@ -3,6 +3,7 @@
 from core import logger
 from core.decoder import Decoder
 from core.downloader import Downloader
+import urllib
 
 try:
     import json
@@ -27,13 +28,60 @@ class Youtube(Downloader):
         elif "/trending" in page:
             x = Youtube.extractAllVideosFromHtml(page)
         else:
-            html = Youtube.getContentFromUrl(page,"",Youtube.cookie,Youtube.MAIN_URL)
-            x = Youtube.extractTargetVideo(html)
+            link = Youtube.extractTargetVideo(page)
+            element = {}
+            element["title"] = page
+            element["link"] = link
+            element["finalLink"] = True
+            x.append(element)
         return x
 
     @staticmethod
-    def extractTargetVideo(html):
-        logger.debug(html)
+    def decodeKeepVid(link):
+        html = Downloader.getContentFromUrl("http://keepvid.com/?url="+urllib.quote_plus(link))
+        tableHtml = Decoder.extract('<ul><li>',"</ul>",html)
+        logger.debug("extracting from html: "+tableHtml)
+        links = []
+        selectedLink = ""
+        for liHtml in tableHtml.split('</li>'):
+            link = Decoder.extract('a href="','"',liHtml)
+            title = Decoder.extract('alt="', '"', liHtml)
+            if "1080p" in title and '(Video Only)' not in title:
+                selectedLink = link
+            elif len(selectedLink)==0 and "720p" in title and '(Video Only)' not in title:
+                selectedLink = link
+            else:
+                logger.debug("No link selected with title: "+title)
+            logger.debug("url at this moment is (youtube external): " + link)
+            links.append(link)
+        if len(selectedLink)==0:
+            selectedLink = links[0]
+        return selectedLink
+
+    @staticmethod
+    def extractTargetVideo(link):
+        logger.debug("trying to decode with youtube link decrypter: " + link)
+        code = link[link.find("v=") + 2:]
+        logger.debug("trying with code: " + code)
+        try:
+            link = Decoder.downloadY(code)
+        except:
+            # trying second way, external page
+
+            html = Downloader.getContentFromUrl(link, referer=Youtube.MAIN_URL)
+            oldLink = link
+            if 'ytplayer.config = {' in html:
+                logger.debug("trying new way for .m3u8 links...")
+                link = Decoder.extract(',"hlsvp":"', '"', html).replace('\\', '')
+                logger.debug("new youtube extracted link from json is: " + link)
+                link = urllib.unquote(link)
+                # link += "|" + Downloader.getHeaders(oldLink)
+            if "http" not in link:
+                logger.debug("trying old second way: external resource...")
+                link = Youtube.decodeKeepVid(oldLink)
+            pass
+        logger.debug("final youtube decoded url is: " + link)
+        return link
 
 
     @staticmethod
@@ -95,6 +143,7 @@ class Youtube(Downloader):
                     element["thumbnail"] = Decoder.extract('<img src="','"',value)
                     logger.debug("thumbnail: "+element["thumbnail"])
                 logger.debug("append: "+title+", link: "+element["page"])
-                x.append(element)
+                if "Home" not in title and "Movies" not in title:
+                    x.append(element)
             i+=1
         return x

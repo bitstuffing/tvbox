@@ -95,10 +95,12 @@ class Decoder():
         for liHtml in tableHtml.split('</li>'):
             link = Decoder.extract('a href="','"',liHtml)
             title = Decoder.extract('alt="', '"', liHtml)
-            if "1080p" in title:
+            if "1080p" in title and '(Video Only)' not in title:
+                selectedLink = link
+            elif len(selectedLink)==0 and "720p" in title and '(Video Only)' not in title:
                 selectedLink = link
             else:
-                logger.debug("not selected with title: "+title)
+                logger.debug("No link selected with title: "+title)
             logger.debug("url at this moment is (youtube external): " + link)
             links.append(link)
         if len(selectedLink)==0:

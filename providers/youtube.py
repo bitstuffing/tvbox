@@ -24,6 +24,8 @@ class Youtube(Downloader):
         elif page.find('/channel/')>-1:
             html = Youtube.getContentFromUrl(page,"",Youtube.cookie,Youtube.MAIN_URL)
             x = Youtube.extractAllVideos(html)
+        elif "/trending" in page:
+            x = Youtube.extractAllVideosFromHtml(page)
         else:
             html = Youtube.getContentFromUrl(page,"",Youtube.cookie,Youtube.MAIN_URL)
             x = Youtube.extractTargetVideo(html)
@@ -32,6 +34,30 @@ class Youtube(Downloader):
     @staticmethod
     def extractTargetVideo(html):
         logger.debug(html)
+
+
+    @staticmethod
+    def extractAllVideosFromHtml(page):
+        x = []
+        html = Youtube.getContentFromUrl(page,"",Youtube.cookie,Youtube.MAIN_URL)
+        tableHtml = Decoder.extract('class="item-section">','</ol>',html)
+        i=0
+        for rowHtml in tableHtml.split('<div class="yt-lockup-dismissable yt-uix-tile">'):
+            if i>0:
+                element = {}
+                link = Decoder.extract(' href="', '"', rowHtml)
+                title = Decoder.rExtract('title="','" data-sessionlink', rowHtml)
+                logger.debug("link: "+link+", title is: "+title)
+                if 'youtube.com' not in link:
+                    link = Youtube.MAIN_URL+link
+                image = Decoder.extractWithRegex('https://i.ytimg.com/','"',rowHtml).replace('"','')
+                element["title"] = title
+                element["page"] = link
+                element["finalLink"] = True
+                element["thumbnail"] = image
+                x.append(element)
+            i+=1
+        return x
 
     @staticmethod
     def extractAllVideos(html):
@@ -52,9 +78,6 @@ class Youtube(Downloader):
                     logger.debug("appended: "+target["title"]+", url: "+target["page"])
                     target["finalLink"] = True
                     x.append(target)
-                    #http://www.youtube.com/watch?v=kkx-7fsiWgg
-                    #https://i.ytimg.com/vi/kkx-7fsiWgg/mqdefault.jpg
-                    #<a href="/watch?v=kkx-7fsiWgg" data-sessionlink="ei=rEMZV9-tHoTPcPzgvdgG&amp;feature=c4-overview&amp;ved=CKoBEL8bIhMI37P7htSgzAIVhCccCh18cA9rKJsc" aria-describedby="description-id-3662" title="Hasta el Amanecer - Nicky Jam | Video Oficial" dir="ltr" class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2">Hasta el Amanecer - Nicky Jam | Video Oficial</a>
         return x
 
     @staticmethod

@@ -95,13 +95,24 @@ class Youtube(Downloader):
             if 'ytplayer.config = {' in html:
                 logger.debug("trying new way for .m3u8 links...")
                 link = Decoder.extract(',"hlsvp":"', '"', html).replace('\\', '')
-                logger.debug("new youtube extracted link from json is: " + link)
                 link = urllib.unquote(link)
+                logger.debug("new youtube extracted link from json is: " + link)
                 # link += "|" + Downloader.getHeaders(oldLink)
             if "http" not in link:
                 logger.debug("trying old second way: external resource...")
                 link = Youtube.decodeKeepVid(oldLink)
             pass
+        if ".m3u8" in link:
+            bruteM3u8 = Youtube.getContentFromUrl(link);
+            if 'https://' in bruteM3u8:
+                m3u8 = bruteM3u8[bruteM3u8.rfind('https://'):]
+                link = urllib.unquote_plus(m3u8).replace('%3D',"=").strip()
+                logger.debug("using the last one inside: "+m3u8)
+            else:
+                logger.debug("no last one link selected :'(")
+        else:
+            logger.debug("nothing is transformed for youtube links.")
+
         logger.debug("final youtube decoded url is: " + link)
         return link
 

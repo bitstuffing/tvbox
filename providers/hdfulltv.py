@@ -174,7 +174,7 @@ class HdfullTv():
             itemFirst5["permalink"] = 'peliculas-actualizadas'
             x.append(itemFirst5)
             itemFirst6 = {}
-            itemFirst6["title"] = "Buscar"
+            itemFirst6["title"] = XBMCUtils.getString(11018)
             itemFirst6["permalink"] = "search"
             x.append(itemFirst6)
         elif page=='http://hdfull.tv/episodios#latest':

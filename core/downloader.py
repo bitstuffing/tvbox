@@ -1,13 +1,15 @@
 import urllib, urllib2, httplib
+import StringIO
+import gzip
 from core import logger
 
 class Downloader():
 
     cookie = ""
-    USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0"
+    USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"
 
     @staticmethod
-    def getContentFromUrl(url,data="",cookie="",referer="",ajax=False,launchLocation=True,headers={}):
+    def getContentFromUrl(url,data="",cookie="",referer="",ajax=False,launchLocation=True,headers={},gzip=False):
         host = url[url.find("://")+len("://"):]
         subUrl = ""
         logger.info("url is: "+host)
@@ -23,7 +25,6 @@ class Downloader():
             headers = {
                 "User-Agent": Downloader.USER_AGENT,
                 "Accept-Language" : "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
-                #"Accept-Encoding" : "gzip, deflate",
                 #"Conection" : "keep-alive",
                 "Host":host,
                 "DNT":"1",
@@ -38,6 +39,8 @@ class Downloader():
             if ajax:
                 headers["X-Requested-With"] = "XMLHttpRequest"
                 headers["Accept"] = "application/json, text/javascript, */*; q=0.01"
+            if gzip:
+                headers["Accept-Encoding"]="gzip, deflate, br"
         if host.find(":")==-1:
             if url.find("https://")>-1:
                 h = httplib.HTTPSConnection(host+":443")
@@ -63,6 +66,11 @@ class Downloader():
             cookie = ""
             logger.debug("reading...")
             html = r.read()
+            headers = r.info()
+            if ('Content-Encoding' in headers.keys() and headers['Content-Encoding'] == 'gzip') or ('content-encoding' in headers.keys() and headers['content-encoding'] == 'gzip'):
+                html = StringIO.StringIO(html)
+                gzipper = gzip.GzipFile(fileobj=html)
+                html = gzipper.read()
             logger.debug("cookies...")
             #update cookies
             for key1, value1 in sorted(r.info().items()):
@@ -110,9 +118,15 @@ class Downloader():
             req = urllib2.Request(url, data, headers)
             r = urllib2.urlopen(req)
             logger.debug(str(r.info()))
-            cookie = ""
+            logger.debug("reading...")
             html = r.read()
-            #update cookies
+            headers = r.info()
+            if ('Content-Encoding' in headers.keys() and headers['Content-Encoding'] == 'gzip') or ('content-encoding' in headers.keys() and headers['content-encoding'] == 'gzip'):
+                html = StringIO.StringIO(html)
+                gzipper = gzip.GzipFile(fileobj=html)
+                html = gzipper.read()
+            logger.debug("cookies...")
+            cookie = "" #update cookies
             for key1, value1 in sorted(r.info().items()):
                 logger.debug("trace....."+key1)
                 if key1.lower()=='set-cookie':

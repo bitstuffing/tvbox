@@ -324,15 +324,10 @@ def drawFilmon(page):
 			logger.info("no channel: "+page)
 
 def drawHdfulltv(page):
-	#print "hdfulltv found"
-	#print page
 	mode = 4 #continue browsing
 	jsonChannels = HdfullTv.getChannels(page)
-	#print jsonChannels
 	for itemFirst in jsonChannels:
-		#print itemFirst
 		if itemFirst.has_key("permalink"):
-			#print itemFirst
 			if itemFirst.has_key("show"): #serie
 				link = "http://hdfull.tv/serie/"+itemFirst["permalink"]+"/temporada-"+itemFirst["season"]+"/episodio-"+itemFirst["episode"]
 				title = itemFirst["show"]["title"]
@@ -373,8 +368,6 @@ def drawHdfulltv(page):
 				image = icon
 		if itemFirst.has_key("finalLink"):
 			mode = 100 #open link from provider
-			#print image
-
 		add_dir(title,link,mode,image,"hdfulltv",link)
 
 def drawVipgoal(page):
@@ -651,7 +644,7 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	elif provider == 'acetvru':
 		drawAcetvru(page)
 	elif provider == 'youtube':
-		drawYoutube(page)
+		drawYoutube(url)
 
 	logger.info(provider)
 

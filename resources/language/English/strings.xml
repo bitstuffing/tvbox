@@ -17,9 +17,10 @@
     <string id="11012">Confirm</string>
     <string id="11013">Cancel</string>
     <string id="11014">Update</string>
-    <string id="11017">Force update</string>
     <string id="11015">Keep</string>
     <string id="11016">Choose an option</string>
+    <string id="11017">Force update</string>
+    <string id="11018">Search</string>
 
     <string id="30000">Settings</string>
     <string id="30001">Remote channel list</string>

@@ -62,7 +62,7 @@ class Skylinewebcamscom(Downloader):
                     title = Decoder.rExtract(">",'</a></li>',value)
                     link = Decoder.extract("href=\"/",'"',value)
                     if title == '</a':
-                        title = Decoder.extract('>',' <span',value)
+                        title = Decoder.extract('class="menu-item">','<',value).replace("&nbsp;","")
                     element["title"] = title
                     element["link"] = Skylinewebcamscom.MAIN_URL+link
                     if len(title)>0 and link.find("#")==-1 and len(element["link"])>len(Skylinewebcamscom.MAIN_URL) and (title.find("<")==-1 and title.find(">")==-1):

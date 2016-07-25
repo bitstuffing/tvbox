@@ -24,6 +24,7 @@ from providers.mamahdcom import Mamahdcom
 from providers.arenavisionin import Arenavisionin
 from providers.acetvru import Acetvru
 from providers.youtube import Youtube
+from providers.zonaappcom import ZonaAppCom
 
 splive = True
 try:
@@ -44,7 +45,7 @@ MAIN_URL = XBMCUtils.getSettingFromContext(sys.argv[1],"remote_repository")
 
 ##CONSTANTS PARTS##
 BROWSE_CHANNELS = "browse_channels"
-MAX = 115
+MAX = 116
 
 def get_params():
 	param=[]
@@ -299,6 +300,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree' , 0)
 	add_dir("Zonasports.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme' , 0)
 	add_dir("Sports4u.tv", 'sports4u', 4, "http://live.sports4u.tv/wp-content/uploads/logo3.png", 'sports4u' , 0)
+	add_dir("Zona-app.com", 'zonaappcom', 4, "", 'zonaappcom', 0)
 	add_dir("Showsport-tv.com", 'showsporttvcom', 4, "http://showsport-tv.com/images/logoh.png", 'showsporttvcom' , 0)
 	add_dir("Vipracing.net", 'vipracinginfo', 4, "", 'vipracinginfo' , 0)
 	#static streaming lists
@@ -606,6 +608,16 @@ def drawYoutube(url='0'): #BROWSES ALL PROVIDERS (it has been re-sorted)
 			image = channel["thumbnail"]
 		add_dir(channel["title"], channel["page"], level, image, "youtube", channel["page"])
 
+def drawZonaAppCom():
+	channels = ZonaAppCom.getChannelsJSON()
+	logger.debug("items obtained: " + str(len(channels)))
+	for channel in channels:
+		image = ''
+		level = 116
+		if channel.has_key('thumbnail'):
+			image = channel["thumbnail"]
+		add_dir(channel["title"], channel["link"], level, image, "zonaappcom", channel["link"])
+
 def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	if provider == "filmoncom":
 		drawFilmon(page)
@@ -645,6 +657,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawAcetvru(page)
 	elif provider == 'youtube':
 		drawYoutube(page)
+	elif provider == 'zonaappcom':
+		drawZonaAppCom()
 
 	logger.info(provider)
 
@@ -844,6 +858,11 @@ def init():
 			logger.info("decoding youtube link... " + url)
 			link = Decoder.decodeLink(url)
 			logger.info("decoded youtube link: " + link)
+			open(link, page)
+		elif mode == 116:
+			logger.info("decoding zonaapp link... " + url)
+			link = ZonaAppCom.getFinalLink(url)
+			logger.info("decoded zonaapp link: " + link)
 			open(link, page)
 	except Exception as e:
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))

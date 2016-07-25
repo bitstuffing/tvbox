@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
-	<tag>0.1.0</tag>
-	<version>97</version>
+	<tag>0.1.1</tag>
+	<version>98</version>
 	<date>25/07/2016</date>
-	<changes>Development improve (youtube provider, not finished yet)</changes>
+	<changes>Added new provider (zona-app.com)</changes>
 </plugin>

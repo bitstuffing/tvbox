@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-
 from core import logger
 from core.decoder import Decoder
 from core.downloader import Downloader
+from core.xbmcutils import XBMCUtils
 import urllib
 
 try:
@@ -13,6 +12,7 @@ except:
 class Youtube(Downloader):
 
     MAIN_URL = "https://www.youtube.com"
+    SEARCH_URL = "https://www.youtube.com/results?search_query="
 
     @staticmethod
     def getChannels(page='0'):
@@ -22,11 +22,33 @@ class Youtube(Downloader):
             html = Youtube.getContentFromUrl(page,"",Youtube.cookie,"")
             logger.debug("html: "+html)
             x = Youtube.extractMainChannels(html)
+            element = {}
+            element["title"] = XBMCUtils.getString(11018)
+            element["page"] = 'search'
+            x.append(element)
+        elif str(page) == 'search':
+            keyboard = XBMCUtils.getKeyboard()
+            keyboard.doModal()
+            text = ""
+            if (keyboard.isConfirmed()):
+                text = keyboard.getText()
+                text = urllib.quote_plus(text)
+                html = Youtube.getContentFromUrl(Youtube.SEARCH_URL+text, "", Youtube.cookie, "https://www.youtube.com/?app=desktop")
+                html = html.replace('\u003e','>').replace("\u003c","<").replace("\\","")
+                logger.debug("brute html is: "+html)
+                x = Youtube.extractAllVideosFromHtml(html)
+                logger.debug("done search logic!")
+        elif '/results?' in page:
+            logger.debug("pagination detected: "+page)
+            html = Youtube.getContentFromUrl(page, "", Youtube.cookie,Youtube.MAIN_URL)
+            x = Youtube.extractAllVideosFromHtml(html)
+            logger.debug("done search logic pagination!")
         elif page.find('/channel/')>-1:
             html = Youtube.getContentFromUrl(page,"",Youtube.cookie,Youtube.MAIN_URL)
             x = Youtube.extractAllVideos(html)
         elif "/trending" in page:
-            x = Youtube.extractAllVideosFromHtml(page)
+            html = Youtube.getContentFromUrl(page, "", Youtube.cookie, Youtube.MAIN_URL)
+            x = Youtube.extractAllVideosFromHtml(html)
         else:
             link = Youtube.extractTargetVideo(page)
             element = {}
@@ -85,16 +107,15 @@ class Youtube(Downloader):
 
 
     @staticmethod
-    def extractAllVideosFromHtml(page):
+    def extractAllVideosFromHtml(html):
         x = []
-        html = Youtube.getContentFromUrl(page,"",Youtube.cookie,Youtube.MAIN_URL)
         tableHtml = Decoder.extract('class="item-section">','</ol>',html)
         i=0
         for rowHtml in tableHtml.split('<div class="yt-lockup-dismissable yt-uix-tile">'):
             if i>0:
                 element = {}
                 link = Decoder.extract(' href="', '"', rowHtml)
-                title = Decoder.rExtract('title="','" data-sessionlink', rowHtml)
+                title = Decoder.rExtract('title="','" aria-describedby="', rowHtml).replace('" rel="spf-prefetch','')
                 logger.debug("link: "+link+", title is: "+title)
                 if 'youtube.com' not in link:
                     link = Youtube.MAIN_URL+link
@@ -105,6 +126,19 @@ class Youtube(Downloader):
                 element["thumbnail"] = image
                 x.append(element)
             i+=1
+        #add next if pagination exists
+        if '<div class="branded-page-box search-pager  spf-link ">' in html:
+            bruteHtmlPaginate = Decoder.rExtract('<div class="branded-page-box search-pager  spf-link ">','<div class="branded-page-v2-secondary-col">',html)
+            title = Decoder.rExtract(">","</span></a>",bruteHtmlPaginate)
+            title = title[:len(title)-2]
+            link = Decoder.rExtract('href="','" class="yt-uix-button', bruteHtmlPaginate)
+            if 'youtube.com' not in link:
+                link = Youtube.MAIN_URL + link
+            element = {}
+            element["title"] = title
+            element["page"] = link
+            logger.debug("link: " + link + ", title is: " + title)
+            x.append(element)
         return x
 
     @staticmethod

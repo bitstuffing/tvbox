@@ -107,7 +107,7 @@ def add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	u=sys.argv[0]+"?url="+urllib.quote_plus(url.decode('utf-8', 'replace').encode('iso-8859-1', 'replace'))
 	u+="&mode="+str(mode)+"&page="
 	try:
-		u+=str(page)
+		u+=urllib.quote_plus(str(page))
 	except:
 		u+=page
 		pass
@@ -644,7 +644,7 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	elif provider == 'acetvru':
 		drawAcetvru(page)
 	elif provider == 'youtube':
-		drawYoutube(url)
+		drawYoutube(page)
 
 	logger.info(provider)
 

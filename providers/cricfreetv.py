@@ -99,6 +99,14 @@ class Cricfreetv(Downloader):
             file = Cricfreetv.launchScriptLogic("http://miplayer.net/embed",html,referer,iframeUrl)
         elif html.find("http://www.cast4u.tv/embed")>-1:
             file = Cricfreetv.launchScriptLogic("http://www.cast4u.tv/embed",html,referer,iframeUrl)
+        elif "http://www.hdcast.info/embed.js" in html:
+            id = Decoder.extract('fid="','"',html)
+            scriptUrl = "http://www.hdcast.info/embed.php?live="+id+"&vw=620&vh=490"
+            logger.debug("using script url: "+scriptUrl)
+            lastIframeHtml = Cricfreetv.getContentFromUrl(scriptUrl, "", Cricfreetv.cookie, iframeUrl)
+            logger.debug("html is: "+lastIframeHtml)
+            lastIframeHtml = Decoder.rExtract("<body","</body>",lastIframeHtml)
+            file = Cricfreetv.seekIframeScript(lastIframeHtml, iframeUrl, scriptUrl)
         elif html.find("http://violadito.biggestplayer.me/playercr.js")>-1:
             id = Decoder.extract("<script type='text/javascript'>id='","'",html)
             logger.debug("violadito id="+id)
@@ -121,10 +129,19 @@ class Cricfreetv(Downloader):
             file = Decoder.extract('file: "','"',html)
             logger.debug("found final link: "+file)
         elif html.find('return(["r","t","m","p"')>-1: #changed order to build final url first
+
             swfUrl = "http://cdn.ibrod.tv/player/jwplayer.flash.swf"
             if 'cast4u.tv' in html:
                 swfUrl = "http://cast4u.tv/jwplayer/jwplayer.flash.swf"
-            bruteData = Decoder.extract('<script type="text/javascript">\nvar',"</script>",html)
+            elif 'http://www.hdcast.info/video-js/video-js.swf' in html:
+                swfUrl = "http://www.hdcast.info/video-js/video-js.swf"
+
+            if '<script type="text/javascript">\nvar' in html:
+                scriptSplit = '<script type="text/javascript">\nvar'
+            elif '<script type="text/javascript">\n\nvar' in html:
+                scriptSplit = '<script type="text/javascript">\n\nvar'
+
+            bruteData = Decoder.extract(scriptSplit,"</script>",html)
 
             rtmp = ""
             file = Decoder.extract('file: ','}],',bruteData).replace(' ','')
@@ -169,7 +186,10 @@ class Cricfreetv(Downloader):
 
             logger.debug("Fresh token is: "+token)
 
-            app = 'live'+Decoder.extract('/live','==/',rtmp)+"==/"
+            if "/live" in rtmp:
+                app = 'live'+Decoder.extract('/live','==/',rtmp)+"==/"
+            else: #/hd
+                app = 'hd' + Decoder.extract('/hd', '==/', rtmp) + "==/"
 
             file = rtmp+" app="+app+" playpath="+playpath+r" token=%XB00(nKH@#. flashver=WIN\2021,0,0,182 timeout=30 live=1 swfUrl="+swfUrl+" pageUrl="+iframeUrl+""
 

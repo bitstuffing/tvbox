@@ -420,7 +420,7 @@ class Decoder():
     @staticmethod
     def decodeUcaster(html,referer):
         newParam = Decoder.extractParams(html)
-        finalUrl = "rtmp://46.28.50.116/live/ playPath="+newParam+" swfVfy=1 timeout=10 conn=S:OK live=true swfUrl=http://www.embeducaster.com/static/scripts/fplayer.swf flashver=WIN/2019,0,0,226 pageUrl="+referer
+        finalUrl = "rtmp://178.162.199.155/live/ playPath="+newParam+" swfVfy=1 timeout=10 conn=S:OK live=true swfUrl=http://www.embeducaster.com/static/scripts/fplayer.swf flashver=WIN/2019,0,0,226 pageUrl="+referer
         return finalUrl
 
     @staticmethod
@@ -1107,6 +1107,33 @@ class Decoder():
             elif sign=="/":
                 form = str(figure/result)
         return form
+
+    @staticmethod
+    def getUstreamLink(uStreamUrl,referer):
+        logger.debug("Decoding ustream link: " + uStreamUrl)
+        id = Decoder.extract('http://www.ustream.tv/embed/', "?", uStreamUrl)
+        iphoneLink = "http://iphone-streaming.ustream.tv/uhls/" + id + "/streams/live/iphone/playlist.m3u8"
+        logger.debug("iphoneLink is: " + iphoneLink)
+        return iphoneLink  # TODO, get final rtmp link, but at this moment it's better than nothing else
+
+    @staticmethod
+    def getCastcampLink(code,referer=''):
+        url = "http://www.castamp.com/embed.php?c="+code+"&tk=Gwsmev6F&vwidth=700&vheight=400"
+        html = Downloader.getContentFromUrl(url=url,referer=referer)
+        swfVer = "WIN/20,0,0,306"
+        swfUrl = Decoder.extract("'flashplayer': \"","\"",html)
+        rtmp = Decoder.extract("'streamer': '","'",html)
+        file = Decoder.extract("'file': '", "'", html)
+        filePrefix = Decoder.rExtract("'","'+unescape",html)
+        replaceBy = Decoder.extract("replace('","'",html)
+        replaced = Decoder.extract(replaceBy+"', '","'",html)
+        unescaped = Decoder.extract("unescape('","'",html)
+        escaped = urllib.unquote_plus(unescaped)
+        playPath = filePrefix+escaped
+        playPath = playPath.replace(replaceBy,replaced)
+        logger.debug("file: "+file+" transformed to playpath: "+playPath)
+        link = rtmp+" playpath="+playPath+" swfUrl="+swfUrl+" live=1 timeout=14 swfVfy=1 flashver="+swfVer+" pageUrl="+url
+        return link
 
     @staticmethod
     def decodeStreamliveto(html,page=''):

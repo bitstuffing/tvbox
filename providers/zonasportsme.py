@@ -51,7 +51,21 @@ class Zonasportsme(Downloader):
                 file = base64.decodestring(curl) + token + "|" + Downloader.getHeaders('http://cdn.allofme.site/jw/jwplayer.flash.swf')
                 logger.debug("final url is: " + file)
                 url = file
-
+            elif 'zony.tv/static/scripts/zony.js' in html:
+                channel = Decoder.extract("channel='","'",html)
+                url = 'http://www.zony.tv/embedplayer/'+channel+'/1/700/400/'
+                html2 = Zonasportsme.getContentFromUrl(url=url,referer=page)
+                logger.debug("html2 is: "+html2)
+                #newParam = Decoder.extract("so.addParam('FlashVars', '", "'", html2)  # brute params, needs a sort
+                newParam = Decoder.extractParams(html2)
+                rtmp = "rtmp://146.185.16.62/stream playPath="+newParam+" swfVfy=1 timeout=10 conn=S:OK live=true swfUrl=http://www.zony.tv/static/scripts/fplayer.swf flashver=WIN/2019,0,0,226 pageUrl="+page
+                url = rtmp
+            elif 'http://www.embeducaster.com/static/' in html:
+                channel = Decoder.extract("channel='", "'", html)
+                url = 'http://www.embeducaster.com/embedplayer/' + channel + '/1/700/400/'
+                html2 = Zonasportsme.getContentFromUrl(url=url, referer=page)
+                logger.debug("html2 is: " + html2)
+                url = Decoder.decodeUcaster(html2,url)
             element = {}
             element["title"] = "Stream"
             element["link"] = url
@@ -75,28 +89,3 @@ class Zonasportsme(Downloader):
                 x.append(element)
             i+=1
         return x
-
-    @staticmethod
-    def getContent(url, referer="",proxy=None, post=None):
-        timeout='14'
-        result = ""
-        headers = {}
-        try:
-            handlers = []
-            handlers += [urllib2.ProxyHandler({'http':'%s'%(proxy)}),urllib2.HTTPHandler]
-            opener = urllib2.build_opener(*handlers)
-            opener = urllib2.install_opener(opener)
-            headers['User-Agent'] = Downloader.USER_AGENT
-            if referer != "":
-                headers['referer'] = referer
-            headers['Accept-Language'] = 'en-US'
-            request = urllib2.Request(url, data=post, headers=headers)
-            try:
-                response = urllib2.urlopen(request, timeout=int(timeout))
-            except urllib2.HTTPError as response:
-                pass
-            result = response.read(1024 * 1024) #without buffer sometimes it does not work :'(
-            response.close()
-        except:
-            logger.error("something wrong happened with this url: "+url)
-        return result

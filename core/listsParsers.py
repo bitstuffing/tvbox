@@ -8,7 +8,7 @@ def getListsUrls(url,name,page):
     icon = XBMCUtils.getAddonFilePath('icon.png')
     #logger.debug("using url: "+url)
     html = Downloader.getContentFromUrl(url)
-    if url.endswith(".xml"): #main channels, it's a list to browse
+    if url.endswith(".xml") or ('<items>' in html or '<item>' in html): #main channels, it's a list to browse
         drawXml(html,icon)
     elif url.endswith(".xspf"):
         drawXspf(html,icon)
@@ -25,8 +25,11 @@ def drawBruteChannels(html,icon=''):
 		# print "detected channel: "+name+" with url: "+value
 		if name != "" and value != "":  ##check for empty channels, we don't want it in our list
 			add_dir(name, value, 2, icon, '', name)
+		else:
+			logger.debug("Discarted brute: " + name + ", " + value)
 
 def drawXml(html,icon=''):
+	logger.debug(html)
 	lists = common.parseDOM(html, "stream")
 	if len(lists) > 0:
 		logger.info("counted: " + str(len(lists)))
@@ -36,6 +39,8 @@ def drawXml(html,icon=''):
 			if len(value) > 0:
 				logger.info("Added: " + name + ", url: " + value)
 				add_dir(name, value, 2, icon, '', 0)
+			else:
+				logger.debug("Discarted: " + name + ", " + value)
 	else:
 		lists = common.parseDOM(html, "list")
 		if len(lists) > 0:
@@ -48,9 +53,28 @@ def drawXml(html,icon=''):
 		else:
 			lists = common.parseDOM(html, "item")  # sportsdevil private lists
 			if len(lists) > 0:
+				logger.info("counted (item): " + str(len(lists)))
 				for item in lists:
-					name = common.parseDOM(item, "title")[0].encode("utf-8")
-					value = common.parseDOM(item, "sportsdevil")[0].encode("utf-8")
+					target = 1
+					try:
+						name = common.parseDOM(item, "title")[0].encode("utf-8")
+						if '<title>' in name:
+							name = name[0:name.find('<title>')]
+					except:
+						pass
+					try:
+						value = common.parseDOM(item, "sportsdevil")[0].encode("utf-8")
+						target = 2
+					except:
+						value = common.parseDOM(item, "link")[0].encode("utf-8")
+						if 'ignorame' in value:
+							value = common.parseDOM(item, "externallink")[0].encode("utf-8")
+						pass
+
+					#final links capture
+					if "rtmp" in value or 'rtsp' in value or value.endswith(".m3u8") or value.endswith(".ts") or 'plugin://plugin.video' in value:
+						target = 2
+
 					referer = ""
 					try:
 						referer = common.parseDOM(item, "referer")[0].encode("utf-8")
@@ -65,9 +89,11 @@ def drawXml(html,icon=''):
 						if referer != "":
 							value += ", referer: " + referer
 						logger.info("Added: " + name + ", url: " + value)
-						add_dir(name, value, 2, img, '', 0)
+						add_dir(name, value, target, img, '', 0)
+					else:
+						logger.debug("Discarted: "+name+", "+value)
 			else:  # tries xspf
-				drawXspf(html)
+				drawXspf(html,icon)
 
 def drawXspf(html,icon=''):
 	lists = common.parseDOM(html,"track") #rusian acelive format

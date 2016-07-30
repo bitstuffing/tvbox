@@ -915,10 +915,21 @@ class Decoder():
 
     @staticmethod
     def decodeStreamin(link):
+        ''' This method is not working anymore, but link is provided, so the code is kept
         html = Decoder.getFinalHtmlFromLink(link,5)
         mp4File = Decoder.extract("config:{file:'","'",html)
         logger.info('found link: '+mp4File)
         return mp4File
+        '''
+        html = Decoder.getFinalHtmlFromLink(link, 5)
+        file = Decoder.extract('file: "','"', html)
+        rtmp = Decoder.extract('streamer: "','"', html)
+        swfPlayer = Decoder.extract('type: "flash", src: "','"', html)
+        key = file[file.find('?h='):]
+        playPath = "mp4:"+file
+        finalRtmp = rtmp+" app=vod"+key+" playpath="+playPath+" swfUrl="+swfPlayer+" pageUrl="+link
+        logger.debug("rtmp decoded link is: "+finalRtmp)
+        return finalRtmp
 
     @staticmethod
     def decodeGamovideo(link):
@@ -957,8 +968,8 @@ class Decoder():
     def decodeFlashx(link):
         html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with streamcloud and others
         mp4File = ""
-        for line in html.split("<script"):
-            if line.find("eval(function(p,a,c,k,e,d)")>-1:
+        for line in html.split("<script type='text/javascript'>"):
+            if "eval(function(p,a,c,k,e,d)" in line:
                 try:
                     encodedMp4File = Decoder.extract("eval(function(p,a,c,k,e,d)","</script>",html)
                     logger.debug("extracted code is: "+encodedMp4File)
@@ -968,6 +979,7 @@ class Decoder():
                 logger.debug("At this moment mp4 script is: "+mp4File)
         if mp4File.find("http://play.")>-1:
             mp4File = Decoder.extractWithRegex("http://play.",".mp4",mp4File)
+        logger.debug("decoded mp4 file is: "+mp4File)
         return mp4File+"|"+Downloader.getHeaders()
 
     @staticmethod
@@ -1098,8 +1110,9 @@ class Decoder():
 
     @staticmethod
     def decodeStreamliveto(html,page=''):
+        logger.debug("page referer which will be used: "+page)
         iframeUrl = "http://www.streamlive.to/embedplayer_new2.php?width=653&height=410&channel="+Decoder.extract('http://www.streamlive.to/embed/','&width=',html)+"&autoplay=true"
-        html2 = Downloader.getContentFromUrl(iframeUrl,"","",page)
+        html2 = Downloader.getContentFromUrl(url=iframeUrl,data="",cookie=Downloader.cookie,referer=page)
         if html2.find("Question:")>-1:#captcha
             logger.debug(html2)
             captcha = Decoder.rExtract(': ','<br /><br />',html2)
@@ -1113,19 +1126,30 @@ class Decoder():
             logger.debug("captcha="+captcha)
             captchaPost = urllib.urlencode({'captcha': captcha})
             logger.debug(captchaPost)
-            time.sleep(3)
-            html2 = Downloader.getContentFromUrl(iframeUrl,captchaPost,Downloader.cookie,iframeUrl)
+            time.sleep(4)
+            html2 = Downloader.getContentFromUrl(url=iframeUrl,data=captchaPost,cookie=Downloader.cookie,referer=page)
         link = "https://www.github.com" # dummy url, f.i. ;)
-        if html2.find("http://www.streamlive.to/player/ilive-plugin.swf")>-1: #builds the link
+        if "http://www.streamlive.to/player/ilive-plugin.swf" not in html2: #builds the link
+            logger.debug("Next try: "+html2)
+            if "antiware=" in Downloader.cookie:
+                if " expires" in Downloader.cookie:
+                    Downloader.cookie = Downloader.cookie[:Downloader.cookie.find(" expires")]
+                    logger.debug("fix for cookie done!")
+                logger.debug("trying second loop with new cookie: "+Downloader.cookie)
+                #html2 = Downloader.getContentFromUrl(iframeUrl, "", "", page)
+        if "http://www.streamlive.to/player/ilive-plugin.swf" in html2:  # builds the link
             swfUrl = "http://www.streamlive.to/player/ilive-plugin.swf"
-            tokenUrl = Decoder.extractWithRegex("www.streamlive.to/server.php?id=",'"',html2)
-            tokenUrl = tokenUrl[:(len(tokenUrl)-1)]
-            token = Downloader.getContentFromUrl("http://"+tokenUrl,"",Downloader.cookie,page)
-            token = Decoder.extract('{"token":"','"}',token)
-            file = Decoder.extract('file: "','",',html2).replace('.flv','')
-            streamer = Decoder.extract('streamer: "','",',html2).replace("\\","")
-            link = streamer+"./"+file+" playpath="+file+" live=1 token="+token+" swfUrl="+swfUrl+" pageUrl=http://www.streamlive.to/view"+(iframeUrl[iframeUrl.rfind("/"):])
-            logger.debug("built a link to be used: "+link)
+            tokenUrl = Decoder.extractWithRegex("www.streamlive.to/server.php?id=", '"', html2)
+            tokenUrl = tokenUrl[:(len(tokenUrl) - 1)]
+            token = Downloader.getContentFromUrl("http://" + tokenUrl, "", Downloader.cookie, page)
+            token = Decoder.extract('{"token":"', '"}', token)
+            file = Decoder.extract('file: "', '",', html2).replace('.flv', '')
+            streamer = Decoder.extract('streamer: "', '",', html2).replace("\\", "")
+            link = streamer + "./" + file + " playpath=" + file + " live=1 token=" + token + " swfUrl=" + swfUrl + " pageUrl=http://www.streamlive.to/view" + (
+            iframeUrl[iframeUrl.rfind("/"):])
+            logger.debug("built a link to be used: " + link)
+        else:
+            logger.debug("Nothing done: " + html2)
         return link
 
     @staticmethod

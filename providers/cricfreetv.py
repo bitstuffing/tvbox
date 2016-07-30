@@ -176,16 +176,17 @@ class Cricfreetv(Downloader):
                 else:
                     rtmp+="/"
                 logger.debug("at this moment final rtmp is: " + rtmp)
-
+            '''
             token = ""
 
             if bruteData.find('securetoken: ')>-1:
                 token = Decoder.extract('securetoken: ','\n',bruteData)
-                htmlToken = Cricfreetv.getContentFromUrl(url='http://cast4u.tv/jwplayer/jwplayer.js?v=3.3')
+                swfUrlJS = 'http://cast4u.tv/jwplayer/jwplayer.js?v=3.3'
+                htmlToken = Cricfreetv.getContentFromUrl(url=swfUrlJS)
                 token = Decoder.extract('var '+token+' = "','"',htmlToken)
 
             logger.debug("Fresh token is: "+token)
-
+            '''
             if "/live" in rtmp:
                 app = 'live'+Decoder.extract('/live','==/',rtmp)+"==/"
             else: #/hd

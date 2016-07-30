@@ -34,7 +34,8 @@ class Vipracinginfo(Downloader):
                     x = Vipracinginfo.extractElements(table,Vipracinginfo.MAIN_URL3)
                     logger.debug("done with the second loop, detected channels: "+str(len(x)))
         else:
-            html = Vipracinginfo.getContentFromUrl(page,"",Vipracinginfo.cookie,Vipracinginfo.MAIN_URL3)
+            html = Vipracinginfo.getContentFromUrl(url=page)
+            logger.debug("html: " + html)
             logger.debug("launching Vipracing else logic")
             if html.find('http://www.streamlive.to/embed/')>-1:
                 link = Decoder.decodeStreamliveto(html,page)
@@ -60,6 +61,7 @@ class Vipracinginfo(Downloader):
                 x.append(element)
             else:
                 logger.debug("launching Vipracing else ELSE logic (other provider embed - max-deportv)")
+                html2 = ""
                 if ' SRC="' in html:
                     iframeUrl = Decoder.extract(' SRC="','"',html)
                     html2 = Vipracinginfo.getContentFromUrl(iframeUrl, "", Vipracinginfo.cookie, page)
@@ -81,8 +83,16 @@ class Vipracinginfo(Downloader):
                     link = Decoder.decodeIguide(iframeUrl3,iframeUrl2)
                 elif 'http://www.streamlive.to' in html2:
                     streamLiveScript = Decoder.extractWithRegex('http://www.streamlive.to','"',html2).replace('"','')
-                    link = Decoder.decodeStreamliveto(streamLiveScript, 'http://www.streamlive.to')
+                    link = Decoder.decodeStreamliveto(streamLiveScript, iframeUrl)
                     logger.debug("using streamlive way...")
+                elif '<iframe name="vipracing" src="http://vipracing.' in html:
+                    logger.debug("detected vipracing embed iframe, other loop...")
+                    iframeUrlLoop = Decoder.extract('<iframe name="vipracing" src="','"',html)
+                    element2 = Vipracinginfo.getChannels(iframeUrlLoop)[0]
+                    link = element2["link"]
+                    page = element2["title"]
+                else:
+                    logger.debug("Nothing done: "+html+", \nhtml2: "+html2)
                 element["link"] = link
                 element["title"] = page
                 element["permalink"] = True

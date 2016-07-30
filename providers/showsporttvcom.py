@@ -6,6 +6,7 @@ from core.decoder import Decoder
 from core import jsunpack
 from core import logger
 from core.downloader import Downloader
+from providers.cricfreetv import Cricfreetv
 
 class ShowsportTvCom(Downloader):
 
@@ -103,20 +104,39 @@ class ShowsportTvCom(Downloader):
             elif html2.find("http://www.iguide.to/embed")>-1:
                 nextIframeUrl = Decoder.extractWithRegex('http://www.iguide.to/embed','"',html2).replace('"',"")
                 file = Decoder.decodeIguide(nextIframeUrl,iframeUrl)
-            elif html2.find("http://static.bro.adca.st/broadcast/player.js")>-1:
-                id2 = Decoder.extract("<script type='text/javascript'>id='","';",html2)
-                logger.debug("using id = "+id2)
-                url4 = "http://bro.adcast.site/stream.php?id="+id2+"&width=700&height=450&stretching=uniform"
+            elif "/embedplayer.php" in html2:
+                nextIframeUrl = ShowsportTvCom.MAIN_URL+Decoder.extractWithRegex('/embedplayer.php', "'", html2).replace("'", "")
+                logger.debug("next loop will use: "+nextIframeUrl)
+                file = ShowsportTvCom.getChannels(nextIframeUrl)
+            elif html2.find("adca.st/stream.php")>-1:
+                token = False
+                if "http://bro.adca.st/stream.php" not in html2:
+                    token = True
+                    id2 = Decoder.extract("<script type='text/javascript'>id='","';",html2)
+                    logger.debug("using id = "+id2)
+                    url4 = "http://bro.adcast.site/stream.php?id="+id2+"&width=700&height=450&stretching=uniform"
+                else: #it's built, not needed extract id
+                    url4 = Decoder.extractWithRegex("http://bro.adca.st/stream.php",'"',html2)
                 html4 = ShowsportTvCom.getContentFromUrl(url4,"",ShowsportTvCom.cookie,iframeUrl)
                 logger.debug("html4: "+html4)
                 curl = Decoder.extract('curl = "','"',html4)
-                token = ShowsportTvCom.getContentFromUrl('http://bro.adcast.site/getToken.php',"",ShowsportTvCom.cookie,url4,True)
+
+                tokenUrl = "http://bro.adca.st/getToken.php"
+                swfUrl = "http://cdn.allofme.site/jw/jwplayer.flash.swf"
+                if token:
+                    tokenUrl = 'http://bro.adcast.site/getToken.php'
+                    swfUrl = 'http://cdn.bro.adcast.site/jwplayer.flash.swf'
+
+                token = ShowsportTvCom.getContentFromUrl(tokenUrl,"",ShowsportTvCom.cookie,url4,True)
                 logger.debug("token: "+token)
                 token = Decoder.extract('":"','"',token)
-                file = base64.decodestring(curl)+token+"|"+Downloader.getHeaders('http://cdn.bro.adcast.site/jwplayer.flash.swf')
+
+
+                file = base64.decodestring(curl)+token+"|"+Downloader.getHeaders(swfUrl)
                 logger.debug("final url is: "+file)
             else:
-                logger.debug("none: "+html2)
+                logger.debug("trying crickfreetv way...: "+html2)
+                file = Cricfreetv.seekIframeScript(html2, page, page)
             logger.debug("final remote url: "+file)
             element = {}
             element["link"] = file

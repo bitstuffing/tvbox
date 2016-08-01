@@ -3,6 +3,8 @@ from core import logger
 from core.addonUtils import add_dir
 from core.downloader import Downloader
 from core.xbmcutils import XBMCUtils
+import urllib
+import base64
 
 def getListsUrls(url,name,page):
     icon = XBMCUtils.getAddonFilePath('icon.png')
@@ -66,9 +68,19 @@ def drawXml(html,icon=''):
 						value = common.parseDOM(item, "sportsdevil")[0].encode("utf-8")
 						target = 2
 					except:
-						value = common.parseDOM(item, "link")[0].encode("utf-8")
-						if 'ignorame' in value:
-							value = common.parseDOM(item, "externallink")[0].encode("utf-8")
+						try:
+							value = common.parseDOM(item, "link")[0].encode("utf-8")
+							if 'ignorame' in value or 'ignora.me' in value:
+								value = common.parseDOM(item, "externallink")[0].encode("utf-8")
+							elif 'ignor' in value:
+								value = common.parseDOM(item, "jsonrpc")[0].encode("utf-8")
+								target = 2
+						except:
+							try:
+								value = common.parseDOM(item, "jsonrpc")[0].encode("utf-8")
+							except:
+								pass
+							pass
 						pass
 
 					#final links capture
@@ -89,6 +101,8 @@ def drawXml(html,icon=''):
 						if referer != "":
 							value += ", referer: " + referer
 						logger.info("Added: " + name + ", url: " + value)
+						if target == 1 and ('rtmp://' in value or '.m3u8' in value or '.mp4' in value or '.ts' in value or 'mms:' in value):
+							target = 2
 						add_dir(name, value, target, img, '', 0)
 					else:
 						logger.debug("Discarted: "+name+", "+value)

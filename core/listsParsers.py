@@ -58,6 +58,8 @@ def drawXml(html,icon=''):
 				logger.info("counted (item): " + str(len(lists)))
 				for item in lists:
 					target = 1
+					name = ""
+					value = ""
 					try:
 						name = common.parseDOM(item, "title")[0].encode("utf-8")
 						if '<title>' in name:
@@ -70,6 +72,7 @@ def drawXml(html,icon=''):
 					except:
 						try:
 							value = common.parseDOM(item, "link")[0].encode("utf-8")
+							logger.debug("extracted link: "+value)
 							if 'ignorame' in value or 'ignora.me' in value:
 								value = common.parseDOM(item, "externallink")[0].encode("utf-8")
 							elif 'ignor' in value:

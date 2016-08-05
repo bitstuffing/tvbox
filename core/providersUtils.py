@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import urllib
+import sys
 
 from core.xbmcutils import XBMCUtils
 from core.addonUtils import add_dir
@@ -26,6 +27,7 @@ from providers.arenavisionin import Arenavisionin
 from providers.acetvru import Acetvru
 from providers.youtube import Youtube
 from providers.zonaappcom import ZonaAppCom
+from providers.pastebin import Pastebin
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -339,6 +341,15 @@ def drawZonaAppCom():
 		if channel.has_key('thumbnail'):
 			image = channel["thumbnail"]
 		add_dir(channel["title"], channel["link"], level, image, "zonaappcom", channel["link"])
+
+def drawPastebinCom():
+	param = urllib.quote_plus(str(XBMCUtils.getSettingFromContext(sys.argv[1],'pastebin_param')))
+	logger.debug("extracted param to be searched: "+param)
+	channels = Pastebin.searchLists(param=param)
+	logger.debug("items obtained: " + str(len(channels)))
+	level = 1
+	for channel in channels:
+		add_dir(channel["title"], channel["link"], level, '', "pastebincom", channel["link"])
 
 def drawFilmonLinks(url, page, provider=""):
 	finalUrls = Filmoncom.getChannelUrl(url)

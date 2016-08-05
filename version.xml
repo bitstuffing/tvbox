@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
-	<tag>0.1.1</tag>
-	<version>99</version>
-	<date>26/07/2016</date>
-	<changes>Changes related to sports4u provider</changes>
+	<tag>0.1.2</tag>
+	<version>100</version>
+	<date>05/08/2016</date>
+	<changes>Changes related to new features</changes>
 </plugin>

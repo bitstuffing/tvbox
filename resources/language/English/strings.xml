@@ -50,4 +50,9 @@
     <string id="30052">Do you want to install quasar? If you have installed a previous version it's not going to be overwritten.</string>
 
     <string id="30060">Patch installed. Please restart Kodi to take effect</string>
+
+    <string id="30070">Dinamic pages</string>
+    <string id="30071">Enable dinamic pages</string>
+    <string id="30072">Search param for pastebin.com</string>
+
 </strings>

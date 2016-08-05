@@ -50,4 +50,9 @@
     <string id="30052">¿Desea instalar quasar? Si ha instalado una versión anterior será sobreescrita.</string>
 
     <string id="30060">Parche instalado. Por favor, reinicie Kodi para que los cambios tengan efecto</string>
+
+    <string id="30070">Páginas dinámicas</string>
+    <string id="30071">Habilitar páginas dinámicas</string>
+    <string id="30072">Parámetro de búsqueda en pastebin.com</string>
+
 </strings>

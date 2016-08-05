@@ -11,14 +11,18 @@
 		<setting id="localproxy_patch" type="bool" label="30005" default="false"/>
 		<setting id="download_httpproxy" type="action" label="30006" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=97&page=None&provider=None)"/>
 	</category>
+	<category label="30040">
+		<setting id="enable_plexus" type="bool" label="30041" default="false" visible="true"/>
+		<setting id="download_plexus" type="action" label="30042" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=99&page=None&provider=None)"/>
+		<setting id="download_quasar" type="action" label="30043" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=98&page=None&provider=None)"/>
+	</category>
 	<category label="30020">
 		<setting id="enable_splive" type="bool" label="30022" default="false"/>
 		<setting id="splive_channel" type="text" label="30021" value="" default="" enable="true"/>
 		<setting id="online_pbewithmd5anddes_decoder" type="text" label="30031" value="" default="" enable="true"/>
 	</category>
-	<category label="30040">
-		<setting id="enable_plexus" type="bool" label="30041" default="false" visible="true"/>
-		<setting id="download_plexus" type="action" label="30042" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=99&page=None&provider=None)"/>
-		<setting id="download_quasar" type="action" label="30043" action="Container.Update(plugin://org.harddevelop.kodi.tv/?url=None&mode=98&page=None&provider=None)"/>
+	<category label="30070">
+		<setting id="enable_pastebin" type="bool" label="30071" default="false"/>
+		<setting id="pastebin_param" type="text" label="30072" value="" default="%23EXTINF" enable="true"/>
 	</category>
 </settings>

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import urllib
-import urllib2
 import sys
 
 import re
@@ -64,6 +63,9 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 		add_dir("Vipgoal.net", 'vigoal', 4, "http://vipgoal.net/VIPgoal/img/logo.png", 'vigoal', 0)
 	#webcams and others
 	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
+	enableDinamic = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_pastebin")
+	if enableDinamic =="true":
+		add_dir("Pastebin.com", 'pastebincom', 4, "", 'pastebincom', 0)
 	#static streaming lists
 	#add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
 
@@ -108,6 +110,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawYoutube(page)
 	elif provider == 'zonaappcom':
 		drawZonaAppCom()
+	elif provider == 'pastebincom':
+		drawPastebinCom()
 
 	logger.info(provider)
 

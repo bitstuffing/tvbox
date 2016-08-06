@@ -98,7 +98,13 @@ def drawXml(html,icon='',provider='',finalTarget=1):
 					try:
 						img = common.parseDOM(item, "thumbnail")[0].encode("utf-8")
 					except:
-						logger.info("thumbnail not found!")
+						try:
+							img = common.parseDOM(item, "media:thumbnail",ret="url")[0]
+							logger.debug("img is: "+img)
+						except:
+							logger.info("thumbnail not found!")
+							pass
+						pass
 					if name != "" and value != "":
 						if referer != "":
 							value += ", referer: " + referer

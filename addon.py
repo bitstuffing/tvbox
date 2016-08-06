@@ -66,6 +66,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	enableDinamic = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_pastebin")
 	if enableDinamic =="true":
 		add_dir("Pastebin.com", 'pastebincom', 4, "", 'pastebincom', 0)
+		add_dir("Redeneobux.com", 'redeneobuxcom', 4, "", 'redeneobuxcom', 0)
 	#static streaming lists
 	#add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
 
@@ -112,6 +113,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawZonaAppCom()
 	elif provider == 'pastebincom':
 		drawPastebinCom()
+	elif provider == 'redeneobuxcom':
+		drawRedeneobuxCom(page)
 
 	logger.info(provider)
 

@@ -25,4 +25,7 @@
 		<setting id="enable_pastebin" type="bool" label="30071" default="false"/>
 		<setting id="pastebin_param" type="text" label="30072" value="" default="%23EXTINF" enable="true"/>
 	</category>
+	<category label="30080">
+		<setting id="enable_news" type="bool" label="30081" default="false"/>
+	</category>
 </settings>

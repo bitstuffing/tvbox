@@ -40,6 +40,10 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	if enablePlexus=="true":
 		add_dir("Arenavision.in", 'arenavisionin', 4, "http://www.arenavision.in/sites/default/files/logo_av2015.png", 'arenavisionin' , 0)
 		add_dir("Ace-tv.ru", 'acetvru', 4, "http://ace-tv.eu/logo.png", 'acetvru' , 0)
+
+	enableNews = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_news")
+	if enableNews=="true":
+		add_dir("Bbc.co.uk",'bbccouk', 4, "", 'bbccouk', 'http://feeds.bbci.co.uk/news/rss.xml?edition=int')
 	#sports with event
 	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
 	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
@@ -115,6 +119,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawPastebinCom()
 	elif provider == 'redeneobuxcom':
 		drawRedeneobuxCom(page)
+	elif provider == 'bbccouk':
+		drawNews(url=page,provider=provider,targetAction=118)
 
 	logger.info(provider)
 
@@ -150,7 +156,7 @@ def init():
 		if mode==None: #init
 			get_main_dirs()
 		elif mode==1: #get channels
-			getListsUrls(url, '', page)
+			getListsUrls(url)
 		elif mode == 2: #open video in player
 			open(url,page)
 		elif mode == 3:
@@ -204,6 +210,8 @@ def init():
 			openZonaappLink(url,page)
 		elif mode == 117:
 			drawFilmonLinks(url,page)
+		elif mode == 118:
+			drawBbcCoUkNew(url)
 
 	except Exception as e:
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))

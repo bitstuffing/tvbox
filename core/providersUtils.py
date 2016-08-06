@@ -7,6 +7,7 @@ from core.addonUtils import add_dir
 from core.addonUtils import open
 from core import logger
 from core.decoder import Decoder
+from core.downloader import Downloader
 
 from core.listsParsers import getListsUrls
 
@@ -38,6 +39,7 @@ except:
 	logger.error("Crypto-problems detected, probably you need a better platform")
 	pass
 
+from window.DefaultWindow import DefaultWindow
 
 icon = XBMCUtils.getAddonFilePath('icon.png')
 
@@ -365,6 +367,24 @@ def drawRedeneobuxCom(url):
 		if channel.has_key("thumbnail"):
 			img = channel["thumbnail"]
 		add_dir(channel["title"], channel["link"], level, img, "redeneobuxcom", channel["link"])
+
+def drawNews(url,provider='',targetAction=1): #from rss page
+	getListsUrls(url,provider=provider,finalTarget=targetAction)
+
+def drawBbcCoUkNew(url):
+	htmlContent = Downloader.getContentFromUrl(url=url)
+	title = Decoder.extract('<p class="story-body__introduction">','</p><div',htmlContent)
+	body = Decoder.extract(' class="story-body__link">','</p><link',htmlContent)
+	body = body.replace("</p><p>", "\n").replace("</a>","")
+	logger.debug("body is: "+body)
+	drawNew(textContent=(body))
+
+def drawNew(textContent,img=''):
+	TypeOfMessage = "t" #text
+	NewMessage = textContent
+	TempWindow = DefaultWindow(noteType=TypeOfMessage, noteMessage=NewMessage, logo=img)
+	TempWindow.doModal()
+	del TempWindow
 
 def drawFilmonLinks(url, page, provider=""):
 	finalUrls = Filmoncom.getChannelUrl(url)

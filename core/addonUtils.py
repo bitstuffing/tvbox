@@ -1,5 +1,6 @@
 import urllib
 import sys
+import platform
 
 from core.xbmcutils import XBMCUtils
 from core import logger

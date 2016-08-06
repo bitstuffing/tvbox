@@ -8,6 +8,8 @@ from core.addonUtils import open
 from core import logger
 from core.decoder import Decoder
 
+from core.listsParsers import getListsUrls
+
 from providers.filmoncom import Filmoncom
 from providers.hdfulltv import HdfullTv
 from providers.vigoalnet import Vigoal
@@ -28,6 +30,7 @@ from providers.acetvru import Acetvru
 from providers.youtube import Youtube
 from providers.zonaappcom import ZonaAppCom
 from providers.pastebin import Pastebin
+from providers.redeneobuxcom import RedeneobuxCom
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -351,6 +354,18 @@ def drawPastebinCom():
 	for channel in channels:
 		add_dir(channel["title"], channel["link"], level, '', "pastebincom", channel["link"])
 
+def drawRedeneobuxCom(url):
+	channels = RedeneobuxCom.getChannels(url)
+	logger.debug("items obtained: " + str(len(channels)))
+	for channel in channels:
+		level = 4
+		if channel.has_key("finalLink"):
+			level = 2 #m3u8 list
+		img = ''
+		if channel.has_key("thumbnail"):
+			img = channel["thumbnail"]
+		add_dir(channel["title"], channel["link"], level, img, "redeneobuxcom", channel["link"])
+
 def drawFilmonLinks(url, page, provider=""):
 	finalUrls = Filmoncom.getChannelUrl(url)
 	for finalUrl in finalUrls:
@@ -452,3 +467,6 @@ def openZonaappLink(url,page):
 	link = ZonaAppCom.getFinalLink(url)
 	logger.info("decoded zonaapp link: " + link)
 	open(link, page)
+
+
+

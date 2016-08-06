@@ -1,0 +1,17 @@
+ACTION_PREVIOUS_MENU = 10 ## ESC action
+ACTION_PREVIOUS_MENU = 10 ## ESC action
+ACTION_NAV_BACK = 92 ## Backspace action
+ACTION_MOVE_LEFT = 1 ## Left arrow key
+ACTION_MOVE_RIGHT = 2 ## Right arrow key
+ACTION_MOVE_UP = 3 ## Up arrow key
+ACTION_MOVE_DOWN = 4 ## Down arrow key
+ACTION_MOUSE_WHEEL_UP = 104 ## Mouse wheel up
+ACTION_MOUSE_WHEEL_DOWN = 105 ## Mouse wheel down
+ACTION_MOUSE_DRAG = 106 ## Mouse drag
+ACTION_MOUSE_MOVE = 107 ## Mouse move
+
+ACTION_SELECT_ITEM = 7 ## ?
+ACTION_PARENT_DIR = 9 ## ?
+ACTION_CONTEXT_MENU = 117 ## ?
+ACTION_NEXT_ITEM = 14 ## ?
+ACTION_BACKSPACE = 110 ## ?

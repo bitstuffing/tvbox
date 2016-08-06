@@ -6,12 +6,11 @@ from core.xbmcutils import XBMCUtils
 import urllib
 import base64
 
-def getListsUrls(url,name,page):
-    icon = XBMCUtils.getAddonFilePath('icon.png')
+def getListsUrls(url,icon=XBMCUtils.getAddonFilePath('icon.png'),provider='',finalTarget=1):
     #logger.debug("using url: "+url)
     html = Downloader.getContentFromUrl(url)
     if url.endswith(".xml") or ('<items>' in html or '<item>' in html): #main channels, it's a list to browse
-        drawXml(html,icon)
+        drawXml(html,icon=icon,finalTarget=finalTarget,provider=provider)
     elif url.endswith(".xspf"):
         drawXspf(html,icon)
     else: #it's the final list channel, split
@@ -30,7 +29,7 @@ def drawBruteChannels(html,icon=''):
 		else:
 			logger.debug("Discarted brute: " + name + ", " + value)
 
-def drawXml(html,icon=''):
+def drawXml(html,icon='',provider='',finalTarget=1):
 	logger.debug(html)
 	lists = common.parseDOM(html, "stream")
 	if len(lists) > 0:
@@ -61,7 +60,7 @@ def drawXml(html,icon=''):
 					name = ""
 					value = ""
 					try:
-						name = common.parseDOM(item, "title")[0].encode("utf-8")
+						name = common.parseDOM(item, "title")[0].encode("utf-8").replace("<![CDATA[","").replace("]]>","")
 						if '<title>' in name:
 							name = name[0:name.find('<title>')]
 					except:
@@ -106,7 +105,10 @@ def drawXml(html,icon=''):
 						logger.info("Added: " + name + ", url: " + value)
 						if target == 1 and ('rtmp://' in value or '.m3u8' in value or '.mp4' in value or '.ts' in value or 'mms:' in value):
 							target = 2
-						add_dir(name, value, target, img, '', 0)
+						if finalTarget !=1:
+							logger.debug("overriding target action: "+str(finalTarget)+", provider: "+provider)
+							target = finalTarget
+						add_dir(name, value, target, img, provider, 0)
 					else:
 						logger.debug("Discarted: "+name+", "+value)
 			else:  # tries xspf

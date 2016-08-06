@@ -87,8 +87,8 @@ class XBMCUtils():
         return xbmc.log(text)
 
     @staticmethod
-    def getAddonFilePath(file):
-        return xbmc.translatePath(os.path.join( XBMCUtils.getAddonInfo('path'), 'icon.png' ))
+    def getAddonFilePath(file='icon.png'):
+        return xbmc.translatePath(os.path.join( XBMCUtils.getAddonInfo('path'), file ))
 
     @staticmethod
     def getList(name, iconImage, thumbnailImage):

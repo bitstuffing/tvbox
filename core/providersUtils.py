@@ -32,6 +32,7 @@ from providers.youtube import Youtube
 from providers.zonaappcom import ZonaAppCom
 from providers.pastebin import Pastebin
 from providers.redeneobuxcom import RedeneobuxCom
+from providers.tunein import TuneIn
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -368,6 +369,18 @@ def drawRedeneobuxCom(url):
 			img = channel["thumbnail"]
 		add_dir(channel["title"], channel["link"], level, img, "redeneobuxcom", channel["link"])
 
+def drawTuneIn(url):
+	channels = TuneIn.getChannels(url)
+	logger.debug("items obtained: " + str(len(channels)))
+	for channel in channels:
+		level = 4
+		if channel.has_key("finalLink"):
+			level = 118  # stream
+		img = ''
+		if channel.has_key("thumbnail"):
+			img = channel["thumbnail"]
+		add_dir(channel["title"], channel["link"], level, img, "tunein", channel["link"])
+
 def drawNews(url,provider='',targetAction=1): #from rss page
 	if targetAction==4 and provider=="bbccouk" and ".xml" not in url:
 		drawBbcCoUkNew(url)
@@ -509,6 +522,12 @@ def openZonaappLink(url,page):
 	logger.info("decoding zonaapp link... " + url)
 	link = ZonaAppCom.getFinalLink(url)
 	logger.info("decoded zonaapp link: " + link)
+	open(link, page)
+
+def openTuneInLink(url,page):
+	logger.info("decoding tunein link... " + url)
+	link = TuneIn.getChannels(url)[0]["link"]
+	logger.info("decoded tunein link: " + link)
 	open(link, page)
 
 def isAnException(url,page,provider,mode):

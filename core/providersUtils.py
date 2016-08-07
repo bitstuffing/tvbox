@@ -374,17 +374,29 @@ def drawNews(url,provider='',targetAction=1): #from rss page
 def drawBbcCoUkNew(url):
 	htmlContent = Downloader.getContentFromUrl(url=url)
 	title = Decoder.extract('<p class="story-body__introduction">','</p><div',htmlContent)
-	body = Decoder.extract('property="articleBody"','                                                                                                </div>',htmlContent)
-	body = body.replace('<span class="off-screen">Image copyright</span>','')
-	body = body.replace('<span class="story-image-copyright">AFP</span>', '')
-	body = body.replace('<span class="story-image-copyright">Reuters</span>', '')
-	body = body.replace('<span class="off-screen">Image caption</span>', '')
-	body = body.replace('<span class="off-screen">Media caption</span>','')
-	while '<span class="media-caption__text">' in body:
-		line = Decoder.extractWithRegex('<span class="media-caption__text">',"</span>",body)
-		body = body.replace(line,"")
-	body = Decoder.removeHTML(body).replace(".",".\n").replace(">","")
-	logger.debug("body is: "+body)
+	if 'property="articleBody"' in htmlContent:
+		body = Decoder.extract('property="articleBody"','                                                                                                </div>',htmlContent)
+		body = body.replace('<span class="off-screen">Image copyright</span>','')
+		body = body.replace('<span class="story-image-copyright">AFP</span>', '')
+		body = body.replace('<span class="story-image-copyright">Reuters</span>', '')
+		body = body.replace('<span class="off-screen">Image caption</span>', '')
+		body = body.replace('<span class="off-screen">Media caption</span>','')
+		while '<span class="media-caption__text">' in body:
+			line = Decoder.extractWithRegex('<span class="media-caption__text">',"</span>",body)
+			body = body.replace(line,"")
+	elif 'class="text-wrapper"' in htmlContent:
+		#special content
+		body = Decoder.extract('class="text-wrapper"','</p>\n',htmlContent)
+		dates = Decoder.extractWithRegex('<div class="date',"</div>",body)
+		lastUpdate = Decoder.extractWithRegex('<p class="date ', "</p>", body)
+		body = body.replace(dates,"")
+		body = body.replace(lastUpdate, "")
+	elif '<figcaption class="sp-media-asset' in htmlContent:
+		body = Decoder.extract('<figcaption class="sp-media-asset', '</p><div ', htmlContent)
+		if '>' in body:
+			body = body[body.find(">") + 1:]
+	body = Decoder.removeHTML(body).replace(".", ".\n").replace(">", "")
+	logger.debug("body is: " + body)
 	drawNew(textContent=(body))
 
 def drawNew(textContent,img=''):

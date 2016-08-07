@@ -369,7 +369,10 @@ def drawRedeneobuxCom(url):
 		add_dir(channel["title"], channel["link"], level, img, "redeneobuxcom", channel["link"])
 
 def drawNews(url,provider='',targetAction=1): #from rss page
-	getListsUrls(url,provider=provider,finalTarget=targetAction)
+	if targetAction==4 and provider=="bbccouk" and ".xml" not in url:
+		drawBbcCoUkNew(url)
+	else:
+		getListsUrls(url,provider=provider,finalTarget=targetAction)
 
 def drawBbcCoUkNew(url):
 	htmlContent = Downloader.getContentFromUrl(url=url)

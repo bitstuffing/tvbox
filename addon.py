@@ -212,8 +212,6 @@ def init():
 			openZonaappLink(url,page)
 		elif mode == 117:
 			drawFilmonLinks(url,page)
-		elif mode == 118:
-			drawBbcCoUkNew(url)
 
 	except Exception as e:
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))

@@ -120,7 +120,9 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 	elif provider == 'redeneobuxcom':
 		drawRedeneobuxCom(page)
 	elif provider == 'bbccouk':
-		drawNews(url=page,provider=provider,targetAction=118)
+		if str(page)=='0':
+			page = url
+		drawNews(url=page,provider=provider,targetAction=4)
 
 	logger.info(provider)
 

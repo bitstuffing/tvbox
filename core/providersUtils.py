@@ -511,5 +511,14 @@ def openZonaappLink(url,page):
 	logger.info("decoded zonaapp link: " + link)
 	open(link, page)
 
+def isAnException(url,page,provider,mode):
+	state = False
+	if mode == 4 and provider=="bbccouk" and str(page) == '0' and ".xml" not in url:
+		state = True
+	if state:
+		logger.debug("Dont reload view. Params -> page: "+page+", url: "+url+", provider: "+provider+", mode: "+str(mode))
+	return state
+
+
 
 

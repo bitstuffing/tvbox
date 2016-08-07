@@ -219,6 +219,8 @@ def init():
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))
 		XBMCUtils.getNotification("Error",XBMCUtils.getString(10009))
 		pass
-	XBMCUtils.setEndOfDirectory(int(sys.argv[1]))
+	if not isAnException(url,page,provider,mode):
+		logger.debug("End of main menu to be displayed. Params -> page: "+page+", url: "+url+", provider: "+provider+", mode: "+str(mode))
+		XBMCUtils.setEndOfDirectory(int(sys.argv[1]))
 
 init()

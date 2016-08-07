@@ -57,6 +57,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	add_dir("Showsport-tv.com", 'showsporttvcom', 4, "http://showsport-tv.com/images/logoh.png", 'showsporttvcom', 0)
 
 	add_dir("Zona-app.com", 'zonaappcom', 4, "", 'zonaappcom', 0)
+	add_dir("TuneIn.com", 'tunein', 4, "", 'tunein', 0)
 
 	add_dir("Vipracing.net", 'vipracinginfo', 4, "", 'vipracinginfo', 0)
 	add_dir("Zonasports.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme', 0)
@@ -123,6 +124,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		if str(page)=='0':
 			page = url
 		drawNews(url=page,provider=provider,targetAction=4)
+	elif provider == "tunein":
+		drawTuneIn(page)
 
 	logger.info(provider)
 
@@ -212,6 +215,8 @@ def init():
 			openZonaappLink(url,page)
 		elif mode == 117:
 			drawFilmonLinks(url,page)
+		elif mode == 118:
+			openTuneInLink(url,page)
 
 	except Exception as e:
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))

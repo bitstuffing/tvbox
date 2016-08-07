@@ -57,7 +57,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	add_dir("Showsport-tv.com", 'showsporttvcom', 4, "http://showsport-tv.com/images/logoh.png", 'showsporttvcom', 0)
 
 	add_dir("Zona-app.com", 'zonaappcom', 4, "", 'zonaappcom', 0)
-	add_dir("TuneIn.com", 'tunein', 4, "", 'tunein', 0)
+	add_dir("TuneIn.com", 'tunein', 4, "https://lh5.googleusercontent.com/-NsniPTwZFkc/AAAAAAAAAAI/AAAAAAAAOLE/qtdbWIxlF5M/s0-c-k-no-ns/photo.jpg", 'tunein', 0)
 
 	add_dir("Vipracing.net", 'vipracinginfo', 4, "", 'vipracinginfo', 0)
 	add_dir("Zonasports.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme', 0)

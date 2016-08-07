@@ -191,6 +191,20 @@ class Decoder():
         return html
 
     @staticmethod
+    def removeHTML(body):
+        finalText = ""
+        while "<script" in body:
+            replaceBy = Decoder.extractWithRegex("<script","</script>",body)
+            body = body.replace(replaceBy,"")
+        while "<" in body:
+            index = body.find("<")
+            targetLine = body[:index]
+            finalText += targetLine.strip()
+            body = body[body.find(">")+1:]
+        body = body.strip()
+        return finalText
+
+    @staticmethod
     def decodeStreamable(link):
         html = Downloader.getContentFromUrl(link)
         flashContent = Decoder.extract('<object','</object',html)

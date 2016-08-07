@@ -1,5 +1,5 @@
 import urllib
-import sys
+import sys,os
 import platform
 
 from core.xbmcutils import XBMCUtils

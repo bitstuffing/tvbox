@@ -33,6 +33,7 @@ from providers.zonaappcom import ZonaAppCom
 from providers.pastebin import Pastebin
 from providers.redeneobuxcom import RedeneobuxCom
 from providers.tunein import TuneIn
+from providers.reuters import Reuters
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -387,6 +388,19 @@ def drawNews(url,provider='',targetAction=1): #from rss page
 	else:
 		getListsUrls(url,provider=provider,finalTarget=targetAction)
 
+def drawReutersNews(url): #from rss page
+	x = Reuters.getChannels(url)
+	if str(url)=='0':
+		for new in x:
+			level = 4
+			img = ''
+			if new.has_key("thumbnail"):
+				img = new["thumbnail"]
+			add_dir(new["title"], new["link"], level, img, "reuters", 1)
+	else:
+		body = x[0]["title"]
+		drawNew(textContent=(body))
+
 def drawBbcCoUkNew(url):
 	htmlContent = Downloader.getContentFromUrl(url=url)
 	title = Decoder.extract('<p class="story-body__introduction">','</p><div',htmlContent)
@@ -532,7 +546,7 @@ def openTuneInLink(url,page):
 
 def isAnException(url,page,provider,mode):
 	state = False
-	if mode == 4 and provider=="bbccouk" and str(page) == '0' and ".xml" not in url:
+	if mode == 4 and (provider=="bbccouk" and str(page) == '0' and ".xml" not in url) or (str(page)=='1' and provider=='reuters'):
 		state = True
 	if state:
 		logger.debug("Dont reload view. Params -> page: "+page+", url: "+url+", provider: "+provider+", mode: "+str(mode))

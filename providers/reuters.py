@@ -1,4 +1,5 @@
 import time
+import re
 try:
     import json
 except:
@@ -10,7 +11,7 @@ from core import logger
 
 class Reuters(Downloader):
 
-    MAIN_URL = "http://reuters.com"
+    MAIN_URL = "http://www.reuters.com"
     LAST_NEWS_RSS = "http://www.reuters.com/assets/jsonWireNews?startTime="
 
     @staticmethod
@@ -36,9 +37,15 @@ class Reuters(Downloader):
                     x.append(element)
                 i+=1
         else:
-            html = Reuters.getContentFromUrl(url=page,referer=Reuters.MAIN_URL)
+            html = Reuters.getContentFromUrl(url=page)
             body = Decoder.extract('<span id="articleText">','<div class="linebreak"></div>',html)
             body = Decoder.removeHTML(body)
+            try:
+                lowerCaseIndex = int(re.search("[a-z]", body).start())
+                body = body[:lowerCaseIndex-1]+"\n"+body[lowerCaseIndex-1:]
+            except:
+                logger.error("No break for city was done. Something goes wrong")
+                pass
             element = {}
             element["link"] = page
             element["title"] = body

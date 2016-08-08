@@ -391,8 +391,8 @@ def drawNews(url,provider='',targetAction=1): #from rss page
 def drawReutersNews(url): #from rss page
 	x = Reuters.getChannels(url)
 	if str(url)=='0':
+		level = 4
 		for new in x:
-			level = 4
 			img = ''
 			if new.has_key("thumbnail"):
 				img = new["thumbnail"]

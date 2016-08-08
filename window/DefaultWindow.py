@@ -80,7 +80,7 @@ class DefaultWindow(xbmcgui.WindowDialog): #xbmcgui.Window #xbmcgui.Window
         self.firstButton.controlRight(self.secondButton)
 
         self.TxtMessage.setText(self.noteMessage)
-        self.TxtMessage.autoScroll(15000, 2000, 15000) #all in ms -> delay, scroll speed (less is faster), repeat time
+        self.TxtMessage.autoScroll(20000, 2500, 15000) #all in ms -> delay, scroll speed (less is faster), repeat time
         self.setFocus(self.secondButton)
 
 

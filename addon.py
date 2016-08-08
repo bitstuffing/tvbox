@@ -44,7 +44,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	enableNews = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_news")
 	if enableNews=="true":
 		add_dir("Bbc.co.uk",'bbccouk', 4, "", 'bbccouk', 'http://feeds.bbci.co.uk/news/rss.xml?edition=int')
-		#add_dir("Reuters.com", 'reuters', 4, "http://www.thewrap.com/wp-content/uploads/2013/10/Reuters-Logo.jpg", 'reuters', 0)
+		add_dir("Reuters.com", 'reuters', 4, "http://www.thewrap.com/wp-content/uploads/2013/10/Reuters-Logo.jpg", 'reuters', 0)
 	#sports with event
 	add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
 	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
@@ -126,7 +126,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 			page = url
 		drawNews(url=page,provider=provider,targetAction=4)
 	elif provider == "reuters":
-		if str(page) == '0':
+		logger.debug("page: "+page+", url: "+url)
+		if str(page) == '1':
 			page = url
 		drawReutersNews(url=page)
 	elif provider == "tunein":

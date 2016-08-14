@@ -339,6 +339,9 @@ class Cineestrenostv(Downloader):
         scriptUrl = scriptUrl[0:len(scriptUrl)-1]
 
         playerUrl = Cineestrenostv.extractScriptLevel3(scriptUrl,referer)
+
+        logger.debug("DONE! player url is: "+str(playerUrl))
+
         #print "player url is: "+playerUrl
         element["title"] = "Watch streaming"
         element["permalink"] = True
@@ -358,3 +361,4 @@ class Cineestrenostv(Downloader):
         # print "final level5 html: "+finalHtml
         logger.debug("proccessing level 5, cookie: " + Cineestrenostv.cookie)
         playerUrl = Decoder.decodeBussinessApp(finalHtml, finalIframeUrl)
+        return playerUrl

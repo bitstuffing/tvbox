@@ -158,7 +158,7 @@ class Downloader():
     @staticmethod
     def getHeaders(iframeReferer=''):
         headers = ""
-        if iframeReferer!='':
+        if iframeReferer is not None and iframeReferer!='':
             headers += "Referer="+urllib.quote_plus(iframeReferer)+"&"
         headers += "User-Agent="+urllib.quote_plus(Downloader.USER_AGENT)
         headers += "&Accept-Language="+urllib.quote_plus("en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3")

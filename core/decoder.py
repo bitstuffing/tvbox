@@ -772,9 +772,12 @@ class Decoder():
                 if 'var '+targetVar+' = "document.getElementById(\'' in html:
                     targetValue = Decoder.extract('var '+targetVar+' = "document.getElementById(\'','\'',html)
                     logger.debug("logged var at this time is: "+targetValue)
-
-                targetValue = Decoder.extract('var '+targetVar+' = "','"',html)
-                logger.debug("based64 var is: " + targetValue)
+                elif 'var '+targetVar+' = "' in html:
+                    targetValue = Decoder.extract('var ' + targetVar + ' = "', '"', html)
+                    logger.debug("logged var at this time is (2): "+targetValue)
+                else:
+                    targetValue = Decoder.extract('var '+targetVar+' = "','"',html)
+                    logger.debug("based64 var is: " + targetValue)
                 #tokenPage = base64.decodestring(targetValue)
                 tokenPage = 'sc_tk.php'
                 logger.debug("tokenPage is: " + tokenPage)

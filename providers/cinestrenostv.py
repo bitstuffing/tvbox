@@ -338,7 +338,7 @@ class Cineestrenostv(Downloader):
         scriptUrl = Decoder.extractWithRegex(regex,'"',htmlContent).replace('"',"")
         scriptUrl = scriptUrl[0:len(scriptUrl)-1]
 
-        playerUrl = Cineestrenostv.extractScriptLevel3(scriptUrl)
+        playerUrl = Cineestrenostv.extractScriptLevel3(scriptUrl,referer)
         #print "player url is: "+playerUrl
         element["title"] = "Watch streaming"
         element["permalink"] = True

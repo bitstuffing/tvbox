@@ -827,12 +827,13 @@ class Decoder():
                 logger.debug("Found simple link: "+finalSimpleLink)
                 if iframeReferer.find("ponlatv.com")>-1 or finalSimpleLink.find("http://cdn.sstream.pw/live/")>-1:
                     iframeReferer = "http://www.ponlatv.com/jwplayer6/jwplayer.flash.swf"
-                    logger.debug("setting is: "+str(enabled))
+                    logger.debug("setting is: "+str(enabled)+", for: "+str(finalSimpleLink))
+                    response = finalSimpleLink
                     if enabled:
                         Decoder.launchLocalHttpProxy()
                         response = "http://127.0.0.1:46720?original-request="+finalSimpleLink.replace("/playlist.m3u8","/chunklist.m3u8")
                     else:
-                        response = finalSimpleLink+"|"+Downloader.getHeaders(iframeReferer)
+                        response = str(finalSimpleLink)+"|"+Downloader.getHeaders(iframeReferer)
                 else:
                     logger.debug("using referer url: "+iframeReferer)
                     host = finalSimpleLink[finalSimpleLink.find("://")+len("://"):]

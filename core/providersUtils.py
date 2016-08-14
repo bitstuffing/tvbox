@@ -246,21 +246,26 @@ def drawSplive(page):
 	jsonChannels = Spliveappcom.getChannels(page)
 	image = icon
 	for item in jsonChannels:
-		logger.debug("trying splive item...")
-		title = urllib.unquote_plus(item["title"].decode('iso-8859-1', 'ignore'))
-		link = item["link"]
-		referer = "splive"
-		if item.has_key("permaLink"):
-			mode = 111
-			if item.has_key("referer"):
-				referer = item["referer"]
-				logger.info("referer is: "+referer)
-		if item.has_key("thumbnail"):
-			image = item["thumbnail"]
-			logger.info("detected img: "+image)
-		else:
-			image = icon
-		add_dir(title,link,mode,image,referer,link)
+		try:
+			logger.debug("trying splive item...")
+			#title = urllib.unquote_plus(item["title"].decode('iso-8859-1', 'ignore'))
+			title = item["title"]
+			link = item["link"]
+			referer = "splive"
+			if item.has_key("permaLink"):
+				mode = 111
+				if item.has_key("referer"):
+					referer = item["referer"]
+					logger.info("referer is: "+referer)
+			if item.has_key("thumbnail"):
+				image = item["thumbnail"]
+				logger.info("detected img: "+image)
+			else:
+				image = icon
+			add_dir(title,link,mode,image,referer,link)
+		except:
+			logger.error("Something goes wrong with SPLIVEAPP drawer")
+			pass
 
 def drawMamahdcom(page):
 	mode = 4
@@ -506,8 +511,33 @@ def openSpliveLink(url,page,provider):
 		link = channel[0]["link"]
 		if link.find(", referer:") > -1:
 			link = link[0:link.find(", referer:")]
+		url = link
 	else:
-		link = url
+		logger.debug("nothing decoded for splive encrypted channels, continue...")
+
+	logger.debug("splive BRUTE logic for url: " + url)
+
+	try:
+		if 'ponlatv.com' in url or 'playerhd1.pw' in url:
+			logger.debug("trying to decode cineestrenos script from url: " + url)
+			url = Cineestrenostv.extractScriptLevel3(url,referer=Cineestrenostv.MAIN_URL)
+			logger.debug("decoded link was: "+url)
+
+		else:
+			url = Cineestrenostv.getChannels(url)[0]["link"]
+			html = Downloader.getContentFromUrl(url)
+			element = Cineestrenostv.extractIframeChannel(html, url)
+			if element is not None and element.has_key("link"):
+				url = element["link"]
+				logger.debug("cineestrenos url was decoded to: " + url)
+			else:
+				logger.debug("nothing was done to decode cineestrenostv url!")
+	except:
+		logger.debug("nothing to be decoded with url: " + url)
+		pass
+
+	link = url
+
 	logger.info("found link: " + link + ", launching...")
 	open(link, page)
 

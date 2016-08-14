@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import re
 try:
     import json
 except:
@@ -38,6 +39,7 @@ class Spliveappcom(Downloader):
             if page.find("pastebin.com/")>-1 and page.find("/raw/")==-1:
                 page = page.replace(".com/",".com/raw/")
         html = Spliveappcom.getContentFromUrl(page,"",Spliveappcom.cookie,"")
+        html = unicode(html, 'utf-8')
         try:
             x = Spliveappcom.extractElements(html,decode)
         except:
@@ -57,8 +59,9 @@ class Spliveappcom(Downloader):
             logger.debug("get groups: " + str(len(groups)))
             for group in groups:
                 element = {}
-                element["title"] = urllib.quote_plus(
-                    group["name"].encode('ascii', 'ignore').encode('iso-8859-1', 'ignore'))
+                title = group["name"]
+                title = re.sub('[^A-Za-z0-9\.]+', ' ', title)
+                element["title"] = title
                 element["thumbnail"] = group["image"]
                 element["link"] = url
                 if group.has_key("url"):
@@ -73,7 +76,9 @@ class Spliveappcom(Downloader):
                         for elementLink in group["stations"]:
                             if not elementLink.has_key("isAd"):
                                 element = {}
-                                element["title"] = elementLink["name"].encode('ascii', 'ignore')
+                                title = elementLink["name"]
+                                title = re.sub('[^A-Za-z0-9\.]+', ' ', title)
+                                element["title"] = title
                                 element["thumbnail"] = elementLink["image"]
                                 element["link"] = elementLink["url"]
                                 if len(element["link"]) > 0:
@@ -105,6 +110,7 @@ class Spliveappcom(Downloader):
                     title = Decoder.extract('"name": "','"',line)
                     image = Decoder.extract('"image": "', '"', line)
                     element = {}
+                    title = re.sub('[^A-Za-z0-9\.]+', ' ', title)
                     element["title"] = title
                     element["thumbnail"] = image
                     element["link"] = title
@@ -120,6 +126,7 @@ class Spliveappcom(Downloader):
                         image = Decoder.extract('"image": "', '"', line)
                         link = Decoder.extract('"url": "', '"', line)
                         element = {}
+                        title = re.sub('[^A-Za-z0-9\.]+', ' ', title)
                         element["title"] = title
                         element["thumbnail"] = image
                         element["link"] = link

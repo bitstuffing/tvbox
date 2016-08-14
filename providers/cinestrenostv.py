@@ -338,19 +338,23 @@ class Cineestrenostv(Downloader):
         scriptUrl = Decoder.extractWithRegex(regex,'"',htmlContent).replace('"',"")
         scriptUrl = scriptUrl[0:len(scriptUrl)-1]
 
-        html4 = Cineestrenostv.getContentFromUrl(scriptUrl,"",Cineestrenostv.cookie,referer)
-        finalIframeUrl = Decoder.extractWithRegex('http://','%3D"',html4)
-        finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl)-1]
-
-        logger.debug("proccessing level 4, cookie: "+Cineestrenostv.cookie)
-
-        finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl,"",Cineestrenostv.cookie,referer)
-        #print "final level5 html: "+finalHtml
-        logger.debug("proccessing level 5, cookie: "+Cineestrenostv.cookie)
-        playerUrl = Decoder.decodeBussinessApp(finalHtml,finalIframeUrl)
+        playerUrl = Cineestrenostv.extractScriptLevel3(scriptUrl)
         #print "player url is: "+playerUrl
         element["title"] = "Watch streaming"
         element["permalink"] = True
         element["link"] = playerUrl
 
         return element
+
+    @staticmethod
+    def extractScriptLevel3(scriptUrl,referer=''):
+        html4 = Cineestrenostv.getContentFromUrl(scriptUrl, "", Cineestrenostv.cookie, referer)
+        finalIframeUrl = Decoder.extractWithRegex('http://', '%3D"', html4)
+        finalIframeUrl = finalIframeUrl[0:len(finalIframeUrl) - 1]
+
+        logger.debug("proccessing level 4, cookie: " + Cineestrenostv.cookie)
+
+        finalHtml = Cineestrenostv.getContentFromUrl(finalIframeUrl, "", Cineestrenostv.cookie, referer)
+        # print "final level5 html: "+finalHtml
+        logger.debug("proccessing level 5, cookie: " + Cineestrenostv.cookie)
+        playerUrl = Decoder.decodeBussinessApp(finalHtml, finalIframeUrl)

@@ -38,8 +38,15 @@ class Reuters(Downloader):
                 i+=1
         else:
             html = Reuters.getContentFromUrl(url=page)
-            body = Decoder.extract('<span id="articleText">','<div class="linebreak"></div>',html)
+            startRegex = '<span id="article-text">'
+            if '<span id="article-text">' in html:
+                startRegex = '<span id="article-text">'
+            else:
+                startRegex = '<span id="articleText">'
+            body = Decoder.extract(startRegex,'<div class="linebreak"></div>',html)
             body = Decoder.removeHTML(body)
+            if '|' in body:
+                body = body[body.find('|')+1:]
             try:
                 lowerCaseIndex = int(re.search("[a-z]", body).start())
                 body = body[:lowerCaseIndex-1]+"\n"+body[lowerCaseIndex-1:]

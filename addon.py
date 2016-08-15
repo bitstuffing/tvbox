@@ -33,9 +33,12 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	#static content
 	add_dir("HDFull.tv", 'hdfulltv', 4, "http://hdfull.tv/templates/hdfull/images/logo.png", 'hdfulltv' , 0)
 	add_dir("Youtube.com", 'youtube', 4, "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/YouTube_logo_2015.svg/120px-YouTube_logo_2015.svg.png", 'youtube', 0)
+	add_dir("TuneIn.com", 'tunein', 4,"https://lh5.googleusercontent.com/-NsniPTwZFkc/AAAAAAAAAAI/AAAAAAAAOLE/qtdbWIxlF5M/s0-c-k-no-ns/photo.jpg",'tunein', 0)
+
 	enableSplive = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_splive")
 	if enableSplive=="true":
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
+
 	enablePlexus = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_plexus")
 	if enablePlexus=="true":
 		add_dir("Arenavision.in", 'arenavisionin', 4, "http://www.arenavision.in/sites/default/files/logo_av2015.png", 'arenavisionin' , 0)
@@ -57,9 +60,6 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	add_dir("Sports4u.tv", 'sports4u', 4, "http://live.sports4u.tv/wp-content/uploads/logo3.png", 'sports4u' , 0)
 	add_dir("Showsport-tv.com", 'showsporttvcom', 4, "http://showsport-tv.com/images/logoh.png", 'showsporttvcom', 0)
 
-	add_dir("Zona-app.com", 'zonaappcom', 4, "", 'zonaappcom', 0)
-	add_dir("TuneIn.com", 'tunein', 4, "https://lh5.googleusercontent.com/-NsniPTwZFkc/AAAAAAAAAAI/AAAAAAAAOLE/qtdbWIxlF5M/s0-c-k-no-ns/photo.jpg", 'tunein', 0)
-
 	add_dir("Vipracing.net", 'vipracinginfo', 4, "", 'vipracinginfo', 0)
 	add_dir("Zonasports.me", 'zonasportsme', 4, "http://i.imgur.com/yAuKRZw.png", 'zonasportsme', 0)
 	#patched ffmpeg sites
@@ -73,6 +73,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	if enableDinamic =="true":
 		add_dir("Pastebin.com", 'pastebincom', 4, "", 'pastebincom', 0)
 		add_dir("Redeneobux.com", 'redeneobuxcom', 4, "", 'redeneobuxcom', 0)
+		add_dir("Zona-app.com", 'zonaappcom', 4, "", 'zonaappcom', 0)
 	#static streaming lists
 	#add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
 

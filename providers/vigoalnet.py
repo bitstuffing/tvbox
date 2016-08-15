@@ -18,6 +18,8 @@ class Vigoal(Downloader):
             if str(page)=='0':
                 start = True
             page=Vigoal.MAIN_URL
+
+        page = urllib.unquote_plus(page)
         html = Vigoal.getContentFromUrl(page,"",Vigoal.cookie,"")
         x = []
         if page.find(".html")==-1:

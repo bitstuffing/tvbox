@@ -737,6 +737,7 @@ class Decoder():
             #i = 0
             finalSimpleLink = ""
             logger.debug("html is: "+html)
+            oldHtml = html
             if html.find('<input type="hidden" id="')>-1:
                 for splittedHtml in html.split('<input type="hidden" id="'):
                     if splittedHtml.find("DOCTYPE html PUBLIC")==-1 and splittedHtml.find(' value=""')==-1:
@@ -768,16 +769,54 @@ class Decoder():
             if doIt:
                 #ok, lets do it
                 targetVar = Decoder.extract("v_cod1: ",",",html)
-                logger.debug("v_cod1: "+targetVar)
+                targetVar2 = Decoder.extract("v_cod2: ", ",", html)
+                if " " in targetVar:
+                    targetVar = targetVar[:targetVar.find(" ")]
+                if " " in targetVar2:
+                    targetVar2 = targetVar2[:targetVar2.find(" ")]
+                cod1 = ''
+                v_cod1 = ''
+                cod2 = ''
+                v_cod2 = ''
+                logger.debug("v_cod1 --> "+targetVar)
                 if 'var '+targetVar+' = "document.getElementById(\'' in html:
                     targetValue = Decoder.extract('var '+targetVar+' = "document.getElementById(\'','\'',html)
                     logger.debug("logged var at this time is: "+targetValue)
+                elif targetVar+' = document.getElementById(\'' in oldHtml:
+                    targetValue = Decoder.extract(targetVar+' = document.getElementById(\'','\'',oldHtml)
+                    logger.debug("logged GLOBAL VAR at this time is: "+targetValue)
+                    targetValue = Decoder.extract('<input type="hidden" id="'+targetValue+'" value="','"',oldHtml)
+                    logger.debug("NOW logged GLOBAL VAR 1 value is: " + targetValue)
+                    cod1 = targetValue
+                    v_cod1 = cod1
                 elif 'var '+targetVar+' = "' in html:
                     targetValue = Decoder.extract('var ' + targetVar + ' = "', '"', html)
                     logger.debug("logged var at this time is (2): "+targetValue)
                 else:
+                    logger.debug("discarted 1 hidden: \""+targetVar+' = document.getElementById(\'')
+                    logger.debug("wasted html is: "+html)
                     targetValue = Decoder.extract('var '+targetVar+' = "','"',html)
                     logger.debug("based64 var is: " + targetValue)
+
+                logger.debug("v_cod2 --> " + targetVar2)
+                if 'var ' + targetVar2 + ' = "document.getElementById(\'' in html:
+                    targetValue2 = Decoder.extract('var ' + targetVar2 + ' = "document.getElementById(\'', '\'', html)
+                    logger.debug("logged var at this time is: " + targetValue2)
+                elif targetVar2 + ' = document.getElementById(\'' in oldHtml:
+                    targetValue2 = Decoder.extract(targetVar2 + ' = document.getElementById(\'', '\'', oldHtml)
+                    logger.debug("logged GLOBAL VAR at this time is: " + targetValue)
+                    targetValue2 = Decoder.extract('<input type="hidden" id="' + targetValue2 + '" value="', '"', oldHtml)
+                    logger.debug("NOW logged GLOBAL VAR 2 value2 is: " + targetValue2)
+                    cod2 = targetValue2
+                    v_cod2 = cod2
+                elif 'var ' + targetVar2 + ' = "' in html:
+                    targetValue2 = Decoder.extract('var ' + targetVar2 + ' = "', '"', html)
+                    logger.debug("logged var at this time is (2): " + targetValue2)
+                else:
+                    logger.debug("discarted 2 hidden: \"" + targetVar2 + ' = document.getElementById(\'')
+                    logger.debug("wasted html is: " + html)
+                    targetValue2 = Decoder.extract('var ' + targetVar2 + ' = "', '"', html)
+                    logger.debug("based64 var is: " + targetValue2)
                 #tokenPage = base64.decodestring(targetValue)
                 tokenPage = 'sc_tk.php'
                 logger.debug("tokenPage is: " + tokenPage)
@@ -786,11 +825,15 @@ class Decoder():
                     host = host[:host.find("/")]
                     tokenPage = "http://"+host+"/"+tokenPage
                 #now get vars v_cod1 and v_cod2
-                cod1 = Decoder.extract('v_cod1: ',',',html)
-                cod2 = Decoder.extract('v_cod2: ', '}', html).strip()
-                v_cod1 = Decoder.extract('var ' + cod1 + ' = "', '"', html)
-                v_cod2 = Decoder.extract('var ' + cod2 + ' = "', '"', html)
-                logger.debug("v_cod1: "+v_cod1+", v_cod2: "+v_cod2)
+                if cod1 == '':
+                    cod1 = Decoder.extract('v_cod1: ',',',html)
+                if cod2 == '':
+                    cod2 = Decoder.extract('v_cod2: ', '}', html).strip()
+                if v_cod1 == '':
+                    v_cod1 = Decoder.extract('var ' + cod1 + ' = "', '"', html)
+                if v_cod2 == '':
+                    v_cod2 = Decoder.extract('var ' + cod2 + ' = "', '"', html)
+                logger.debug("USING FINAL V_CODS --> v_cod1: "+v_cod1+", v_cod2: "+v_cod2)
                 #form = {'v_cod1':v_cod1,'v_cod2':v_cod2}
                 #formUrl = urllib.urlencode(form)
                 rand13 = Decoder.getTimestamp()

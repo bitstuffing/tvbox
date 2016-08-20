@@ -9,7 +9,7 @@ from core.downloader import Downloader
 class Cricfreetv(Downloader):
 
     cookie = ""
-    MAIN_URL = "http://cricfree.tv/"
+    MAIN_URL = "http://cricfree.sc/"
 
     @staticmethod
     def getChannels(page):
@@ -112,9 +112,15 @@ class Cricfreetv(Downloader):
             logger.debug("violadito id="+id)
             #newUrl = "http://lqgq.biggestplayer.me/streamcr.php?id="+id+"&width=620&height=460"
             jsLogic = Cricfreetv.getContentFromUrl('http://violadito.biggestplayer.me/playercr.js',"",Cricfreetv.cookie,iframeUrl)
-            jsLogic = jsunpack.unpack(jsLogic)
-            logger.debug("jsLogic: "+jsLogic)
-            newUrl = Decoder.extractWithRegex('http://','"',jsLogic).replace("\\'+id+\\'",str(id))
+            try:
+                jsLogic = jsunpack.unpack(jsLogic)
+                logger.debug("jsLogic: "+jsLogic)
+                newUrl = Decoder.extractWithRegex('http://','"',jsLogic).replace("\\'+id+\\'",str(id))
+            except:
+                logger.debug("could not use unpack from jsunpack, using new method...")
+                logger.debug("jsLogic is: " + jsLogic)
+                newUrl = Decoder.extract(' src="', '"', jsLogic).replace("'+id+'", id)
+                pass
             logger.debug("using referer: "+iframeUrl)
             html2 = Cricfreetv.getContentFromUrl(newUrl,"",Cricfreetv.cookie,iframeUrl)
             logger.debug("extracting file from "+newUrl)

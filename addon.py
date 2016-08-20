@@ -73,7 +73,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	if enableDinamic =="true":
 		add_dir("Pastebin.com", 'pastebincom', 4, "", 'pastebincom', 0)
 		add_dir("Redeneobux.com", 'redeneobuxcom', 4, "", 'redeneobuxcom', 0)
-		add_dir("Zona-app.com", 'zonaappcom', 4, "", 'zonaappcom', 0)
+		#add_dir("Zona-app.com", 'zonaappcom', 4, "", 'zonaappcom', 0)
 	#static streaming lists
 	#add_dir("Hdfullhd.eu", 'hdfullhdeu', 4, "", 'hdfullhdeu' , 0)
 

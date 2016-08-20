@@ -39,7 +39,8 @@ class Spliveappcom(Downloader):
             if page.find("pastebin.com/")>-1 and page.find("/raw/")==-1:
                 page = page.replace(".com/",".com/raw/")
         html = Spliveappcom.getContentFromUrl(page,"",Spliveappcom.cookie,"")
-        html = unicode(html, 'utf-8')
+#        html = html.decode("utf-8","ignore").encode("ascii", "ignore")
+#        logger.debug("replace bad characters proccess done!");
         try:
             x = Spliveappcom.extractElements(html,decode)
         except:

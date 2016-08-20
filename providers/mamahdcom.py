@@ -17,17 +17,22 @@ class Mamahdcom(Downloader):
         #print html
         if page=='0': #menu
             table = Decoder.extract('<div class="standard row channels">','</div>',html)
+            logger.debug("table is: "+table)
             x = Mamahdcom.extractElements(table)
-            logger.debug("live9 channels logic done!")
+            logger.debug("mamahd channels logic done!")
         else:
             iframeHtml = Decoder.extract("<iframe ","</iframe>",html)
             iframeUrl = Decoder.extract('src="','"',iframeHtml)
-            html2 = Mamahdcom.getContentFromUrl(iframeUrl,"",Mamahdcom.cookie,page)
-            #print html2
-            if html2.find('src="http://hdcast.org/')>-1:
+            html2 = Mamahdcom.getContentFromUrl(url=iframeUrl,referer=page)
+            logger.debug("obtained html from iframe: "+iframeUrl+"; html: "+html2)
+            if 'src="http://hdcast.org' in html2:
+                logger.debug("found script, launching logic...")
                 scriptUrl = Decoder.extract('<script type="text/javascript" src="','"></script>',html2)
+                logger.debug("extracting script url... from: "+scriptUrl)
                 iframeUrl2 = Mamahdcom.extractScriptIframeUrl(html2,scriptUrl,iframeUrl)
+                logger.debug("script url extracted: "+iframeUrl2)
                 finalRtmpUrl = Mamahdcom.extractFinalRtmpUrl(iframeUrl2,iframeUrl)
+                logger.debug("rtmp extracted is: "+finalRtmpUrl)
                 element = {}
                 element["link"] = finalRtmpUrl
                 element["title"] = "Watch channel"
@@ -40,29 +45,29 @@ class Mamahdcom(Downloader):
     def extractElements(table):
         x = []
         for fieldHtml in table.split('</a>'):
-            if fieldHtml.find("<a href=")>-1:
-                element = {}
-                element["link"] = Decoder.extract('<a href="','"',fieldHtml)
-                element["title"] = Decoder.extract("<br><span>","</span>",fieldHtml)
-                element["thumbnail"] = Decoder.extract('<img src="','"',fieldHtml)
-                element["permaLink"] = True
-                logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
-                if len(element["title"])>0:
-                    x.append(element)
-
+            logger.debug("using html: "+fieldHtml)
+            element = {}
+            element["link"] = Decoder.extract('href="','"',fieldHtml)
+            element["title"] = Decoder.extract("<span>","</span>",fieldHtml)
+            element["thumbnail"] = Decoder.extract('<img src="','"',fieldHtml)
+            element["permaLink"] = True
+            logger.debug("found title: "+element["title"]+", link: "+element["link"]+", thumb: "+element["thumbnail"])
+            if "http" in element["link"]:
+                x.append(element)
         return x
 
 
     @staticmethod
     def extractScriptIframeUrl(html,scriptUrl,referer):
         iframeUrl = ""
+        logger.debug("extracting script iframe...")
         scriptContent = Mamahdcom.getContentFromUrl(scriptUrl,"",Mamahdcom.cookie,referer)
         #print scriptContent
         iframeUrl = Decoder.extract('src="',"'",scriptContent)
         logger.debug("brute iframeUrl is: "+iframeUrl)
         if iframeUrl.find("?u=")>-1:
-            if html.find('<script type="text/javascript"> fid="')>-1:
-                id = Decoder.extract('<script type="text/javascript"> fid="',"\";",html)
+            if '<script type="text/javascript"> fid="' in html:
+                id = Decoder.extract('<script type="text/javascript"> fid="','"; ',html)
             iframeUrl = iframeUrl+id+Mamahdcom.getWidthAndHeightParams(html)
         return iframeUrl
 

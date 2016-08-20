@@ -39,17 +39,23 @@ class Cricfreetv(Downloader):
                             x.append(element)
         elif str(page) == '1': #event
             html = Cricfreetv.getContentFromUrl(Cricfreetv.MAIN_URL)
-            html = Decoder.extract('<section class="panel">',"</section>",html)
-            for htmlElement in html.split('<td><span class="sport-icon'):
-                if htmlElement.find('</span></td>\n<td>')>-1:
-                    name = Decoder.rExtract('</span></td>\n<td>',"</td>\n<td style=\"color:#545454;",htmlElement)
-                    event = Decoder.rExtract(' target="_blank">',"</a></td>",htmlElement)
-                    time = Decoder.extract('<td class="matchtime" style="color:#545454;font-weight:bold;font-size: 9px">','</td>',htmlElement)
+            html = Decoder.extract('<div class="panel-body">',"</section>",html)
+            logger.debug("using html for menu: "+html)
+            for htmlElement in html.split('<span class="sport-icon'):
+                if htmlElement.find('<td>')>-1:
+                    name = Decoder.extract('<td>',"</td>",htmlElement).replace("<br>"," - ")
+                    event = Decoder.extract(' target="_blank">','</a></td>',htmlElement)
+                    time = Decoder.extract('px">',"</td>",htmlElement)
                     href = Decoder.extract(' href="','"',htmlElement)
                     element = {}
                     element["title"] = time+" - "+name+" - "+event
                     element["link"] = href
-                    x.append(element)
+                    logger.debug("time: "+time)
+                    logger.debug("name: "+name)
+                    logger.debug("event: "+event)
+                    if "http" in href:
+                        logger.debug("appending: "+element["title"]+", link: "+href)
+                        x.append(element)
         else:
             html = Cricfreetv.getContentFromUrl(page)
             logger.debug(html)

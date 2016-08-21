@@ -34,6 +34,7 @@ from providers.pastebin import Pastebin
 from providers.redeneobuxcom import RedeneobuxCom
 from providers.tunein import TuneIn
 from providers.reuters import Reuters
+from providers.youtvgratiscom import Youtvgratis
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -387,6 +388,16 @@ def drawTuneIn(url):
 			img = channel["thumbnail"]
 		add_dir(channel["title"], channel["link"], level, img, "tunein", channel["link"])
 
+def drawYoutvgratis(url):
+	channels = Youtvgratis.getChannels(url)
+	logger.debug("items obtained: " + str(len(channels)))
+	level = 119  # stream
+	for channel in channels:
+		img = ''
+		if channel.has_key("thumbnail"):
+			img = channel["thumbnail"]
+		add_dir(channel["title"], channel["link"], level, img, "youtvgratis", channel["link"])
+
 def drawNews(url,provider='',targetAction=1): #from rss page
 	if targetAction==4 and provider=="bbccouk" and ".xml" not in url:
 		drawBbcCoUkNew(url)
@@ -572,6 +583,12 @@ def openTuneInLink(url,page):
 	logger.info("decoding tunein link... " + url)
 	link = TuneIn.getChannels(url)[0]["link"]
 	logger.info("decoded tunein link: " + link)
+	open(link, page)
+
+def openYoutvgratisLink(url,page):
+	logger.info("decoding youtvgratis link... " + url)
+	link = Youtvgratis.getChannels(url)[0]["link"]
+	logger.info("decoded youtvgratis link: " + link)
 	open(link, page)
 
 def isAnException(url,page,provider,mode):

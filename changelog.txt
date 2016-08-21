@@ -31,6 +31,11 @@ Added external dependencies (with some fixes and new binaries)
 
 0.1.1 Added new providers
 
-0.1.2 (dev) Added blogs browsers
+0.1.2 Added blogs browsers
 Added popular upload sites (needs to be configured, by default search #EXTINF)
 Added external support for f4mtester (cineestrenos pages)
+
+0.1.3 Added news providers
+Added new providers and development improves for old browsers
+
+0.1.4 (dev) Added new providers

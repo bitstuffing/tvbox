@@ -54,6 +54,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	add_dir("Mamahd.com", 'mamahdcom', 4, "http://mamahd.com/images/logo.png", 'mamahdcom' , 0)
 	#world tv
 	add_dir("Filmon.com", 'filmon', 4, "http://static.filmon.com/theme/img/filmon_small_logo.png", 'filmoncom', 0)
+	add_dir("Youtvgratis.com", 'youtvgratis', 4, "http://youtvgratis.com/themes/tutvplayer/img/logo.gif", 'youtvgratis', 0)
 	add_dir("Zoptv.com", 'zoptv', 4, "http://www.zoptv.com/images/logo.png", 'zoptv' , 0)
 
 	add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree' , 0)
@@ -133,6 +134,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawReutersNews(url=page)
 	elif provider == "tunein":
 		drawTuneIn(page)
+	elif provider == 'youtvgratis':
+		drawYoutvgratis(page)
 
 	logger.info(provider)
 
@@ -224,6 +227,8 @@ def init():
 			drawFilmonLinks(url,page)
 		elif mode == 118:
 			openTuneInLink(url,page)
+		elif mode == 119:
+			openYoutvgratisLink(url, page)
 
 	except Exception as e:
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))

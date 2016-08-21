@@ -173,6 +173,11 @@ class Cineestrenostv(Downloader):
             element["title"] = "Watch streaming"
             element["permalink"] = True
             element["link"] = playerUrl
+        elif 'http://09stream.com/canal' in html3:
+            logger.debug("using 09stream logic...")
+            scriptUrl = Decoder.extractWithRegex("http://09stream.com/canal", '"', html3).replace('"',"")
+            html4 = Cineestrenostv.getContentFromUrl(url=scriptUrl, cookie=Cineestrenostv.cookie, referer=iframeUrl2)
+            element = Cineestrenostv.extractIframeChannel(html4, scriptUrl)
         elif html3.find("http://verdirectotv.com/tv")>-1:
             logger.debug("proccessing level 3, cookie: "+Cineestrenostv.cookie)
             scriptUrl = Decoder.extractWithRegex("http://verdirectotv.com/tv",'"',html3)
@@ -282,6 +287,12 @@ class Cineestrenostv(Downloader):
                 return Cineestrenostv.mainLogicExtractIframeChannel(html4,iframeUrl3)
             else:
                 logger.debug("infinite loop detected, stopped!")
+        elif '<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" allowfullscreen width="650" height="400" src="http://cinestrenos' in html3:
+            logger.debug("other loop inside...")
+            iframeUrl3 = Decoder.extract('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" allowfullscreen width="650" height="400" src="','"',html3)
+            html4 = Cineestrenostv.getContentFromUrl(url=iframeUrl3,referer=iframeUrl2)
+            logger.debug("using new iframe url: "+iframeUrl3)
+            element = Cineestrenostv.extractIframeChannel(html4, iframeUrl3)
         else: #tries to decode the bussinesslink, TODO, review this part
             #print html3
             playerUrl = Decoder.decodeBussinessApp(html3,iframeUrl2)

@@ -438,6 +438,12 @@ class Decoder():
         return finalUrl
 
     @staticmethod
+    def decode247bay(html,referer):
+        newParam = Decoder.extractParams(html)
+        finalUrl = "rtmp://93.174.93.67/stream playPath="+newParam+" swfVfy=1 timeout=10 conn=S:OK live=true swfUrl=http://www.247bay.tv/static/scripts/eplayer.swf flashver=WIN/2019,0,0,226 pageUrl="+referer
+        return finalUrl
+
+    @staticmethod
     def extractSawlive(scriptSrc,iframeUrl):
         encryptedHtml = Downloader.getContentFromUrl(scriptSrc,"","",iframeUrl)
         decryptedUrl = Decoder.decodeSawliveUrl(encryptedHtml)

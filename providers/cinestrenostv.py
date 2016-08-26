@@ -93,7 +93,7 @@ class Cineestrenostv(Downloader):
             if iframeUrl.find('"')>-1:
                 iframeUrl = iframeUrl[0:iframeUrl.find('"')]
             html2 = Cineestrenostv.getContentFromUrl(iframeUrl,"",Cineestrenostv.cookie,referer)
-            if html2.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="400" src="')>-1:
+            if html2.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="400" src="')>-1 or '<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" allowfullscreen width="653" height="403" src="' in html2:
                 element = Cineestrenostv.extractIframeChannel(html2,iframeUrl)
         elif html.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="500" src="')>-1:
             iframeUrl = Decoder.extract('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="500" src="','"></iframe>',html) #same case with different width and height: TODO: change to regex!!
@@ -118,6 +118,8 @@ class Cineestrenostv(Downloader):
             iframeUrl2 = Decoder.extract('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="653" height="403" src="','"></iframe>',contentHtml).replace("ñ","%C3%B1") #same case with different width and height: TODO: change to regex!!
         elif contentHtml.find('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="400" src="')>-1:
             iframeUrl2 = Decoder.extract('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" width="650" height="400" src="','"></iframe>',contentHtml).replace("ñ","%C3%B1") #normal cases, standar width and height
+        elif '<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" allowfullscreen width="653" height="403" src="' in contentHtml:
+            iframeUrl2 = Decoder.extract('<iframe scrolling="no" marginwidth="0" marginheight="0" frameborder="0" allowfullscreen width="653" height="403" src="','"></iframe>', contentHtml).replace("ñ", "%C3%B1")  # normal cases, standar width and height
         if iframeUrl2!="dummy url":
             html3 = Cineestrenostv.getContentFromUrl(iframeUrl2,"","",referer)
             return Cineestrenostv.mainLogicExtractIframeChannel(html3,iframeUrl2)

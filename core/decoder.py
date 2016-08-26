@@ -859,6 +859,10 @@ class Decoder():
                     if "http" not in referer:
                         referer = "http://"+referer
                     finalSimpleLink = response = str(jsonResponse["result2"])
+                    if "http" not in finalSimpleLink:
+                        logger.debug('incomplete url, it\'s relative, so needs to be completed!')
+                        finalSimpleLink = "http://www.dinostream.pw/jwplayer6.5/local2/"+finalSimpleLink
+                        logger.debug("new final simple link is: "+finalSimpleLink)
                 logger.debug("proxy server is: "+str(enabled))
                 if enabled:
                     response = "http://127.0.0.1:46720?original-request=" + finalSimpleLink+"&referer="+referer

@@ -57,4 +57,9 @@
 
     <string id="30080">News</string>
     <string id="30081">Enable news pages</string>
+
+    <string id="30090">Yomvi</string>
+    <string id="30091">Enable yomvi provider</string>
+    <string id="30092">Username</string>
+    <string id="30093">Password</string>
 </strings>

@@ -28,4 +28,9 @@
 	<category label="30080">
 		<setting id="enable_news" type="bool" label="30081" default="false"/>
 	</category>
+	<category label="30090">
+		<setting id="enable_yomvi" type="bool" label="30091" default="false"/>
+		<setting id="yomvi_username" type="text" label="30092" value="" default="" enable="true"/>
+		<setting id="yomvi_password" type="text" label="30093" value="" default="" enable="true"/>
+	</category>
 </settings>

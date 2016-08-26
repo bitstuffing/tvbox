@@ -37,13 +37,14 @@ class Zonasportsme(Downloader):
                 channel = Decoder.extract('channel="','"',html)
                 url = Decoder.getCastcampLink(channel,page)
             elif 'adca.st/broadcast/player.js' in html:
-                id2 = Decoder.extract("<script type='text/javascript'>id='", "';", html)
+                if "<script type='text/javascript'>id='" in html:
+                    id2 = Decoder.extract("<script type='text/javascript'>id='", "';", html)
                 logger.debug("using id = " + id2)
-                url4 = "http://greenhome.online/stream.php?id=" + id2 + "&width=700&height=450&stretching=uniform"
+                url4 = "http://bro.adca.st/stream.php?id=" + id2 + "&width=700&height=450&stretching=uniform"
                 html4 = Zonasportsme.getContentFromUrl(url4, "", Zonasportsme.cookie, page)
                 logger.debug("html4: " + html4)
                 curl = Decoder.extract('curl = "', '"', html4)
-                token = Zonasportsme.getContentFromUrl('http://greenhome.online/getToken.php', "",Zonasportsme.cookie, url4, True)
+                token = Zonasportsme.getContentFromUrl('http://bro.adca.st/getToken.php', "",Zonasportsme.cookie, url4, True)
                 logger.debug("token: " + token)
                 token = Decoder.extract('":"', '"', token)
                 file = base64.decodestring(curl) + token + "|" + Downloader.getHeaders('http://cdn.allofme.site/jw/jwplayer.flash.swf')

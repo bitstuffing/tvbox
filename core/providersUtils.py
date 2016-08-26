@@ -35,6 +35,7 @@ from providers.redeneobuxcom import RedeneobuxCom
 from providers.tunein import TuneIn
 from providers.reuters import Reuters
 from providers.youtvgratiscom import Youtvgratis
+from providers.yomvies import Yomvies
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -398,6 +399,19 @@ def drawYoutvgratis(url):
 			img = channel["thumbnail"]
 		add_dir(channel["title"], channel["link"], level, img, "youtvgratis", channel["link"])
 
+def drawYomviEs(page):
+	mode = 120
+	jsonChannels = Yomvies.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: " + image)
+		else:
+			image = icon
+		add_dir(title, link, mode, image, "yomvies", link)
+
 def drawNews(url,provider='',targetAction=1): #from rss page
 	if targetAction==4 and provider=="bbccouk" and ".xml" not in url:
 		drawBbcCoUkNew(url)
@@ -589,6 +603,12 @@ def openYoutvgratisLink(url,page):
 	logger.info("decoding youtvgratis link... " + url)
 	link = Youtvgratis.getChannels(url)[0]["link"]
 	logger.info("decoded youtvgratis link: " + link)
+	open(link, page)
+
+def openYomvies(url,page):
+	logger.info("decoding yomvi link... " + url)
+	link = Yomvies.getChannels(url)[0]["link"]
+	logger.info("decoded yomvi link: " + link)
 	open(link, page)
 
 def isAnException(url,page,provider,mode):

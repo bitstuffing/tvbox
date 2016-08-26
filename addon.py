@@ -34,7 +34,9 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	add_dir("HDFull.tv", 'hdfulltv', 4, "http://hdfull.tv/templates/hdfull/images/logo.png", 'hdfulltv' , 0)
 	add_dir("Youtube.com", 'youtube', 4, "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/YouTube_logo_2015.svg/120px-YouTube_logo_2015.svg.png", 'youtube', 0)
 	add_dir("TuneIn.com", 'tunein', 4,"https://lh5.googleusercontent.com/-NsniPTwZFkc/AAAAAAAAAAI/AAAAAAAAOLE/qtdbWIxlF5M/s0-c-k-no-ns/photo.jpg",'tunein', 0)
-
+	enableYomvi = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_yomvi")
+	if enableYomvi == "true":
+		add_dir("Yomvi.es", 'yomvies', 4, "http://ver.movistarplus.es/img/logo-web-player-YOMVI.png", 'yomvies', 0)
 	enableSplive = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_splive")
 	if enableSplive=="true":
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
@@ -136,6 +138,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawTuneIn(page)
 	elif provider == 'youtvgratis':
 		drawYoutvgratis(page)
+	elif provider == "yomvies":
+		drawYomviEs(page)
 
 	logger.info(provider)
 
@@ -229,6 +233,8 @@ def init():
 			openTuneInLink(url,page)
 		elif mode == 119:
 			openYoutvgratisLink(url, page)
+		elif mode == 120:
+			openYomvies(url,page)
 
 	except Exception as e:
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))

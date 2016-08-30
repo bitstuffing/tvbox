@@ -494,11 +494,22 @@ class Decoder():
     @staticmethod
     def decodeSawliveUrl(encryptedHtml):
         vars = {}
+        finalUrl = ""
         logger.debug("encrypted iframe is: "+encryptedHtml)
         if "eval(function(p,a,c,k,e" in encryptedHtml:
             encryptedHtml = jsunpack.unpack(encryptedHtml)
             encryptedHtml = encryptedHtml.replace("\\'","'")
             logger.debug("now encrypted iframe content is: "+encryptedHtml)
+        elif ",a,c,k,e" in encryptedHtml:
+            logger.debug("changed packer/d. replacing with new")
+            a = Decoder.rExtract("function(",",a,c,k,e,",encryptedHtml)
+            r = Decoder.extract(",a,c,k,e,",")",encryptedHtml)
+            logger.debug("brute a is: "+a)
+            logger.debug("brute r is: " + r)
+            encryptedHtml = encryptedHtml.replace(a,"a")
+            encryptedHtml = encryptedHtml.replace(r, "r")
+            finalUrl = 'http://www3.sawlive.tv/embed/watch/'+Decoder.extract('|11|',"|",encryptedHtml)+"/"+Decoder.extract('|10|',"|",encryptedHtml)
+            logger.debug("new brute url is: "+finalUrl)
 
         varPart = ""
         if ";document.write" in encryptedHtml:
@@ -610,7 +621,7 @@ class Decoder():
                 logger.debug("replacing url new encoding...")
                 finalUrl = finalUrl.replace("unezcapez(","").replace(')','') #little fix for new coding, it will be included in the previews revision
             logger.info("Decrypted url is: "+finalUrl)
-        else:
+        elif len(finalUrl)==0:
             #use alternative logic with encrypted iframe
             logger.debug('Using alternative algorithm...')
             partialUrl = Decoder.extract(' src="','+\'">',encryptedHtml)

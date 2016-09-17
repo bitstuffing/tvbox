@@ -624,23 +624,28 @@ class Decoder():
         elif len(finalUrl)==0:
             #use alternative logic with encrypted iframe
             logger.debug('Using alternative algorithm...')
-            partialUrl = Decoder.extract(' src="','+\'">',encryptedHtml)
-            logger.debug("brute url with logic call is: "+partialUrl)
-            finalUrl = ""
-            for urlPart in partialUrl.split("+"):
-                if "('" in urlPart:
-                    partialURI = ""
-                    target = Decoder.extract("('","')",urlPart)
-                    logger.debug("target is: "+target)
-                    if '"'+target+'"){return"' in encryptedHtml:
-                        partialURI = Decoder.extract('"'+target+'"){return"','"',encryptedHtml)
+            if 'else{return' in encryptedHtml:
+                partialUrl = Decoder.extract(' src="','+\'">',encryptedHtml)
+                logger.debug("brute url with logic call is: "+partialUrl)
+                finalUrl = ""
+                for urlPart in partialUrl.split("+"):
+                    if "('" in urlPart:
+                        partialURI = ""
+                        target = Decoder.extract("('","')",urlPart)
+                        logger.debug("target is: "+target)
+                        if '"'+target+'"){return"' in encryptedHtml:
+                            partialURI = Decoder.extract('"'+target+'"){return"','"',encryptedHtml)
+                        else:
+                            partialURI = Decoder.extract('else{return"','"',encryptedHtml)
+                        logger.debug("partialURI is: "+partialURI)
+                        if len(partialURI)>0:
+                            finalUrl += partialURI
                     else:
-                        partialURI = Decoder.extract('else{return"','"',encryptedHtml)
-                    logger.debug("partialURI is: "+partialURI)
-                    if len(partialURI)>0:
-                        finalUrl += partialURI
-                else:
-                    finalUrl += urlPart.replace("'","")
+                        finalUrl += urlPart.replace("'","")
+            else:
+                second = Decoder.rExtract('"','";return',encryptedHtml)
+                first = Decoder.rExtract(',"','")+',encryptedHtml)
+                finalUrl = "http://www3.sawlive.tv/embed/watch/"+first+"/"+second
         return finalUrl
 
     @staticmethod

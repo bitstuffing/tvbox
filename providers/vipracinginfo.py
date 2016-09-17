@@ -91,7 +91,7 @@ class Vipracinginfo(Downloader):
                     element2 = Vipracinginfo.getChannels(iframeUrlLoop)[0]
                     link = element2["link"]
                     page = element2["title"]
-                elif "<script type='text/javascript' src='http://www.247bay.tv/static/scripts/247bay.js'></script>" in html:
+                elif '247bay.tv/static/scripts/247bay.js' in html:
                     channel = Decoder.extract(", channel='","'",html)
                     url2 = 'http://www.247bay.tv/embedplayer/'+channel+'/2/653/410'
                     html2 = Vipracinginfo.getContentFromUrl(url=url2,referer=page)

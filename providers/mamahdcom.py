@@ -60,7 +60,7 @@ class Mamahdcom(Downloader):
     @staticmethod
     def extractScriptIframeUrl(html,scriptUrl,referer):
         iframeUrl = ""
-        logger.debug("extracting script iframe...")
+        logger.debug("extracting script iframe... url: "+scriptUrl)
         scriptContent = Mamahdcom.getContentFromUrl(scriptUrl,"",Mamahdcom.cookie,referer)
         #print scriptContent
         iframeUrl = Decoder.extract('src="',"'",scriptContent)
@@ -85,13 +85,30 @@ class Mamahdcom(Downloader):
     def extractFinalRtmpUrl(url,referer):
         rtmpUrl = ""
         html = Mamahdcom.getContentFromUrl(url,"",Mamahdcom.cookie,referer)
-        file = Decoder.extract("file:'",'\',',html)
-        rtmp = file[0:file.rfind("/")+1]
-        playpath = file[file.rfind("/")+1:]
-        swfUrl = ""
-        secureToken = "SECURET0KEN#yw%.?()@W!"
-        if url.find("hdcast.org")>-1:
-            swfUrl = "http://player.hdcast.org/jws/jwplayer.flash.swf"
-        rtmpUrl = rtmp+" playPath="+playpath+" swfUrl="+swfUrl+" pageUrl="+url+" flashver=WIN/2019,0,0,226 live=true timeout=14 token="+secureToken
-        logger.debug("built final rtmp link: "+rtmpUrl)
+        if 'file:\'' in html:
+            file = Decoder.extract("file:'",'\',',html)
+            rtmp = file[0:file.rfind("/") + 1]
+            playpath = file[file.rfind("/") + 1:]
+            swfUrl = ""
+            secureToken = "SECURET0KEN#yw%.?()@W!"
+            if url.find("hdcast.org") > -1:
+                swfUrl = "http://player.hdcast.org/jws/jwplayer.flash.swf"
+            rtmpUrl = rtmp + " playPath=" + playpath + " swfUrl=" + swfUrl + " pageUrl=" + url + " flashver=WIN/2019,0,0,226 live=true timeout=14 token=" + secureToken
+            logger.debug("built final rtmp link: " + rtmpUrl)
+        elif 'allowtransparency="true" src=' in html:
+                logger.debug("using second way...")
+                secondIframe = Decoder.extract('allowtransparency="true" src=', ' ', html).replace("&amp;","&")
+                logger.debug("found second way url: " + secondIframe+", referer: "+url)
+                headers = {
+                    "User-Agent": Downloader.USER_AGENT,
+                    "Accept-Language": "en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3",
+                    "Upgrade-Insecure-Requests" : "1",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Referer": url
+                }
+                html2 = Mamahdcom.getContentFromUrl(url=secondIframe,headers=headers)
+                logger.debug("html2 is: "+html2)
+                if 'file:"' in html2:
+                    rtmpUrl = Decoder.extract('file:"', '",', html2)
+                    logger.debug("using m3u8 for: "+rtmpUrl)
         return rtmpUrl

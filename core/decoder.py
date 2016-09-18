@@ -15,6 +15,7 @@ try:
 except:
     import simplejson as json
 from core import jsunpack
+from core import jsunpackOld
 from core.xbmcutils import XBMCUtils
 
 class Decoder():
@@ -497,7 +498,15 @@ class Decoder():
         finalUrl = ""
         logger.debug("encrypted iframe is: "+encryptedHtml)
         if "eval(function(p,a,c,k,e" in encryptedHtml:
-            encryptedHtml = jsunpack.unpack(encryptedHtml)
+            try:
+                encryptedHtml = jsunpack.unpack(encryptedHtml)
+            except:
+                logger.debug("Something goes wrong, trying unpack with old library")
+                try:
+                    encryptedHtml = jsunpackOld.unpack(encryptedHtml)
+                except:
+                    logger.error("Could not unpack content")
+                    pass
             encryptedHtml = encryptedHtml.replace("\\'","'")
             logger.debug("now encrypted iframe content is: "+encryptedHtml)
         elif ",a,c,k,e" in encryptedHtml:
@@ -643,8 +652,18 @@ class Decoder():
                     else:
                         finalUrl += urlPart.replace("'","")
             else:
+                logger.debug("else logic for alternative algorithm...")
                 second = Decoder.rExtract('"','";return',encryptedHtml)
                 first = Decoder.rExtract(',"','")+',encryptedHtml)
+                if len(first)<34:
+                    split = Decoder.extract('watch|','.split',encryptedHtml)
+                    logger.debug("brute split is: "+split)
+                    for splitted in split.split("|"):
+                        if len(splitted)==34:
+                            logger.debug("patching first arg with: "+splitted)
+                            first = splitted
+                else:
+                    logger.debug("first is right: "+first+", length: "+str(len(first)))
                 finalUrl = "http://www3.sawlive.tv/embed/watch/"+first+"/"+second
         return finalUrl
 

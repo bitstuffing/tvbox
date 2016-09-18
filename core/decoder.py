@@ -1294,6 +1294,7 @@ class Decoder():
         iframeUrl = url;
         logger.debug("using referer: "+page)
         html = Downloader.getContentFromUrl(iframeUrl,'',"",page)
+        logger.debug("html is: "+html)
         file = "";
         if html.find(".m3u8")>-1:
             file = Decoder.rExtract("'file': '",'.m3u8',html)
@@ -1305,13 +1306,27 @@ class Decoder():
         else:
             if html.find("var file = '")>-1:
                 file = Decoder.extract("var file = '","'",html)
+                if 'file|' in html:
+                    file = Decoder.extract("file|","'",html)
+                    logger.debug("file was updated to: "+file)
             flash= Decoder.extract("'flashplayer': \"","\"",html)
             if html.find("return '/")>-1:
                 rtmpUrl = "rtmp://"+Decoder.extract("return '/","';",html)
+            elif "'streamer': " in html:
+                line = Decoder.extract("'streamer': ", ",", html)
+                methodName = Decoder.rExtract(' ', '()', line)
+                logger.debug("Method target name: " + methodName)
+                rtmpScript = Decoder.extract('function ' + methodName + '() {', '}', html)
+                logger.debug("using script: "+rtmpScript)
+                for scriptLine in rtmpScript.split("\n"):
+                    if '/live' in scriptLine and '//' not in scriptLine:
+                        scriptRtmp = Decoder.extract("'","'",scriptLine)
+                        rtmpUrl = "rtmp://"+scriptRtmp
+                        logger.debug("new rtmp is: " + rtmpUrl)
             else:
                 rtmpUrl = "rtmp"+Decoder.rExtractWithRegex("://","/live';",html).replace("';","")
             playpath = file+"?"+Decoder.extract("unescape('?","'),",html)
-            file = rtmpUrl+" playpath="+playpath+" swfUrl="+flash+" live=1 pageUrl=http://castalba.tv/"
+            file = rtmpUrl+" app=live playpath="+playpath+" swfUrl="+flash+" pageUrl="+url+" flashver=WIN/2019,0,0,226 live=1"
         logger.debug("final link from castalba is: "+file)
         return file
 

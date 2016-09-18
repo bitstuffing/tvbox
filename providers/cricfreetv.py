@@ -64,7 +64,12 @@ class Cricfreetv(Downloader):
 
     @staticmethod
     def extractIframe(html,referer):
-        iframeUrl = Decoder.extract('<iframe frameborder="0" marginheight="0" allowfullscreen="true" marginwidth="0" height="555" src="','"',html)
+        if '<iframe frameborder="0" marginheight="0" allowfullscreen="true" marginwidth="0" height="555" src="' in html:
+            iframeUrl = Decoder.extract('<iframe frameborder="0" marginheight="0" allowfullscreen="true" marginwidth="0" height="555" src="','"',html)
+        elif '<iframe frameborder="0" marginheight="0" marginwidth="0" height="490" src="' in html:
+            iframeUrl = Decoder.extract('<iframe frameborder="0" marginheight="0" marginwidth="0" height="490" src="','"',html)
+        if "'" in iframeUrl:
+            iframeUrl = iframeUrl[0:iframeUrl.find("'")]
         logger.debug("level 1, iframeUrl: "+iframeUrl+", cookie: "+Cricfreetv.cookie)
         html = Cricfreetv.getContentFromUrl(iframeUrl,"",Cricfreetv.cookie,referer)
         file = Cricfreetv.seekIframeScript(html,referer,iframeUrl)
@@ -78,6 +83,8 @@ class Cricfreetv(Downloader):
         firstScriptUrl = Decoder.extractWithRegex(scriptRegex,".js",html)
         if firstScriptUrl.find('"')>-1:
             firstScriptUrl = firstScriptUrl[0:firstScriptUrl.find('"')]
+        if "'" in firstScriptUrl:
+            firstScriptUrl = firstScriptUrl[0:firstScriptUrl.find("'")]
         scriptUrl = Cricfreetv.extractScriptIframeUrl(html,firstScriptUrl,referer)
         logger.debug("level 2, scriptUrl: "+scriptUrl+", cookie: "+Cricfreetv.cookie)
         lastIframeHtml = Cricfreetv.getContentFromUrl(scriptUrl,"",Cricfreetv.cookie,iframeUrl)
@@ -424,7 +431,7 @@ class Cricfreetv(Downloader):
     def extractScriptIframeUrl(html,scriptUrl,referer):
         iframeUrl = ""
         scriptContent = Cricfreetv.getContentFromUrl(scriptUrl,"",Cricfreetv.cookie,referer)
-        #print scriptContent
+        logger.debug("script content is: "+scriptContent)
         iframeUrl = Decoder.extract('src="','"',scriptContent)
         if iframeUrl.find("id='+id+'")>-1: #search id in html
             id = Decoder.extract("<script type='text/javascript'>id='","';",html)

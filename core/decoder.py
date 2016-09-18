@@ -439,10 +439,23 @@ class Decoder():
         return finalUrl
 
     @staticmethod
-    def decode247bay(html,referer):
-        newParam = Decoder.extractParams(html)
-        finalUrl = "rtmp://94.102.51.67/stream playPath="+newParam+" swfVfy=1 timeout=10 conn=S:OK live=true swfUrl=http://www.247bay.tv/static/scripts/eplayer.swf flashver=WIN/2019,0,0,226 pageUrl="+referer
-        return finalUrl
+    def decode247bay(url2,page):
+        html2 = Decoder.getContentFromUrl(url=url2, referer=page)
+        bruteContent = Decoder.extract("so.addParam('FlashVars', '", ");", html2)
+        # extract id and pk
+        id = Decoder.extract('id=', '&', bruteContent)
+        pk = Decoder.extract('pk=', "'", bruteContent)
+        # loadbalancer is http://www.publish247.xyz:1935/loadbalancer
+        ip = Decoder.getContentFromUrl(
+            url="http://www.publish247.xyz:1935/loadbalancer?" + (id[id.find("=") + 1:]),
+            referer="http://www.247bay.tv/static/scripts/eplayer.swf").replace('redirect=', '')
+        channel = ''
+        if 'embedplayer/' in url2:
+            channel = Decoder.extract('embedplayer/','/',url2)
+        link = "rtmp://" + ip + "/stream/" + channel + "?id=" + id + "&pk=" + pk + " app=stream pageUrl=http://www.247bay.tv/embedplayer/vip8col/2/653/410 swfUrl=http://www.247bay.tv/static/scripts/eplayer.swf tcUrl=rtmp://" + ip + "/stream playPath=" + channel + "?id=" + id + "&pk=" + pk + " conn=S:OK  live=1"
+        logger.debug("built link: " + link)
+
+        return link
 
     @staticmethod
     def extractSawlive(scriptSrc,iframeUrl):

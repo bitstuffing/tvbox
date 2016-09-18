@@ -94,15 +94,7 @@ class Vipracinginfo(Downloader):
                 elif '247bay.tv/static/scripts/247bay.js' in html:
                     channel = Decoder.extract(", channel='","'",html)
                     url2 = 'http://www.247bay.tv/embedplayer/'+channel+'/2/653/410'
-                    html2 = Vipracinginfo.getContentFromUrl(url=url2,referer=page)
-                    bruteContent = Decoder.extract("so.addParam('FlashVars', '", ");", html2)
-                    # extract id and pk
-                    id = Decoder.extract('id=', '&', bruteContent)
-                    pk = Decoder.extract('pk=', "'", bruteContent)
-                    # loadbalancer is http://www.publish247.xyz:1935/loadbalancer
-                    ip = Vipracinginfo.getContentFromUrl(url="http://www.publish247.xyz:1935/loadbalancer?" + (id[id.find("=") + 1:]),referer="http://www.247bay.tv/static/scripts/eplayer.swf").replace('redirect=', '')
-                    link = "rtmp://"+ip+"/stream/"+ channel + "?id=" + id + "&pk=" + pk +" app=stream pageUrl=http://www.247bay.tv/embedplayer/vip8col/2/653/410 swfUrl=http://www.247bay.tv/static/scripts/eplayer.swf tcUrl=rtmp://"+ip+"/stream playPath="+ channel + "?id=" + id + "&pk=" + pk +" conn=S:OK  live=1"
-                    logger.debug("built link: "+link)
+                    link = Decoder.decode247bay(url2,page)
                 elif 'castalba.tv/js/embed.js' in html:
                     cid = Decoder.extract(' id="','"',html)
                     link = 'http://www.castalba.tv/embed.php?cid='+cid+'&wh=653&ht=410&d=vipracing.info'

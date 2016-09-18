@@ -103,6 +103,14 @@ class Vipracinginfo(Downloader):
                 elif 'http://cricfree.sc/update/' in html:
                     frameUrl = Decoder.extractWithRegex('http://cricfree.sc/update','.php',html)
                     link = Cricfreetv.getChannels(frameUrl)[0]["link"]
+                elif 'http://crichd.tv/update/' in html:
+                    frameUrl = Decoder.extractWithRegex('http://crichd.tv/update/',".php",html)
+                    link = Cricfreetv.getChannels(frameUrl)[0]["link"]
+                    #html2 = Downloader.getContentFromUrl(url=frameUrl)
+                    #if 'cast4u' in html2:
+                    #    url2 = "http://www.cast4u.tv/embedcr.php?v="+Decoder.extract('fid=\'','\'',html2)+"&vw=620&vh=490"
+                    #    link = Cricfreetv.extractIframe(url2,frameUrl)[0]["link"]
+
                 else:
                     logger.debug("Nothing done: "+html+", \nhtml2: "+html2)
                 element["link"] = link

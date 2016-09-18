@@ -65,12 +65,10 @@ class Zonasportsme(Downloader):
                 html2 = Zonasportsme.getContentFromUrl(url=url, referer=page)
                 logger.debug("html2 is: " + html2)
                 url = Decoder.decodeUcaster(html2,url)
-            elif 'http://www.247bay.tv/static/' in html:
+            elif '247bay.tv/static/' in html:
                 channel = Decoder.extract("channel='", "'", html)
                 url = 'http://www.247bay.tv/embedplayer/'+channel+'/2/750/420'
-                html2 = Zonasportsme.getContentFromUrl(url=url, referer=page)
-                logger.debug("html2 is: " + html2)
-                url = Decoder.decode247bay(html2,url)
+                url = Decoder.decode247bay(url,page)
             element = {}
             element["title"] = "Stream"
             element["link"] = url

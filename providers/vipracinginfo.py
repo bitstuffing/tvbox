@@ -103,6 +103,10 @@ class Vipracinginfo(Downloader):
                     ip = Vipracinginfo.getContentFromUrl(url="http://www.publish247.xyz:1935/loadbalancer?" + (id[id.find("=") + 1:]),referer="http://www.247bay.tv/static/scripts/eplayer.swf").replace('redirect=', '')
                     link = "rtmp://"+ip+"/stream/"+ channel + "?id=" + id + "&pk=" + pk +" app=stream pageUrl=http://www.247bay.tv/embedplayer/vip8col/2/653/410 swfUrl=http://www.247bay.tv/static/scripts/eplayer.swf tcUrl=rtmp://"+ip+"/stream playPath="+ channel + "?id=" + id + "&pk=" + pk +" conn=S:OK  live=1"
                     logger.debug("built link: "+link)
+                elif 'castalba.tv/js/embed.js' in html:
+                    cid = Decoder.extract(' id="','"',html)
+                    link = 'http://www.castalba.tv/embed.php?cid='+cid+'&wh=653&ht=410&d=vipracing.info'
+                    link = Decoder.decodeCastalbatv(link, page)
                 else:
                     logger.debug("Nothing done: "+html+", \nhtml2: "+html2)
                 element["link"] = link

@@ -64,6 +64,7 @@ class Cricfreetv(Downloader):
 
     @staticmethod
     def extractIframe(html,referer):
+        iframeUrl = ''
         if '<iframe frameborder="0" marginheight="0" allowfullscreen="true" marginwidth="0" height="555" src="' in html:
             iframeUrl = Decoder.extract('<iframe frameborder="0" marginheight="0" allowfullscreen="true" marginwidth="0" height="555" src="','"',html)
         elif '<iframe frameborder="0" marginheight="0" marginwidth="0" height="490" src="' in html:
@@ -71,7 +72,8 @@ class Cricfreetv(Downloader):
         if "'" in iframeUrl:
             iframeUrl = iframeUrl[0:iframeUrl.find("'")]
         logger.debug("level 1, iframeUrl: "+iframeUrl+", cookie: "+Cricfreetv.cookie)
-        html = Cricfreetv.getContentFromUrl(iframeUrl,"",Cricfreetv.cookie,referer)
+        if iframeUrl!='':
+            html = Cricfreetv.getContentFromUrl(iframeUrl,"",Cricfreetv.cookie,referer)
         file = Cricfreetv.seekIframeScript(html,referer,iframeUrl)
         item = {}
         item["title"] = referer
@@ -80,6 +82,7 @@ class Cricfreetv(Downloader):
 
     @staticmethod
     def launchScriptLogic(scriptRegex,html,referer,iframeUrl):
+        logger.debug("processing pre level 2... url: "+scriptRegex)
         firstScriptUrl = Decoder.extractWithRegex(scriptRegex,".js",html)
         if firstScriptUrl.find('"')>-1:
             firstScriptUrl = firstScriptUrl[0:firstScriptUrl.find('"')]
@@ -112,6 +115,8 @@ class Cricfreetv(Downloader):
             file = Cricfreetv.launchScriptLogic("http://miplayer.net/embed",html,referer,iframeUrl)
         elif html.find("http://www.cast4u.tv/embed")>-1:
             file = Cricfreetv.launchScriptLogic("http://www.cast4u.tv/embed",html,referer,iframeUrl)
+        elif html.find("http://www.cast4u.tv/Player")>-1:
+            file = Cricfreetv.launchScriptLogic("http://www.cast4u.tv/Playercr", html, referer, iframeUrl)
         elif html.find("http://www.topcast.live/embed")>-1:
             file = Cricfreetv.launchScriptLogic("http://www.topcast.live/embed", html, referer, iframeUrl)
         elif "http://www.hdcast.info/embed.js" in html:
@@ -436,14 +441,17 @@ class Cricfreetv(Downloader):
         if iframeUrl.find("id='+id+'")>-1: #search id in html
             id = Decoder.extract("<script type='text/javascript'>id='","';",html)
             iframeUrl = iframeUrl[0:iframeUrl.find('?id=')+len('?id=')]+id+Cricfreetv.getWidthAndHeightParams(html)+"&stretching="
-        elif iframeUrl.find("live=")>-1:
+        elif iframeUrl.find("live=")>-1 or '+ fid +' in iframeUrl:
             if html.find("<script type='text/javascript'>fid='")>-1:
                 id = Decoder.extract("<script type='text/javascript'>fid='","';",html)
             elif html.find("<script type='text/javascript'>fid=\"")>-1:
                 id = Decoder.extract("<script type='text/javascript'>fid=\"","\";",html)
             else:
                 id = Decoder.extract('<script>fid="','";',html)
-            iframeUrl = iframeUrl[0:iframeUrl.find('?live=')+len('?live=')]+id+Cricfreetv.getWidthAndHeightParams(html)
+            if iframeUrl.find("live=")>-1:
+                iframeUrl = iframeUrl[0:iframeUrl.find('?live=')+len('?live=')]+id+Cricfreetv.getWidthAndHeightParams(html)
+            else:
+                iframeUrl = iframeUrl[0:iframeUrl.find('?v=') + len('?v=')] + id + Cricfreetv.getWidthAndHeightParams(html)
         else:
             iframeUrl = Decoder.extract("<iframe src='","' ",scriptContent)
         return iframeUrl

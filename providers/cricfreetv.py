@@ -119,6 +119,8 @@ class Cricfreetv(Downloader):
             file = Cricfreetv.launchScriptLogic("http://www.cast4u.tv/Playercr", html, referer, iframeUrl)
         elif html.find("http://www.topcast.live/embed")>-1:
             file = Cricfreetv.launchScriptLogic("http://www.topcast.live/embed", html, referer, iframeUrl)
+        elif 'http://www.webtv.ws/player' in html:
+            file = Cricfreetv.launchScriptLogic("http://www.webtv.ws/player", html, referer, iframeUrl)
         elif "http://www.hdcast.info/embed.js" in html:
             id = Decoder.extract('fid="','"',html)
             scriptUrl = "http://www.hdcast.info/embed.php?live="+id+"&vw=620&vh=490"

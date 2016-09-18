@@ -102,7 +102,7 @@ class Vipracinginfo(Downloader):
                     link = Decoder.decodeCastalbatv(link, page)
                 elif 'http://cricfree.sc/update/' in html:
                     frameUrl = Decoder.extractWithRegex('http://cricfree.sc/update','.php',html)
-                    link = Cricfreetv.getChannels(frameUrl)
+                    link = Cricfreetv.getChannels(frameUrl)[0]["link"]
                 else:
                     logger.debug("Nothing done: "+html+", \nhtml2: "+html2)
                 element["link"] = link

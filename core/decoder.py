@@ -440,7 +440,7 @@ class Decoder():
 
     @staticmethod
     def decode247bay(url2,page):
-        html2 = Decoder.getContentFromUrl(url=url2, referer=page)
+        html2 = Downloader.getContentFromUrl(url=url2, referer=page)
         bruteContent = Decoder.extract("so.addParam('FlashVars', '", ");", html2)
         # extract id and pk
         id = Decoder.extract('id=', '&', bruteContent)

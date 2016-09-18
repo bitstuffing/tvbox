@@ -446,7 +446,7 @@ class Decoder():
         id = Decoder.extract('id=', '&', bruteContent)
         pk = Decoder.extract('pk=', "'", bruteContent)
         # loadbalancer is http://www.publish247.xyz:1935/loadbalancer
-        ip = Decoder.getContentFromUrl(
+        ip = Downloader.getContentFromUrl(
             url="http://www.publish247.xyz:1935/loadbalancer?" + (id[id.find("=") + 1:]),
             referer="http://www.247bay.tv/static/scripts/eplayer.swf").replace('redirect=', '')
         channel = ''

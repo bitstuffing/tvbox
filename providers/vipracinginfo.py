@@ -2,6 +2,7 @@
 import time
 from core.decoder import Decoder
 from core import jsunpack
+from providers.cricfreetv import Cricfreetv
 from core import logger
 from core.downloader import Downloader
 
@@ -99,6 +100,9 @@ class Vipracinginfo(Downloader):
                     cid = Decoder.extract(' id="','"',html)
                     link = 'http://www.castalba.tv/embed.php?cid='+cid+'&wh=653&ht=410&d=vipracing.info'
                     link = Decoder.decodeCastalbatv(link, page)
+                elif 'http://cricfree.sc/update/' in html:
+                    frameUrl = Decoder.extractWithRegex('http://cricfree.sc/update','.php',html)
+                    link = Cricfreetv.getChannels(frameUrl)
                 else:
                     logger.debug("Nothing done: "+html+", \nhtml2: "+html2)
                 element["link"] = link

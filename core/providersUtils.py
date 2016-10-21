@@ -36,6 +36,7 @@ from providers.tunein import TuneIn
 from providers.reuters import Reuters
 from providers.youtvgratiscom import Youtvgratis
 from providers.yomvies import Yomvies
+from providers.streamgaroo import Streamgaroo
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -412,6 +413,19 @@ def drawYomviEs(page):
 			image = icon
 		add_dir(title, link, mode, image, "yomvies", link)
 
+def drawStreamgaroo(page):
+	mode = 121
+	jsonChannels = Streamgaroo.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: " + image)
+		else:
+			image = icon
+		add_dir(title, link, mode, image, "streamgaroo", link)
+
 def drawNews(url,provider='',targetAction=1): #from rss page
 	if targetAction==4 and provider=="bbccouk" and ".xml" not in url:
 		drawBbcCoUkNew(url)
@@ -609,6 +623,12 @@ def openYomvies(url,page):
 	logger.info("decoding yomvi link... " + url)
 	link = Yomvies.getChannels(url)[0]["link"]
 	logger.info("decoded yomvi link: " + link)
+	open(link, page)
+
+def openStreamgaroo(url, page):
+	logger.info("decoding streamgaroo link... " + url)
+	link = Streamgaroo.getChannels(url)[0]["link"]
+	logger.info("decoded streamgaroo link: " + link)
 	open(link, page)
 
 def isAnException(url,page,provider,mode):

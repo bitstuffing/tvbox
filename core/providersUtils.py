@@ -414,9 +414,9 @@ def drawYomviEs(page):
 		add_dir(title, link, mode, image, "yomvies", link)
 
 def drawStreamgaroo(page):
-	mode = 121
 	jsonChannels = Streamgaroo.getChannels(page)
 	for item in jsonChannels:
+		mode = 121
 		title = item["title"]
 		link = item["link"]
 		if item.has_key("thumbnail"):
@@ -424,6 +424,8 @@ def drawStreamgaroo(page):
 			logger.info("detected img: " + image)
 		else:
 			image = icon
+		if item.has_key("navigate"):
+			mode = 4
 		add_dir(title, link, mode, image, "streamgaroo", link)
 
 def drawNews(url,provider='',targetAction=1): #from rss page

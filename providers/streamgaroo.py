@@ -13,19 +13,59 @@ class Streamgaroo(Downloader):
 
     MAIN_URL = "http://www.streamgaroo.com"
     CHANNEL_API = 'http://www.streamgaroo.com/calls/get/source'
-
+    COUNTRIES = 'http://www.streamgaroo.com/live-television'
 
     @staticmethod
     def getChannels(page='0'):
         x = []
         if str(page) == '0':
             page = Streamgaroo.MAIN_URL
+            #add first element show by country
+            element = {}
+            element["title"] = 'Browse by Country'
+            element["link"] = '1'
+            element["navigate"] = True
+            x.append(element)
+            #continue with splitted home links
             logger.debug("loading json data from: "+page)
             html = Streamgaroo.getContentFromUrl(page,"",Streamgaroo.cookie,Streamgaroo.MAIN_URL)
             for lineLink in html.split(' data-clk='):
                 link = urllib.unquote_plus(Decoder.extract('"','"',lineLink))
                 title = Decoder.extract(' title="','"',lineLink)
                 img = Decoder.extract('<img class="stream-thumb" src="', '"', lineLink)
+                element = {}
+                element["title"] = title
+                element["link"] = link
+                element["thumbnail"] = img
+                if "http" in link:
+                    x.append(element)
+        elif str(page) == '1':
+            #show by country
+            html = Streamgaroo.getContentFromUrl(Streamgaroo.COUNTRIES,"",Streamgaroo.cookie,Streamgaroo.MAIN_URL)
+            splitter = '<div class="left-sidebar nc"><div class="left-sidebar-item"><div class="navigation navigation_0" data-type="normal">'
+            menuHtml = Decoder.extract(splitter,'</li></ul></div></div></div>',html)
+            for lineMenu in menuHtml.split('<li class="navigation-li"'):
+                if '<a title="' in lineMenu:
+                    title = Decoder.extract('<a title="','"',lineMenu)
+                    link = Decoder.extract(' href="','"',lineMenu)
+                    img = Decoder.extract(' src="','"',lineMenu)
+                    element = {}
+                    element["title"] = title
+                    element["link"] = link
+                    element["thumbnail"] = img
+                    element["navigate"] = True
+                    if "http" in link:
+                        x.append(element)
+        elif '/live-television/' in page and '/' not in str(page[page.find('/live-television/')+len('/live-television/'):]) :
+            #show country pages
+            html = Streamgaroo.getContentFromUrl(page, "", Streamgaroo.cookie, Streamgaroo.MAIN_URL)
+            channelsListsSplitter = '<div class="layouts layouts-streams layouts-streams-blocks">'
+            channelsListsSplitterEnd = '</div>\n</div>\n</div> </div>'
+            channelsHtml = Decoder.extract(channelsListsSplitter,channelsListsSplitterEnd,html)
+            for channelLineHtml in channelsHtml.split('<a class="stream-thumb-a" '):
+                link = Decoder.extract('href="','"',channelLineHtml)
+                img = Decoder.extract('<img class="stream-thumb" src="','"',channelLineHtml)
+                title = Decoder.extract(' title="','"',channelLineHtml)
                 element = {}
                 element["title"] = title
                 element["link"] = link

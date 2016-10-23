@@ -42,6 +42,12 @@ class Decoder():
             link = Decoder.decodeVidXtreme(link)
         elif link.find("http://streame.net")>-1:
             link = Decoder.decodeStreame(link)
+        elif 'http://playedto.me' in link:
+            link = Decoder.decodePlayerto(link)
+        elif 'vidabc.com' in link:
+            link = Decoder.decodeVidabc(link)
+        elif 'speedvid.net/' in link:
+            link = Decoder.decodeSpeedvid(link)
         elif link.find("://openload")>-1 and link.find("/stream/")==-1:
             try:
                 link = Decoder.decodeOpenloadUsingOfficialApi(link)
@@ -1031,6 +1037,32 @@ class Decoder():
         return Decoder.extract('[{file:"','"',html)
 
     @staticmethod
+    def decodePlayerto(link):
+        html = Decoder.getFinalHtmlFromLink(link)
+        link2 = Decoder.rExtractWithRegex('http','.mp4',html)
+        logger.debug("found mp4 link: "+link2)
+        return link2
+
+    @staticmethod
+    def decodeVidabc(link):
+        html = Downloader.getContentFromUrl(url=link)
+        logger.debug("html is: "+html)
+        link2 = Decoder.rExtractWithRegex('http', '.mp4', html)
+        logger.debug("found mp4 link: " + link2)
+        return link2
+
+    @staticmethod
+    def decodeSpeedvid(link):
+        html = Downloader.getContentFromUrl(url=link)
+        logger.debug("html is: " + html)
+        #extract packed
+        packedJS = Decoder.extractWithRegex("eval(function(p,a,c,k,e,d)","</script>",html).replace("</script>","")
+        unpackedJS = jsunpackOld.unpack(packedJS)
+        link2 = Decoder.rExtractWithRegex('http', '.mp4', unpackedJS)
+        logger.debug("found mp4 link: " + link2)
+        return link2+"|"+"User-Agent="+urllib.quote_plus(Downloader.USER_AGENT)
+
+    @staticmethod
     def decodeVidXtreme(link):
         return Decoder.decodePowvideo(link)
 
@@ -1041,10 +1073,10 @@ class Decoder():
     @staticmethod
     def decodeThevideo(link):
         html = Decoder.getFinalHtmlFromLink(link,5,True)
-        mp4Link = Decoder.rExtract(", file: '","'",html) #there are more qualities, so I get the last one which is the best of
-        mp4Link = mp4Link[0:mp4Link.find("'")]
+        mp4Link = Decoder.rExtractWithRegex('http','.mp4',html) #there are more qualities, so I get the last one which is the best of
+        #mp4Link = mp4Link[0:mp4Link.find("'")]
         logger.info("found link: "+mp4Link)
-        return mp4Link
+        return mp4Link+"|"+Downloader.getHeaders(link)+"&Cookie="+Downloader.cookie
 
     @staticmethod
     def decodeStreamin(link):
@@ -1055,7 +1087,9 @@ class Decoder():
         return mp4File
         '''
         html = Decoder.getFinalHtmlFromLink(link, 5)
+        logger.debug(html)
         file = Decoder.extract('file: "','"', html)
+        '''
         rtmp = Decoder.extract('streamer: "','"', html)
         swfPlayer = Decoder.extract('type: "flash", src: "','"', html)
         key = file[file.find('?h='):]
@@ -1063,6 +1097,8 @@ class Decoder():
         finalRtmp = rtmp+" app=vod"+key+" playpath="+playPath+" swfUrl="+swfPlayer+" pageUrl="+link
         logger.debug("rtmp decoded link is: "+finalRtmp)
         return finalRtmp
+        '''
+        return file+"|"+Downloader.getHeaders(link)
 
     @staticmethod
     def decodeGamovideo(link):
@@ -1099,7 +1135,12 @@ class Decoder():
 
     @staticmethod
     def decodeFlashx(link):
+        if ".tv" in link:
+            link = link.replace(".tv",".run")
+        if ".html" not in link:
+            link += ".html"
         html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with streamcloud and others
+        logger.debug("html is: "+html)
         mp4File = ""
         for line in html.split("<script type='text/javascript'>"):
             if "eval(function(p,a,c,k,e,d)" in line:
@@ -1108,7 +1149,7 @@ class Decoder():
                     logger.debug("extracted code is: "+encodedMp4File)
                 except:
                     pass
-                mp4File += jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
+                mp4File += jsunpackOld.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
                 logger.debug("At this moment mp4 script is: "+mp4File)
         if mp4File.find("http://play.")>-1:
             mp4File = Decoder.extractWithRegex("http://play.",".mp4",mp4File)
@@ -1120,10 +1161,10 @@ class Decoder():
         html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with streamcloud and others
         logger.debug(html)
         try:
-            encodedMp4File = Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
+            encodedMp4File = "eval(function(p,a,c,k,e,d)"+Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
         except:
             pass
-        mp4File = jsunpack.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
+        mp4File = jsunpackOld.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
         mp4File = Decoder.rExtractWithRegex("http://",".mp4",mp4File)
         mp4File = mp4File.replace("\\","")
         logger.info('found mp4: '+mp4File)

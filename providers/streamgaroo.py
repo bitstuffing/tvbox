@@ -14,6 +14,7 @@ class Streamgaroo(Downloader):
     MAIN_URL = "http://www.streamgaroo.com"
     CHANNEL_API = 'http://www.streamgaroo.com/calls/get/source'
     COUNTRIES = 'http://www.streamgaroo.com/live-television'
+    EVENTS = 'http://www.streamgaroo.com/live-sport'
 
     @staticmethod
     def getChannels(page='0'):
@@ -26,6 +27,13 @@ class Streamgaroo(Downloader):
             element["link"] = '1'
             element["navigate"] = True
             x.append(element)
+            '''
+            element = {}
+            element["title"] = 'Browse by Event'
+            element["link"] = '2'
+            element["navigate"] = True
+            x.append(element)
+            '''
             #continue with splitted home links
             logger.debug("loading json data from: "+page)
             html = Streamgaroo.getContentFromUrl(page,"",Streamgaroo.cookie,Streamgaroo.MAIN_URL)
@@ -54,6 +62,23 @@ class Streamgaroo(Downloader):
                     element["link"] = link
                     element["thumbnail"] = img
                     element["navigate"] = True
+                    if "http" in link:
+                        x.append(element)
+        elif str(page) == '2':
+            #show by country
+            html = Streamgaroo.getContentFromUrl(Streamgaroo.EVENTS,"",Streamgaroo.cookie,Streamgaroo.MAIN_URL)
+            splitter = '<table class="table-streams table table-condensed table-responsive">'
+            menuHtml = Decoder.extract(splitter,'</table>',html)
+            logger.debug(menuHtml)
+            for lineMenu in menuHtml.split('<a class="title-'):
+                if ' title="' in lineMenu:
+                    title = Decoder.extract(' title="','"',lineMenu)
+                    link = Decoder.extract(' href="','"',lineMenu)
+                    img = Decoder.extract(' src="','"',lineMenu)
+                    element = {}
+                    element["title"] = title
+                    element["link"] = link
+                    element["thumbnail"] = img
                     if "http" in link:
                         x.append(element)
         elif '/live-television/' in page and '/' not in str(page[page.find('/live-television/')+len('/live-television/'):]) :

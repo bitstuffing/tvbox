@@ -99,12 +99,12 @@ class Streamgaroo(Downloader):
             finalUrl = finalUrl.replace("http://www.streamgaroo.com/fetch/r/","") #clean proxies
             if 'playlist.m3u8' in finalUrl and '==' in finalUrl:
                 finalUrl = finalUrl.replace('playlist.m3u8?','chunks.m3u8?')
-            finalUrl = finalUrl + "|" + Downloader.getHeaders()
+            finalUrl = finalUrl + "|" + urllib.unquote(Downloader.getHeaders())
         elif "playStream('iframe','" in html2:
             iframeUrl = finalUrl = Decoder.extract("playStream('iframe','","'",html2)
             logger.debug("found iframe link: " + iframeUrl)
             try:
-                iframeHtml = Streamgaroo.getContentFromUrl(url=iframeUrl,data=" ",referer=page)
+                iframeHtml = Downloader.getContentFromUrl(url=iframeUrl, data=" ", referer=page)
             except:
                 logger.debug("trying second way, easy!!")
                 import urllib2
@@ -117,19 +117,8 @@ class Streamgaroo(Downloader):
                 pass
             logger.debug("html iframe is: "+iframeHtml)
             if 'adca.st/broadcast/player' in iframeHtml:
-                if "<script type='text/javascript'>id='" in iframeHtml:
-                    id2 = Decoder.extract("<script type='text/javascript'>id='", "';", iframeHtml)
-                logger.debug("using id = " + id2)
-                url4 = "http://bro.adca.st/stream.php?id=" + id2 + "&width=700&height=450&stretching=uniform"
-                iframeUrl = iframeUrl.replace(".be/",".to/")
-                html4 = Streamgaroo.getContentFromUrl(url=url4, data="", cookie=Streamgaroo.cookie, referer=iframeUrl,ajax=False,launchLocation=False,gzip=True)
-                logger.debug("html4: " + html4)
-                curl = Decoder.extract('curl = "', '"', html4)
-                token = Streamgaroo.getContentFromUrl('http://bro.adca.st/getToken.php', "", Streamgaroo.cookie, url4,True)
-                logger.debug("token: " + token)
-                token = Decoder.extract('":"', '"', token)
-                logger.debug("final token is: "+token)
-                finalUrl = base64.decodestring(curl) + token + "|" + Downloader.getHeaders('http://cdn.allofme.site/jw/jwplayer.flash.swf')
-
+                finalUrl = Decoder.decodeBroadcastst(iframeUrl,page)
+            elif 'vaughnlive.tv/embed/video/' in iframeUrl:
+                finalUrl = Decoder.decodeVaughnlivetv(iframeUrl,page)
         logger.debug("done!")
         return finalUrl

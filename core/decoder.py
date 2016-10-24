@@ -108,6 +108,37 @@ class Decoder():
         return listUrls[0]
 
     @staticmethod
+    def decodeVaughnlivetv(iframeUrl,page):
+        iframeHtml = Downloader.getContentFromUrl(url=iframeUrl, data=" ", referer=page)
+        channelId = iframeUrl[iframeUrl.find("/video/") + len("/video/"):].replace("/", "")
+        dataUrl = "http://mvn.vaughnsoft.net/video/edge/mzn-live_" + channelId + "?0.1.1.767_996-996-0.6606529718264937"
+        dataContent = Downloader.getContentFromUrl(url=dataUrl, referer=iframeUrl)
+        rtmpIp = dataContent[:dataContent.find(";")]
+        key = Decoder.extract('mvnkey-', ";NA", dataContent)
+        swfUrl = "http://vaughnlive.tv/" + Decoder.extract('swfobject.embedSWF("/', '.swf"', iframeHtml) + ".swf"
+        finalUrl = "rtmp://" + rtmpIp + " app=live?" + key + " pageUrl=" + iframeUrl + " swfUrl=" + swfUrl + " playpath=live_" + channelId
+        logger.debug("new final rtmpUrl: " + finalUrl)
+        return finalUrl
+
+    @staticmethod
+    def decodeBroadcastst(iframeUrl,page,cookie=''):
+        iframeHtml = Downloader.getContentFromUrl(url=iframeUrl, data=" ", referer=page)
+        if "<script type='text/javascript'>id='" in iframeHtml:
+            id2 = Decoder.extract("<script type='text/javascript'>id='", "';", iframeHtml)
+        logger.debug("using id = " + id2)
+        url4 = "http://bro.adca.st/stream.php?id=" + id2 + "&width=700&height=450&stretching=uniform"
+        iframeUrl = iframeUrl.replace(".be/", ".to/") #has domain redirection
+        html4 = Downloader.getContentFromUrl(url=url4, data="", cookie=cookie, referer=iframeUrl,ajax=False, launchLocation=False, gzip=True)
+        logger.debug("html4: " + html4)
+        curl = Decoder.extract('curl = "', '"', html4)
+        token = Downloader.getContentFromUrl('http://bro.adca.st/getToken.php', "", cookie, url4, True)
+        logger.debug("token: " + token)
+        token = Decoder.extract('":"', '"', token)
+        logger.debug("final token is: " + token)
+        finalUrl = base64.decodestring(curl) + token + "|" + urllib.unquote(Downloader.getHeaders('http://cdn.allofme.site/jw/jwplayer.flash.swf'))
+        return finalUrl
+
+    @staticmethod
     def extractDinostreamPart(url,referer=''):
         element = {}
         logger.debug("url: "+url+", referer: "+referer)

@@ -106,7 +106,7 @@ class Youtube(Downloader):
             bruteM3u8 = Youtube.getContentFromUrl(link);
             if 'https://' in bruteM3u8:
                 m3u8 = bruteM3u8[bruteM3u8.rfind('https://'):]
-                link = urllib.unquote_plus(m3u8).replace('%3D',"=").strip()
+                link = urllib.unquote_plus(m3u8).strip()
                 logger.debug("using the last one inside: "+m3u8)
             else:
                 logger.debug("no last one link selected :'(")
@@ -114,6 +114,10 @@ class Youtube(Downloader):
             logger.debug("nothing is transformed for youtube links.")
 
         logger.debug("final youtube decoded url is: " + link)
+        if ";" in link:
+            link = link.replace("=", "%3D").replace(";", "%3B")
+        else:
+            link = link.replace("%3D","=")
         return link
 
 

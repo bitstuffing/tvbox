@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.1.5</tag>
-	<version>111</version>
-	<date>22/10/2016</date>
+	<version>112</version>
+	<date>28/10/2016</date>
 	<changes>Improves related to new provider</changes>
 </plugin>

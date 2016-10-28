@@ -1,4 +1,6 @@
 #-*- coding: utf-8 -*-
+from pickle import load
+
 import httplib
 import urllib2
 import urllib
@@ -22,27 +24,27 @@ class Decoder():
 
     @staticmethod
     def decodeLink(link,referer=''):
-        if link.find("http://streamcloud.")>-1 :
+        if link.find("://streamcloud.")>-1 :
             link = Decoder.decodeStreamcloud(link)
-        elif link.find("http://powvideo.net")>-1:
+        elif link.find("://powvideo.net")>-1:
             link = Decoder.decodePowvideo(link)
-        elif link.find("http://www.flashx.tv")>-1:
+        elif link.find("://www.flashx.tv")>-1:
             link = Decoder.decodeFlashx(link)
-        elif link.find("http://www.nowvideo.sx")>-1:
+        elif link.find("://www.nowvideo.sx")>-1:
             link = Decoder.decodeNowvideo(link)
-        elif link.find("http://gamovideo.")>-1:
+        elif link.find("://gamovideo.")>-1:
             link = Decoder.decodeGamovideo(link)
-        elif link.find("http://streamin.")>-1:
+        elif link.find("://streamin.")>-1:
             link = Decoder.decodeStreamin(link)
-        elif link.find("http://thevideo.me")>-1:
+        elif link.find("://thevideo.me")>-1:
             link = Decoder.decodeThevideo(link)
-        elif link.find("http://streamplay.to")>-1:
+        elif link.find("://streamplay.to")>-1:
             link = Decoder.decodeStreamplay(link)
-        elif link.find("http://vidxtreme.to")>-1:
+        elif link.find("://vidxtreme.to")>-1:
             link = Decoder.decodeVidXtreme(link)
-        elif link.find("http://streame.net")>-1:
+        elif link.find("://streame.net")>-1:
             link = Decoder.decodeStreame(link)
-        elif 'http://playedto.me' in link:
+        elif '://playedto.me' in link:
             link = Decoder.decodePlayerto(link)
         elif 'vidabc.com' in link:
             link = Decoder.decodeVidabc(link)
@@ -62,19 +64,23 @@ class Decoder():
             link = Decoder.decodeLetwatch(link)
         elif link.find("://bestreams.net")>-1:
             link = Decoder.decodeBestreams(link)
-        elif link.find("http://www.vidgg.to/")>-1 or link.find("http://www.vid.gg/")>-1:
+        elif link.find("://www.vidgg.to/")>-1 or link.find("http://www.vid.gg/")>-1:
             link = Decoder.decodeVidggTo(link)
+        elif "://vidto.me" in link:
+            link = Decoder.decodeVidtome(link)
+        elif "://vshare.eu" in link:
+            link = Decoder.decodeVshareeu(link)
         elif link.find("http")==0 and link.find("video.streamable.ch/")==-1 and link.find("streamable.ch")>-1:
             link = Decoder.decodeStreamable(link)
-        elif link.find('http://www.streamlive.to/embed/')>-1:
+        elif link.find('://www.streamlive.to/embed/')>-1:
             link = Decoder.decodeStreamliveto(link,'http://www.streamlive.to')
-        elif link.find("http://castalba.tv/")>-1:
+        elif link.find("://castalba.tv/")>-1:
             link = Decoder.decodeCastalbatv(link,referer)
-        elif link.find("http://www.dinostream.pw/")>-1:
+        elif link.find("://www.dinostream.pw/")>-1:
             link = Decoder.extractDinostreamPart(link)["link"]
-        elif link.find("http://www.iguide.to/embed")>-1:
+        elif link.find("://www.iguide.to/embed")>-1:
             link = Decoder.decodeIguide(link)
-        elif 'http://hdfull.tv/ext/' in link:
+        elif '://hdfull.tv/ext/' in link:
             linkToDecode = link[link.rfind('/')+1:]
             logger.debug("link to decode: " + linkToDecode)
             linkDecoded = base64.decodestring(linkToDecode)
@@ -182,8 +188,13 @@ class Decoder():
 
     @staticmethod
     def getFinalHtmlFromLink(link,waitTime=10,inhu=False):
-        data = Downloader.getContentFromUrl(url=link,data="",cookie="lang=english")
-        html = ""
+        try:
+            data = Downloader.getContentFromUrl(url=link,data="",cookie="lang=english")
+        except:
+            data = Decoder.getContent(url=link)
+            pass
+        logger.debug(data)
+        html = data
         if data.find("<script type='text/javascript'>eval(function(p,a,c,k,e")==-1:
             finalCookie = "lang=english"
             #build form
@@ -223,9 +234,6 @@ class Decoder():
                 if op != '':
                     time.sleep(waitTime)
                     html = Decoder.getContent(link,form,link,finalCookie,False).read()
-        else:
-            html = data
-
         return html
 
     @staticmethod
@@ -264,6 +272,47 @@ class Decoder():
         finalLink = base64.standard_b64decode(token)
         logger.debug("final link is: "+finalLink)
         return finalLink
+
+    @staticmethod
+    def decodeVshareeu(link):
+        logger.debug("decoding vshare.eu link: "+link)
+        data = Decoder.getContent2(url=link,referer=link)
+        if data.find('type="hidden" name="op" value="') > -1:
+            op = Decoder.extract('type="hidden" name="op" value="', '"', data)
+            id = Decoder.extract('type="hidden" name="id" value="', '"', data)
+            fname = Decoder.extract('type="hidden" name="fname" value="', '"', data)
+            usr_login = Decoder.extract('type="hidden" name="usr_login" value="', '"', data)
+            referer = Decoder.extract('type="hidden" name="referer" value="', '"', data)
+            hash = Decoder.extract('type="hidden" name="hash" value="', '"', data)
+            play = Decoder.extract(' name="method_free" value="', '"', data).replace(" ", "+")
+            form = {
+                'op': op,
+                'id': id,
+                'usr_login': usr_login,
+                'fname': fname,
+                'referer': referer,
+                'hash': hash,
+                'play': play}
+            time.sleep(10)
+            finalCookie = "lang=english"
+            logger.debug("launching second part...")
+            data = Decoder.getContent(url=link, data=urllib.urlencode(form), referer=link, cookie=finalCookie)
+            logger.debug("done second part!")
+        logger.debug(data)
+        mp4File = Decoder.extract("config:{file:'","'",data)
+        logger.info('found link: '+mp4File)
+        return mp4File
+
+    @staticmethod
+    def decodeVidtome(link):
+        html = Decoder.getFinalHtmlFromLink(link=link,waitTime=10) #has common attributes in form with powvideo and others
+        logger.debug("html is: "+html)
+        extracted = "eval(function(p,a,c,k,e,d){"+Decoder.extract('eval(function(p,a,c,k,e,d){', '</script>', html)
+        extracted = jsunpackOld.unpack(extracted)
+        logger.debug(extracted)
+        link2 = Decoder.rExtractWithRegex('http', '.mp4', extracted)
+        logger.debug("found mp4 link: " + link2)
+        return link2
 
     @staticmethod
     def decodeVidggTo(link):
@@ -1103,8 +1152,10 @@ class Decoder():
 
     @staticmethod
     def decodeThevideo(link):
+        link = link.replace("https","http")
         html = Decoder.getFinalHtmlFromLink(link,5,True)
-        mp4Link = Decoder.rExtractWithRegex('http','.mp4',html) #there are more qualities, so I get the last one which is the best of
+        logger.debug("html is: "+html)
+        mp4Link = Decoder.rExtractWithRegex('http', '.mp4',html) #there are more qualities, so I get the last one which is the best of
         #mp4Link = mp4Link[0:mp4Link.find("'")]
         logger.info("found link: "+mp4Link)
         return mp4Link+"|"+Downloader.getHeaders(link)+"&Cookie="+Downloader.cookie

@@ -306,7 +306,7 @@ class Decoder():
         logger.debug(data)
         mp4File = Decoder.extract("config:{file:'","'",data)
         logger.info('found link: '+mp4File)
-        return mp4File
+        return mp4File+"|"+Downloader.getHeaders('http://vshare.eu/player/player.swf')
 
     @staticmethod
     def decodeVidtome(link):

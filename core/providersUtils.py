@@ -37,6 +37,7 @@ from providers.reuters import Reuters
 from providers.youtvgratiscom import Youtvgratis
 from providers.yomvies import Yomvies
 from providers.streamgaroo import Streamgaroo
+from providers.tvshowme import Tvshowme
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -427,6 +428,21 @@ def drawStreamgaroo(page):
 		if item.has_key("navigate"):
 			mode = 4
 		add_dir(title, link, mode, image, "streamgaroo", link)
+
+def drawTvshowme(page):
+	jsonChannels = Tvshowme.getChannels(page)
+	for item in jsonChannels:
+		mode = 4
+		title = item["title"]
+		link = item["link"]
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: " + image)
+		else:
+			image = icon
+		if item.has_key("finalLink"):
+			mode = 100
+		add_dir(title, link, mode, image, "tvshowme", link)
 
 def drawNews(url,provider='',targetAction=1): #from rss page
 	if targetAction==4 and provider=="bbccouk" and ".xml" not in url:

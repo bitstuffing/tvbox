@@ -43,7 +43,7 @@ class Tvshowme(Downloader):
     def extractLinks(html):
         x = []
         i=0
-        for value in html.split('<a href='):
+        for value in html.split(' href='):
             if i>1:
                 element = {}
                 title = Decoder.extract('>','</a>', value)

@@ -50,6 +50,8 @@ class Decoder():
             link = Decoder.decodeVidabc(link)
         elif 'speedvid.net/' in link:
             link = Decoder.decodeSpeedvid(link)
+        elif '://vidzi.tv' in link:
+            link = Decoder.decodeVidzitv(link)
         elif link.find("://openload")>-1 and link.find("/stream/")==-1:
             try:
                 link = Decoder.decodeOpenloadUsingOfficialApi(link)
@@ -1146,6 +1148,17 @@ class Decoder():
         link2 = Decoder.rExtractWithRegex('http', '.mp4', unpackedJS)
         logger.debug("found mp4 link: " + link2)
         return link2+"|"+"User-Agent="+urllib.quote_plus(Downloader.USER_AGENT)
+
+    @staticmethod
+    def decodeVidzitv(link):
+        html = Downloader.getContentFromUrl(url=link)
+        logger.debug("html is: " + html)
+        # extract packed
+        packedJS = Decoder.extractWithRegex("<script type='text/javascript'>eval(function(p,a,c,k,e,d)", "</script>", html).replace("</script>", "").replace("<script type='text/javascript'>","")
+        unpackedJS = jsunpackOld.unpack(packedJS)
+        link2 = Decoder.rExtractWithRegex('http', '.mp4', unpackedJS)
+        logger.debug("found mp4 link: " + link2)
+        return link2 + "|" + "User-Agent=" + urllib.quote_plus(Downloader.USER_AGENT)
 
     @staticmethod
     def decodeVidXtreme(link):

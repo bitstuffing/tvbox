@@ -276,7 +276,11 @@ class Decoder():
     @staticmethod
     def decodeVshareeu(link):
         logger.debug("decoding vshare.eu link: "+link)
-        data = Decoder.getContent2(url=link,referer=link)
+        opener = urllib2.build_opener()
+        opener.addheaders.append(('Cookie', link))
+        f = opener.open(link)
+        data = f.read()
+        logger.debug(str(f.info()))
         if data.find('type="hidden" name="op" value="') > -1:
             op = Decoder.extract('type="hidden" name="op" value="', '"', data)
             id = Decoder.extract('type="hidden" name="id" value="', '"', data)
@@ -284,19 +288,20 @@ class Decoder():
             usr_login = Decoder.extract('type="hidden" name="usr_login" value="', '"', data)
             referer = Decoder.extract('type="hidden" name="referer" value="', '"', data)
             hash = Decoder.extract('type="hidden" name="hash" value="', '"', data)
-            play = Decoder.extract(' name="method_free" value="', '"', data).replace(" ", "+")
-            form = {
-                'op': op,
-                'id': id,
-                'usr_login': usr_login,
-                'fname': fname,
-                'referer': referer,
-                'hash': hash,
-                'play': play}
-            time.sleep(10)
+            play = Decoder.extract(' name="method_free" value="', '"', data)
+            form = "op="+op+"&usr_login=&id="+id+"&fname="+fname+"&referer=&method_free=Proceed+to+video"
+            time.sleep(8)
             finalCookie = "lang=english"
             logger.debug("launching second part...")
-            data = Decoder.getContent(url=link, data=urllib.urlencode(form), referer=link, cookie=finalCookie)
+            #import urllib2
+            opener = urllib2.build_opener()
+            finalCookie = finalCookie+"; ref_url="+link#(urllib.quote(link).replace("/","%2F"))
+            logger.debug("cookie: "+finalCookie)
+            opener.addheaders.append(('Cookie', finalCookie))
+            opener.addheaders.append(('Referer', link))
+            f = opener.open(link,form)
+            data = f.read()
+            logger.debug(str(f.info()))
             logger.debug("done second part!")
         logger.debug(data)
         mp4File = Decoder.extract("config:{file:'","'",data)

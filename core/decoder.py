@@ -1265,13 +1265,24 @@ class Decoder():
         except:
             pass
         mp4File = jsunpackOld.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
+        magicCode = link[link.rfind("/")+1:]
+        if magicCode not in mp4File:
+            logger.debug("detected fake code, checking next...")
+            try:
+                encodedMp4File = "eval(function(p,a,c,k,e,d)" + Decoder.extract(">eval(function(p,a,c,k,e,d)","</script>", html[html.rfind(">eval(function(p,a,c,k,e,d)"):])
+            except:
+                pass
+            mp4File = jsunpackOld.unpack(encodedMp4File)  # needs un-p,a,c,k,e,t|d
         logger.debug(mp4File)
         #rtmp method (needs rtmp headers patch)
         mp4File = "rtmp://"+Decoder.extract("rtmp://","\\'",mp4File)
         logger.info('found rtmp: '+mp4File)
         rtmpUrl = mp4File[:mp4File.find("/vod")+len("/vod")]
         playPath = mp4File[mp4File.find("/vod/")+len("/vod/"):]
-        finalLink = rtmpUrl+" playpath="+playPath+" swfUrl=http://powvideo.net/player6/jwplayer.flash.swf pageUrl="+link+" flashver=WIN/2019,0,0,226 app=vod/ "
+        #now change playpath with the correct one (there is a 'letter' here, and it should not be there...)
+        playPath2 = playPath[:playPath.find('=')+1]+playPath[(playPath.find('=')+2):]
+        logger.debug("new playpath is: "+playPath2+", old was: "+playPath)
+        finalLink = rtmpUrl+" playpath="+playPath2+" swfUrl=http://powvideo.net/player6/jwplayer.flash.swf pageUrl="+link+" flashver=WIN/2019,0,0,226 app=vod/ "
         return finalLink
 
 

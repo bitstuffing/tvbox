@@ -1261,14 +1261,18 @@ class Decoder():
         html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with streamcloud and others
         logger.debug(html)
         try:
-            encodedMp4File = "eval(function(p,a,c,k,e,d)"+Decoder.extract("<script type='text/javascript'>eval(function(p,a,c,k,e,d)","</script>",html)
+            encodedMp4File = "eval(function(p,a,c,k,e,d)"+Decoder.extract(">eval(function(p,a,c,k,e,d)","</script>",html)
         except:
             pass
         mp4File = jsunpackOld.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
-        mp4File = Decoder.rExtractWithRegex("http://",".mp4",mp4File)
-        mp4File = mp4File.replace("\\","")
-        logger.info('found mp4: '+mp4File)
-        return mp4File
+        logger.debug(mp4File)
+        #rtmp method (needs rtmp headers patch)
+        mp4File = "rtmp://"+Decoder.extract("rtmp://","\\'",mp4File)
+        logger.info('found rtmp: '+mp4File)
+        rtmpUrl = mp4File[:mp4File.find("/vod")+len("/vod")]
+        playPath = mp4File[mp4File.find("/vod/")+len("/vod/"):]
+        finalLink = rtmpUrl+" playpath="+playPath+" swfUrl=http://powvideo.net/player6/jwplayer.flash.swf pageUrl="+link+" flashver=WIN/2019,0,0,226 app=vod/ "
+        return finalLink
 
 
 

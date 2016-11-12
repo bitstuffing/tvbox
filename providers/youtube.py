@@ -129,7 +129,7 @@ class Youtube(Downloader):
         x = []
         tableHtml = Decoder.extract('<div class="playlist-videos-container yt-scrollbar-dark yt-scrollbar">','</div><div id="content" class="  content-alignment" role="main">',html)
         i=0
-        for rowHtml in tableHtml.split('<div class="playlist-video-description">'):
+        for rowHtml in tableHtml.split('<span class="index">'):
             if i>0:
                 element = {}
                 link = "/watch?"+Decoder.extract('href="/watch?', '"', rowHtml)

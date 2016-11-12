@@ -49,10 +49,14 @@ class Youtube(Downloader):
         elif "/trending" in page:
             html = Youtube.getContentFromUrl(page, "", Youtube.cookie, Youtube.MAIN_URL)
             x = Youtube.extractAllVideosFromHtml(html)
+        elif '&amp;list=' in page and '&amp;index=' not in page:
+            logger.debug("detected a list, PARSING...")
+            html = Youtube.getContentFromUrl(page, "", Youtube.cookie, Youtube.MAIN_URL)
+            x = Youtube.extractListVideos(html)
         else:
             link = Youtube.extractTargetVideo(page)
             element = {}
-            element["title"] = page
+            element["title"] = page.replace("&amp;","&")
             element["link"] = link
             element["finalLink"] = True
             x.append(element)
@@ -120,6 +124,28 @@ class Youtube(Downloader):
             link = link.replace("%3D","=")
         return link
 
+    @staticmethod
+    def extractListVideos(html):
+        x = []
+        tableHtml = Decoder.extract('<div class="playlist-videos-container yt-scrollbar-dark yt-scrollbar">','</div><div id="content" class="  content-alignment" role="main">',html)
+        i=0
+        for rowHtml in tableHtml.split('<div class="playlist-video-description">'):
+            if i>0:
+                element = {}
+                link = "/watch?"+Decoder.extract('href="/watch?', '"', rowHtml)
+                title = Decoder.extract('<h4 class="yt-ui-ellipsis yt-ui-ellipsis-2">','</h4>', rowHtml)
+                if 'youtube.com' not in link:
+                    link = Youtube.MAIN_URL+link
+                logger.debug("link: " + link + ", title is: " + title)
+                image = Decoder.extractWithRegex('https://i.ytimg.com/','"',rowHtml).replace('"','')
+                element["title"] = title.strip()
+                element["page"] = link
+                element["finalLink"] = True
+                element["thumbnail"] = image
+                x.append(element)
+            i+=1
+        return x
+
 
     @staticmethod
     def extractAllVideosFromHtml(html):
@@ -138,7 +164,8 @@ class Youtube(Downloader):
                 image = Decoder.extractWithRegex('https://i.ytimg.com/','"',rowHtml).replace('"','')
                 element["title"] = title
                 element["page"] = link
-                element["finalLink"] = True
+                if '&amp;list=' not in link:
+                    element["finalLink"] = True
                 element["thumbnail"] = image
                 x.append(element)
             i+=1

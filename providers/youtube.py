@@ -124,16 +124,17 @@ class Youtube(Downloader):
     @staticmethod
     def extractAllVideosFromHtml(html):
         x = []
-        tableHtml = Decoder.extract('class="item-section">','</ol>',html)
+        tableHtml = Decoder.extract('class="item-section">','<div class="branded-page-box search-pager',html)
         i=0
         for rowHtml in tableHtml.split('<div class="yt-lockup-dismissable yt-uix-tile">'):
             if i>0:
+                logger.debug("row html is: "+rowHtml)
                 element = {}
-                link = Decoder.extract(' href="', '"', rowHtml)
-                title = Decoder.rExtract('title="','" aria-describedby="', rowHtml).replace('" rel="spf-prefetch','')
-                logger.debug("link: "+link+", title is: "+title)
+                link = "/watch?"+Decoder.extract('href="/watch?', '"', rowHtml)
+                title = Decoder.extract('  title="','"', rowHtml)
                 if 'youtube.com' not in link:
                     link = Youtube.MAIN_URL+link
+                logger.debug("link: " + link + ", title is: " + title)
                 image = Decoder.extractWithRegex('https://i.ytimg.com/','"',rowHtml).replace('"','')
                 element["title"] = title
                 element["page"] = link

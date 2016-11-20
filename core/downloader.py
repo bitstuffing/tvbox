@@ -169,3 +169,10 @@ class Downloader():
         #headers += "&Icy-MetaData" #Now it's fixed from ffmpeg
         #headers += "&Range"
         return headers
+
+    @staticmethod
+    def getSimpleDownload(url):
+        response = urllib2.urlopen(url)
+        content = response.read()
+        response.close()
+        return content

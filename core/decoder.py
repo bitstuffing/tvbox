@@ -129,6 +129,14 @@ class Decoder():
         return finalUrl
 
     @staticmethod
+    def decodeAdfly(url):
+        data = "link=" + base64.encodestring(url)
+        html = Downloader.getContentFromUrl(url='http://urlchecker.org/ajax/ajax_decode.php', data=data,referer='http://urlchecker.org/decode')
+        logger.debug("decoded html is: " + html)
+        targetUrl = Decoder.rExtract('"', '" target="_blank" class="decoded"', html)
+        return targetUrl
+
+    @staticmethod
     def decodeBroadcastst(iframeUrl,page,cookie=''):
         iframeHtml = Downloader.getContentFromUrl(url=iframeUrl, data=" ", referer=page)
         if "<script type='text/javascript'>id='" in iframeHtml:

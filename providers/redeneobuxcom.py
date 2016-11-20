@@ -37,12 +37,9 @@ class RedeneobuxCom(Downloader):
             url = Decoder.extractWithRegex('http'," ",content).replace(" ","")
             logger.debug("url is: " + url)
             if 'adf' in url:
-                urlToDecode = "http://skizzerz.net/scripts/adfly.php?url="+urllib.quote_plus(url)
-                html = RedeneobuxCom.getContentFromUrl(url=urlToDecode)
-                logger.debug("decoded html is: "+html)
-                listUrl = Decoder.extract('(<a href="','"',html)
+                listUrl = Decoder.decodeAdfly(url)
                 logger.debug("list obtained is: "+listUrl)
-                m3uContent = RedeneobuxCom.getContentFromUrl(url=listUrl)
+                m3uContent = Downloader.getSimpleDownload(listUrl) #simple urllib2 download
                 logger.debug("content: "+m3uContent)
                 i=0
                 for lineContent in m3uContent.split('#EXTINF:'):
@@ -52,7 +49,7 @@ class RedeneobuxCom(Downloader):
                         urlContent = Decoder.extractWithRegex('http://',"\n",lineContent).replace('\n','')
                         element = {}
                         element["title"] = title
-                        element["link"] = urlContent+"|"+Downloader.getHeaders(listUrl)
+                        element["link"] = urlContent#+"|"+Downloader.getHeaders(listUrl)
                         element["thumbnail"] = ''
                         element["finalLink"] = True
                         if "://" in urlContent:

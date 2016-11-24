@@ -241,7 +241,7 @@ class HdfullTv():
     @staticmethod
     def getJSONAJAXResponse(url,form,cookie,referer="http://hdfull.tv/episodios"):
         data = urllib.urlencode(form)
-        print "using ajax data: "+data
+        logger.debug("using ajax data: "+data)
         headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36",
             "Referer" : referer,

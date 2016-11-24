@@ -8,7 +8,7 @@ from core.downloader import Downloader
 
 class Arenavisionin(Downloader):
 
-    MAIN_URL = "http://www.arenavision.in/agenda"
+    MAIN_URL = "http://www.arenavision.in/schedule"
 
     @staticmethod
     def getChannels(page):

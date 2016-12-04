@@ -119,7 +119,7 @@ class Decoder():
     def decodeVaughnlivetv(iframeUrl,page):
         iframeHtml = Downloader.getContentFromUrl(url=iframeUrl, data=" ", referer=page)
         channelId = iframeUrl[iframeUrl.find("/video/") + len("/video/"):].replace("/", "")
-        dataUrl = "http://mvn.vaughnsoft.net/video/edge/mzn-live_" + channelId + "?0.1.1.767_996-996-0.6606529718264937"
+        dataUrl = "http://mvn.vaughnsoft.net/video/edge/mnt-live_" + channelId + "?0.1.1.767_996-996-0.6606529718264937"
         dataContent = Downloader.getContentFromUrl(url=dataUrl, referer=iframeUrl)
         rtmpIp = dataContent[:dataContent.find(";")]
         key = Decoder.extract('mvnkey-', ";NA", dataContent)

@@ -51,15 +51,15 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 		add_dir("Bbc.co.uk",'bbccouk', 4, "", 'bbccouk', 'http://feeds.bbci.co.uk/news/rss.xml?edition=int')
 		add_dir("Reuters.com", 'reuters', 4, "http://www.thewrap.com/wp-content/uploads/2013/10/Reuters-Logo.jpg", 'reuters', 0)
 	add_dir("Streamgaroo.com", 'streamgaroo', 4, "http://www.streamgaroo.com/images/logo.png", 'streamgaroo', 0)
-	add_dir("Tvshowme.com", 'tvshowme', 4, "http://www.tvshow.me/wp-content/uploads/2016/09/Icon_.png", 'tvshowme', 0)
+	add_dir("Tvshow.me", 'tvshowme', 4, "http://www.tvshow.me/wp-content/uploads/2016/09/Icon_.png", 'tvshowme', 0)
 	#sports with event
-	#add_dir("Live9.net", 'live9', 4, "", 'live9' , 0)
 	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
 	add_dir("Mamahd.com", 'mamahdcom', 4, "http://mamahd.com/images/logo.png", 'mamahdcom' , 0)
+	#add_dir("Live9.co", 'live9', 4, "", 'live9' , 0)
 	#world tv
 	add_dir("Filmon.com", 'filmon', 4, "http://static.filmon.com/theme/img/filmon_small_logo.png", 'filmoncom', 0)
 	#add_dir("Youtvgratis.com", 'youtvgratis', 4, "http://youtvgratis.com/themes/tutvplayer/img/logo.gif", 'youtvgratis', 0)
-	add_dir("Zoptv.com", 'zoptv', 4, "http://www.zoptv.com/images/logo.png", 'zoptv' , 0)
+	#add_dir("Zoptv.com", 'zoptv', 4, "http://www.zoptv.com/images/logo.png", 'zoptv' , 0)
 
 	add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree' , 0)
 	#add_dir("Sports4u.tv", 'sports4u', 4, "http://live.sports4u.tv/wp-content/uploads/logo3.png", 'sports4u' , 0)

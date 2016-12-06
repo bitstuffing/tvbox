@@ -4,7 +4,7 @@ from core.downloader import Downloader
 
 class Live9net(Downloader):
 
-    MAIN_URL = "http://live9.net/"
+    MAIN_URL = "http://live9.co/"
 
     @staticmethod
     def getChannels(page):

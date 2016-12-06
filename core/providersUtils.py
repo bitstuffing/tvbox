@@ -38,6 +38,7 @@ from providers.youtvgratiscom import Youtvgratis
 from providers.yomvies import Yomvies
 from providers.streamgaroo import Streamgaroo
 from providers.tvshowme import Tvshowme
+from providers.ramalin import Ramalin
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -443,6 +444,21 @@ def drawTvshowme(page):
 		if item.has_key("finalLink"):
 			mode = 100
 		add_dir(title, link, mode, image, "tvshowme", link)
+
+def drawRamalin(page):
+	jsonChannels = Ramalin.getChannels(page)
+	for item in jsonChannels:
+		mode = 4
+		title = item["title"]
+		link = item["link"]
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: " + image)
+		else:
+			image = icon
+		if item.has_key("finalLink"):
+			mode = 2
+		add_dir(title, link, mode, image, "ramalin", link)
 
 def drawNews(url,provider='',targetAction=1): #from rss page
 	if targetAction==4 and provider=="bbccouk" and ".xml" not in url:

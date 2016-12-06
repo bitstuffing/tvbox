@@ -76,6 +76,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	add_dir("Skylinewebcams.com", 'skylinewebcams', 4, "http://www.skylinewebcams.com/website.jpg", 'skylinewebcams' , 0)
 	enableDinamic = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_pastebin")
 	if enableDinamic =="true":
+		add_dir("Ramalin.com", 'ramalin', 4, "http://websites-img.milonic.com/img-slide/420x257/r/ramalin.com.png", 'ramalin', 0)
 		add_dir("Pastebin.com", 'pastebincom', 4, "", 'pastebincom', 0)
 		add_dir("Redeneobux.com", 'redeneobuxcom', 4, "", 'redeneobuxcom', 0)
 		#add_dir("Zona-app.com", 'zonaappcom', 4, "", 'zonaappcom', 0)
@@ -146,6 +147,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawStreamgaroo(page)
 	elif provider == 'tvshowme':
 		drawTvshowme(page)
+	elif provider == 'ramalin':
+		drawRamalin(page)
 
 	logger.info(provider)
 

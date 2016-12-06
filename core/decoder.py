@@ -1415,15 +1415,35 @@ class Decoder():
 
     @staticmethod
     def getCastcampLink(code,referer=''):
-        url = "http://www.castamp.com/embed.php?c="+code+"&tk=Gwsmev6F&vwidth=700&vheight=400"
+        url = "http://www.castamp.com/embed.php?c="+code+"&tk=ZUKJHP31&vwidth=700&vheight=400"
         html = Downloader.getContentFromUrl(url=url,referer=referer)
+        html = Decoder.extract("*/","</script>",html)
+        logger.debug(html)
+        #packer
+        packed = "eval(function(p,a,c,k,e,"+Decoder.extract("eval(function(p,a,c,k,e,","{}))",html)+"{}))"
+        html2 = jsunpackOld.unpack(packed)
+        logger.debug("html2 is: "+html2)
+        target = Decoder.extract('=[',']',html2)
+        index = target[target.find("[")+1:]
+        varIndex = Decoder.rExtract(",","[",target)
+        finalTarget = Decoder.extract("var "+varIndex+"=[","];",html)
+        i = 0
+        rtmp = ""
+        for current in finalTarget.split(","):
+            if str(i)==index:
+                rtmp = current.replace("'","").replace('"','')
+                logger.debug("selecting: " + current)
+            logger.debug("using: "+current)
+            i+=1
         swfVer = "WIN/20,0,0,306"
-        swfUrl = Decoder.extract("'flashplayer': \"","\"",html)
-        rtmp = Decoder.extract("'streamer': '","'",html)
-        file = Decoder.extract("'file': '", "'", html)
+        swfUrl = Decoder.extract("'flashplayer': \"","\"",html) #http://p.castamp.com/cplayer.swf
+        #rtmp = Decoder.extract("'streamer': ",",",html)
+        file = Decoder.extract("'file': ", ",", html)
         filePrefix = Decoder.rExtract("'","'+unescape",html)
         replaceBy = Decoder.extract("replace('","'",html)
-        replaced = Decoder.extract(replaceBy+"', '","'",html)
+        replacedVar = Decoder.extract(replaceBy+"', ",")",html)
+        replaced = html[html.rfind(replacedVar+" = '")+len(replacedVar+" = '"):]
+        replaced = replaced[:replaced.find("'")]
         unescaped = Decoder.extract("unescape('","'",html)
         escaped = urllib.unquote_plus(unescaped)
         playPath = filePrefix+escaped

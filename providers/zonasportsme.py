@@ -43,8 +43,9 @@ class Zonasportsme(Downloader):
                 url4 = "http://bro.adca.st/stream.php?id=" + id2 + "&width=700&height=450&stretching=uniform"
                 html4 = Zonasportsme.getContentFromUrl(url4, "", Zonasportsme.cookie, page)
                 logger.debug("html4: " + html4)
-                curl = Decoder.extract('curl = "', '"', html4)
-                token = Zonasportsme.getContentFromUrl('http://bro.adca.st/getToken.php', "",Zonasportsme.cookie, url4, True)
+                curl = Decoder.rExtract('= "', '=";', html4)+'='
+                fn = Decoder.rExtract('"','.php";',html4)
+                token = Zonasportsme.getContentFromUrl('http://bro.adca.st/'+fn+'.php', "",Zonasportsme.cookie, url4, True)
                 logger.debug("token: " + token)
                 token = Decoder.extract('":"', '"', token)
                 file = base64.decodestring(curl) + token + "|" + Downloader.getHeaders('http://cdn.allofme.site/jw/jwplayer.flash.swf')

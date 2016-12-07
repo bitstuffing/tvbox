@@ -251,6 +251,8 @@ def init():
 			openYomvies(url,page)
 		elif mode == 121:
 			openStreamgaroo(url, page)
+		elif mode == 122:
+			openMobdro(url,page)
 
 	except Exception as e:
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))

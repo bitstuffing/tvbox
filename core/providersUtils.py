@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import urllib
 import sys
+import base64
 
 from core.xbmcutils import XBMCUtils
 from core.addonUtils import add_dir
@@ -471,7 +472,11 @@ def drawMobdro(page):
 			logger.info("detected img: " + image)
 		else:
 			image = icon
-		mode = 2
+		if item.has_key("finalLink"):
+			link = base64.encodestring(link)
+			mode = 122 #base64 link, so needs to be decoded
+		else:
+			mode = 4
 		add_dir(title, link, mode, image, "mobdro", link)
 
 def drawNews(url,provider='',targetAction=1): #from rss page
@@ -679,6 +684,15 @@ def openStreamgaroo(url, page):
 	logger.info("decoded streamgaroo link: " + link)
 	open(link, page)
 
+def openMobdro(url,page):
+	try:
+		link = base64.decodestring(url)
+	except:
+		logger.debug("not a valid base64 content...")
+		pass
+	logger.info("decoded streamgaroo link: " + link)
+	open(link, page)
+
 def isAnException(url,page,provider,mode):
 	state = False
 	if mode == 4 and (provider=="bbccouk" and str(page) == '0' and ".xml" not in url) or (str(page)=='1' and provider=='reuters'):
@@ -686,7 +700,3 @@ def isAnException(url,page,provider,mode):
 	if state:
 		logger.debug("Dont reload view. Params -> page: "+page+", url: "+url+", provider: "+provider+", mode: "+str(mode))
 	return state
-
-
-
-

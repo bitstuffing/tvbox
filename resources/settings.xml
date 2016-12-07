@@ -33,4 +33,9 @@
 		<setting id="yomvi_username" type="text" label="30092" value="" default="" enable="true"/>
 		<setting id="yomvi_password" type="text" label="30093" value="" default="" enable="true"/>
 	</category>
+	<category label="30100">
+		<setting id="enable_mobdro" type="bool" label="30101" default="false"/>
+		<setting id="mobdro_api" type="text" label="30102" value="" default="" enable="true"/>
+		<setting id="remote_api_url" type="text" label="30103" value="" default="" enable="true"/>
+	</category>
 </settings>

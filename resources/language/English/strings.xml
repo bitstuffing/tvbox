@@ -62,4 +62,9 @@
     <string id="30091">Enable yomvi provider</string>
     <string id="30092">Username</string>
     <string id="30093">Password</string>
+
+    <string id="30100">Mobdro</string>
+    <string id="30101">Enable mobdro</string>
+    <string id="30102">Mobdro API token</string>
+    <string id="30103">Remote mobdro token resolver</string>
 </strings>

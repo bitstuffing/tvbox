@@ -102,7 +102,10 @@ class Mobdro(Downloader):
             if url is not "exception":
                 element = {}
                 element["link"] = url
-                element["thumbnail"] = result["img"]
+                try:
+                    element["thumbnail"] = result["img"]
+                except:
+                    pass
                 element["title"] = result["name"] + " - " + result["language"]
                 element["finalLink"] = True
                 logger.debug("appending: " + element["title"] + ", url: " + url)

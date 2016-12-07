@@ -17,7 +17,9 @@ class Mobdro(Downloader):
     CHANNELS = "channels"
     API_URL = "https://api.mobdro.sx/streambot/v4/show"
     API_URL_SEARCH = "https://api.mobdro.sx/streambot/v4/search"
+
     TOKEN = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "mobdro_api")  #stored for premium support, implementation will change
+    REMOTE_TOKEN = XBMCUtils.getSettingFromContext(int(sys.argv[1]),"remote_api_url")
 
     @staticmethod
     def getChannels(page):
@@ -63,11 +65,11 @@ class Mobdro(Downloader):
             element = {}
             element["title"] = "Podcasts"
             element["link"] = "podcasts"
-            x.append(element)
+            #x.append(element)
             element = {}
             element["title"] = "Spiritual"
             element["link"] = "spiritual"
-            x.append(element)
+            #x.append(element)
             element = {}
             element["title"] = "Others"
             element["link"] = "others"
@@ -98,7 +100,7 @@ class Mobdro(Downloader):
         # parse results
         results = json.loads(response)
         for result in results:
-            url = parse_relayer(result)
+            url = Mobdro.parse_relayer(result)
             if url is not "exception":
                 element = {}
                 element["link"] = url
@@ -113,9 +115,18 @@ class Mobdro(Downloader):
         return x
 
     @staticmethod
+    def pretoken():
+        if (Mobdro.TOKEN is None or len(Mobdro.TOKEN)==0) and (Mobdro.REMOTE_TOKEN is not None and len(Mobdro.REMOTE_TOKEN)>0):
+            remoteToken = Downloader.getContentFromUrl(Mobdro.REMOTE_TOKEN).encode("utf-8").strip()
+            logger.debug("mobdro token is: "+remoteToken)
+            Mobdro.TOKEN = remoteToken
+            logger.debug("constant is: "+Mobdro.TOKEN)
+
+    @staticmethod
     def search_list(term):
         response = "ERROR"
         c_headers = {"User-Agent": "Mobdro/5.0", "Referer": "api.mobdro.sx"}
+        logger.debug("TOKEN is: " + Mobdro.TOKEN)
         c_data = {'query':term,'parental':0,'languages':'[]','alphabetical':0,'token': Mobdro.TOKEN}
         c_data = urllib.urlencode(c_data)
         # Fetch channel list
@@ -126,10 +137,12 @@ class Mobdro(Downloader):
 
     @staticmethod
     def channel_list(action):
+        Mobdro.pretoken()
         response = "ERROR"
         # On first page, pagination parameters are fixed
         if action is not None:
             c_headers = {"User-Agent": "Mobdro/5.0", "Referer": "api.mobdro.sx"}
+            logger.debug("TOKEN is: " + Mobdro.TOKEN)
             c_data = {'data': action, 'parental': 0, 'languages': '[]', 'alphabetical': 0, 'token': Mobdro.TOKEN}
             c_data = urllib.urlencode(c_data)
             # Fetch channel list
@@ -138,38 +151,39 @@ class Mobdro(Downloader):
             response = response.read()
         return response
 
-def parse_relayer(params):
-    url = "NonE"
-    try:
-        if params.has_key("url"):
-            url = params["url"]
-            logger.debug("mobdro.directURL: " + url)
-        elif params.has_key("relayer"):
-            params2 = json.loads(params["relayer"])
-            logger.debug("RELAYED: "+repr(params2))
-            protocol = "http"#params2["protocol"]
-            app = params2["app"]
-            server = params2["server"]
-            playpath = params2["playpath"]
-            password = params2["password"]
-            dire = params2["dir"]
-            expiration_time = params2["expiration_time"]
-            millis = int(round(time.time() * 1000))
-            l = millis / 1000L + expiration_time
-            arr = [password, l, dire, playpath]
-            url = "%s%d/%s/%s"
-            url = url % tuple(arr)
-            url_md5 = md5.new(url).digest()
-            url_base64 = base64.b64encode(url_md5)
-            url_base64 = url_base64.replace("+", "-").replace("/", "_").replace("=", "")
-            #arr = [server, url_base64, l, playpath]
-            arr = [protocol,server,app,playpath,url_base64,l]
-            url = "%s://%s/%s/%s?st=%s&e=%d" #"http://%s/live/%s/%d/%s"
-            url = url % tuple(arr)
-            url += "|"+Downloader.getHeaders(Mobdro.MAIN_URL)
-        else:
-            logger.debug("REJECTED: " + repr(params))
-    except KeyError:
-        url = "exception"
-        pass
-    return url
+    @staticmethod
+    def parse_relayer(params):
+        url = "NonE"
+        try:
+            if params.has_key("url"):
+                url = params["url"]
+                logger.debug("mobdro.directURL: " + url)
+            elif params.has_key("relayer"):
+                params2 = json.loads(params["relayer"])
+                logger.debug("RELAYED: "+repr(params2))
+                protocol = "http"#params2["protocol"]
+                app = params2["app"]
+                server = params2["server"]
+                playpath = params2["playpath"]
+                password = params2["password"]
+                dire = params2["dir"]
+                expiration_time = params2["expiration_time"]
+                millis = int(round(time.time() * 1000))
+                l = millis / 1000L + expiration_time
+                arr = [password, l, dire, playpath]
+                url = "%s%d/%s/%s"
+                url = url % tuple(arr)
+                url_md5 = md5.new(url).digest()
+                url_base64 = base64.b64encode(url_md5)
+                url_base64 = url_base64.replace("+", "-").replace("/", "_").replace("=", "")
+                #arr = [server, url_base64, l, playpath]
+                arr = [protocol,server,app,playpath,url_base64,l]
+                url = "%s://%s/%s/%s?st=%s&e=%d" #"http://%s/live/%s/%d/%s"
+                url = url % tuple(arr)
+                url += "|"+Downloader.getHeaders(Mobdro.MAIN_URL)
+            else:
+                logger.debug("REJECTED: " + repr(params))
+        except KeyError:
+            url = "exception"
+            pass
+        return url

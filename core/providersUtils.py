@@ -39,6 +39,7 @@ from providers.yomvies import Yomvies
 from providers.streamgaroo import Streamgaroo
 from providers.tvshowme import Tvshowme
 from providers.ramalin import Ramalin
+from providers.mobdro import Mobdro
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -459,6 +460,19 @@ def drawRamalin(page):
 		if item.has_key("finalLink"):
 			mode = 2
 		add_dir(title, link, mode, image, "ramalin", link)
+
+def drawMobdro(page):
+	jsonChannels = Mobdro.getChannels(page)
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: " + image)
+		else:
+			image = icon
+		mode = 2
+		add_dir(title, link, mode, image, "mobdro", link)
 
 def drawNews(url,provider='',targetAction=1): #from rss page
 	if targetAction==4 and provider=="bbccouk" and ".xml" not in url:

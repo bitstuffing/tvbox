@@ -40,6 +40,9 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	enableSplive = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_splive")
 	if enableSplive=="true":
 		add_dir("Spliveapp.com", 'splive', 4, "http://www.spliveapp.com/main/wp-content/uploads/footer_logo.png", 'splive' , 0)
+	enableMobdro = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_mobdro")
+	if enableMobdro=='true':
+		add_dir("Mobdro.com", 'mobdro', 4, "https://www.mobdro.com/favicon.ico",'mobdro', 0)
 
 	enablePlexus = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_plexus")
 	if enablePlexus=="true":
@@ -149,6 +152,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawTvshowme(page)
 	elif provider == 'ramalin':
 		drawRamalin(page)
+	elif provider == 'mobdro':
+		drawMobdro(page)
 
 	logger.info(provider)
 

@@ -2,9 +2,6 @@
 from core.decoder import Decoder
 from core import logger
 from core.downloader import Downloader
-from core.xbmcutils import XBMCUtils
-
-import urllib
 
 class Ramalin(Downloader):
 

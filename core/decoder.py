@@ -88,10 +88,20 @@ class Decoder():
             linkDecoded = base64.decodestring(linkToDecode)
             logger.debug("Launched process to decode link: "+linkDecoded)
             link = Decoder.decodeLink(linkDecoded)
+        elif 'token.mitele.es/' in link:
+            link = Decoder.decodeMitele(link)
         elif "youtube." in link:
             from providers.youtube import Youtube
             link = Youtube.extractTargetVideo(link)
         return link
+
+    @staticmethod
+    def decodeMitele(link):
+        url = Downloader.getContentFromUrl(link)
+        url = Decoder.extract('":"','"});',url).replace("\\","")
+        logger.debug("Decoded url is: "+url)
+        url += "|Referer=mitele.es&User-Agent=Mozilla/5.0+(X11;+Linux+x86_64;+rv:45.0)+Gecko/20100101+Firefox/45.0"
+        return url
 
     @staticmethod
     def downloadY(video_id):
@@ -1483,6 +1493,7 @@ class Decoder():
                 #html2 = Downloader.getContentFromUrl(iframeUrl, "", "", page)
         if "http://www.streamlive.to/player/ilive-plugin.swf" in html2:  # builds the link
             swfUrl = "http://www.streamlive.to/player/ilive-plugin.swf"
+            swfUrl = "http"+Decoder.extract("'flash', src: '","'",html2)
             tokenUrl = Decoder.extractWithRegex("www.streamlive.to/server.php?id=", '"', html2)
             tokenUrl = tokenUrl[:(len(tokenUrl) - 1)]
             token = Downloader.getContentFromUrl("http://" + tokenUrl, "", Downloader.cookie, page)

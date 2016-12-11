@@ -22,7 +22,12 @@ def get_main_dirs():
 	#draw welcome menu
 	add_dir(XBMCUtils.getString(10001), MAIN_URL, 1, ICON,'', 0)
 	add_dir(XBMCUtils.getString(10010), BROWSE_CHANNELS, 3, '', ICON, 0)
-	add_dir(name=XBMCUtils.getString(10012), url='antena3text', mode=4, provider='teletext', page=0,thumbnailImage="",iconimage=ICON)
+	try:
+		from window.ImageWindow import windowImage  # teletext window library
+		add_dir(name=XBMCUtils.getString(10012), url='antena3text', mode=4, provider='teletext', page=0,thumbnailImage="",iconimage=ICON)
+	except:
+		logger.info("No PIL module installed (needs Pillow 3.4.2 or less)")
+		pass
 	#add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	try:
 		if updater.isUpdatable():

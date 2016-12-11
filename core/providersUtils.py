@@ -41,6 +41,9 @@ from providers.streamgaroo import Streamgaroo
 from providers.tvshowme import Tvshowme
 from providers.ramalin import Ramalin
 from providers.mobdro import Mobdro
+from providers.antena3 import Antena3
+from providers.lasexta import LaSexta
+from providers.rtve import RTVE
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -48,7 +51,8 @@ except:
 	logger.error("Crypto-problems detected, probably you need a better platform")
 	pass
 
-from window.DefaultWindow import DefaultWindow
+from window.DefaultWindow import DefaultWindow #papernews window library
+from window.ImageWindow import windowImage #teletext window library
 
 icon = XBMCUtils.getAddonFilePath('icon.png')
 
@@ -538,6 +542,62 @@ def drawFilmonLinks(url, page, provider=""):
 	for finalUrl in finalUrls:
 		add_dir(page+", "+finalUrl["name"],finalUrl["url"],2,provider,page)
 		#print("page: "+page+", url: "+finalUrl["url"])
+
+def displayTeletext(url,page):
+	if "antena3.com" in url:
+		displayAntena3Teletext(url, page)
+	elif "lasexta.com" in url:
+		displayLaSextaTeletext(url, page)
+	elif "rtve.es" in url:
+		displayRTVETeletext(url, page)
+	else:
+		add_dir("Rtve.es", "rtve.es", 4, "rtve.es", "teletext", 0)
+		add_dir("Antena3.com", "antena3.com", 4, "antena3.com", "teletext", 0)
+		add_dir("LaSexta.com", "lasexta.com", 4, "lasexta.com", "teletext", 0)
+
+def displayRTVETeletext(url,page):
+	logger.debug("displaying teletext for LaSextaText provider")
+	imgPath = 'http://www.rtve.com/television/teletexto/100/100_0001.png' #first
+	x = RTVE.getChannels(page)
+	for element in x:
+		if element.has_key("thumbnail"): #displayed thumbnail
+			imgPath = element["thumbnail"]
+		else:#continue
+			add_dir(element["title"],element["link"], 4, element["link"], "teletext", element["link"])
+	#finally show img (before render, xbmc will wait until some event happens)
+	displayImg(imgPath)
+
+def displayLaSextaTeletext(url,page):
+	logger.debug("displaying teletext for LaSextaText provider")
+	imgPath = 'http://www.lasexta.com/teletexto/datos/100/100_0001.png' #first
+	x = LaSexta.getChannels(page)
+	for element in x:
+		if element.has_key("thumbnail"): #displayed thumbnail
+			imgPath = element["thumbnail"]
+		else:#continue
+			add_dir(element["title"],element["link"], 4, element["link"], "teletext", element["link"])
+	#finally show img (before render, xbmc will wait until some event happens)
+	displayImg(imgPath)
+
+def displayAntena3Teletext(url,page):
+	logger.debug("displaying teletext for Antena3Text provider")
+	imgPath = 'http://www.antena3.com/teletexto/100/100_0001.png' #first
+	x = Antena3.getChannels(page)
+	for element in x:
+		if element.has_key("thumbnail"): #displayed thumbnail
+			imgPath = element["thumbnail"]
+		else: #continue
+			add_dir(element["title"],element["link"], 4, element["link"], "teletext", element["link"])
+	#finally show img (before render, xbmc will wait until some event happens)
+	displayImg(imgPath)
+
+def displayImg(imgPath):
+	import xbmcgui
+	window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+	window.setProperty('imagePath', imgPath)
+	display = windowImage()
+	display.doModal()
+	del display
 
 def decodeAndOpenLink(url,page):
     logger.info("decoding: " + url)

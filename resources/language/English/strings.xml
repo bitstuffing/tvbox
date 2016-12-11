@@ -12,6 +12,9 @@
     <string id="10010">Browse web pages</string>
     <string id="10011">¡Update available!</string>
 
+    <string id="10012">Teletext</string>
+    <string id="10013">Put a page number manually</string>
+
     <string id="11010">Yes</string>
     <string id="11011">No</string>
     <string id="11012">Confirm</string>
@@ -67,4 +70,5 @@
     <string id="30101">Enable mobdro</string>
     <string id="30102">Mobdro API token</string>
     <string id="30103">Remote mobdro token resolver</string>
+
 </strings>

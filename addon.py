@@ -22,6 +22,8 @@ def get_main_dirs():
 	#draw welcome menu
 	add_dir(XBMCUtils.getString(10001), MAIN_URL, 1, ICON,'', 0)
 	add_dir(XBMCUtils.getString(10010), BROWSE_CHANNELS, 3, '', ICON, 0)
+	add_dir(name=XBMCUtils.getString(10012), url='antena3text', mode=4, provider='teletext', page=0,thumbnailImage="",iconimage=ICON)
+	#add_dir(name,url,mode,iconimage,provider,page="", thumbnailImage=''):
 	try:
 		if updater.isUpdatable():
 			add_dir(XBMCUtils.getString(10011), '', 0, ICON, 0)
@@ -154,6 +156,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawRamalin(page)
 	elif provider == 'mobdro':
 		drawMobdro(page)
+	elif provider == 'teletext':
+		displayTeletext(url, page)
 
 	logger.info(provider)
 
@@ -253,6 +257,7 @@ def init():
 			openStreamgaroo(url, page)
 		elif mode == 122:
 			openMobdro(url,page)
+
 
 	except Exception as e:
 		logger.error(XBMCUtils.getString(10009)+", "+str(e))

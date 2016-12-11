@@ -52,7 +52,11 @@ except:
 	pass
 
 from window.DefaultWindow import DefaultWindow #papernews window library
-from window.ImageWindow import windowImage #teletext window library
+try:
+	from window.ImageWindow import windowImage #teletext window library
+except:
+	logger.info("No module named PIL was found in the system, hidding teletext library.")
+	pass
 
 icon = XBMCUtils.getAddonFilePath('icon.png')
 

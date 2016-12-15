@@ -41,7 +41,9 @@ class windowImage(xbmcgui.WindowDialog):
                 logger.debug("trying to download image from: "+imagePath)
                 imageName = imagePath[imagePath.rfind("/"):]
                 localfile = ROOT_DIR + imageName
-                downloadfile(url=imagePath,fileName=localfile)
+                headers = {}
+                headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64; rv:50.0) Gecko/20100101 Firefox/50.0'
+                downloadfile(url=imagePath,fileName=localfile,headers=headers)
                 logger.debug("trying to open image in window: "+localfile)
                 image = Image.open(localfile)
                 logger.debug("finished: " + localfile)

@@ -24,7 +24,7 @@ def get_main_dirs():
 	add_dir(XBMCUtils.getString(10010), BROWSE_CHANNELS, 3, '', ICON, 0)
 	try:
 		from window.ImageWindow import windowImage  # teletext window library
-		add_dir(name=XBMCUtils.getString(10012), url='antena3text', mode=4, provider='teletext', page=0,thumbnailImage="",iconimage=ICON)
+		add_dir(name=XBMCUtils.getString(10012), url='teletext', mode=4, provider='teletext', page=0,thumbnailImage="",iconimage=ICON)
 	except:
 		logger.info("No PIL module installed (needs Pillow 3.4.2 or less)")
 		pass

@@ -554,10 +554,16 @@ def displayTeletext(url,page):
 		displayLaSextaTeletext(url, page)
 	elif "rtve.es" in url:
 		displayRTVETeletext(url, page)
+	elif "bbc1" in url:
+		displayBBCTeletext(url=url, page=page, version='1')
+	elif "bbc2" in url:
+		displayBBCTeletext(url=url, page=page, version='2')
 	else:
 		add_dir("Rtve.es", "rtve.es", 4, "rtve.es", "teletext", 0)
 		add_dir("Antena3.com", "antena3.com", 4, "antena3.com", "teletext", 0)
 		add_dir("LaSexta.com", "lasexta.com", 4, "lasexta.com", "teletext", 0)
+		add_dir("BBC1 - ceefax.tv", "bbc1", 4, "bbc1", "teletext", 0)
+		add_dir("BBC2 - ceefax.tv", "bbc2", 4, "bbc2", "teletext", 0)
 
 def displayRTVETeletext(url,page):
 	logger.debug("displaying teletext for LaSextaText provider")
@@ -593,6 +599,21 @@ def displayAntena3Teletext(url,page):
 		else: #continue
 			add_dir(element["title"],element["link"], 4, element["link"], "teletext", element["link"])
 	#finally show img (before render, xbmc will wait until some event happens)
+	displayImg(imgPath)
+
+def displayBBCTeletext(url,page,version):
+	logger.debug("displaying teletext for BBC1 provider")
+	imgPath = 'http://www.ceefax.tv/cgi-bin/gfx.cgi?font=big&channel=bbc'+version+'&page=100_0'  # first
+	if '.search' in url:
+		keyboard = XBMCUtils.getKeyboard()
+		keyboard.doModal()
+		text = ""
+		if (keyboard.isConfirmed()):
+			text = keyboard.getText()
+			imgPath = imgPath[:imgPath.rfind('100_')]+text+'_0'
+	imgPath = 'http://anonymous-images-proxy.com/proxy.php?url='+urllib.quote(imgPath)
+	add_dir('bbc'+version+'.search','bbc'+version+'.search', 4, 'bbc'+version+'teletext.search', 'teletext', 'bbc'+version+'teletext.search')
+	# finally show img (before render, xbmc will wait until some event happens)
 	displayImg(imgPath)
 
 def displayImg(imgPath):

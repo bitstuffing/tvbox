@@ -65,11 +65,11 @@ class Youtube(Downloader):
     @staticmethod
     def decodeKeepVid(link):
         html = Downloader.getContentFromUrl("http://keepvid.com/?url="+urllib.quote_plus(link))
-        tableHtml = Decoder.extract('<ul><li>',"</ul>",html)
+        tableHtml = Decoder.extract('<div class="d-info2">',"</dl>",html)
         logger.debug("extracting from html: "+tableHtml)
         links = []
         selectedLink = ""
-        for liHtml in tableHtml.split('</li>'):
+        for liHtml in tableHtml.split('</dd>'):
             link = Decoder.extract('a href="','"',liHtml)
             title = Decoder.extract('alt="', '"', liHtml)
             if "1080p" in title and '(Video Only)' not in title:
@@ -119,9 +119,11 @@ class Youtube(Downloader):
 
         logger.debug("final youtube decoded url is: " + link)
         if ";" in link:
+            logger.debug("; part, replacing = and ; characters")
             link = link.replace("=", "%3D").replace(";", "%3B")
         else:
-            link = link.replace("%3D","=")
+            logger.debug("else part, replacing %3D by =")
+            #link = link.replace("%3D","=")
         return link
 
     @staticmethod

@@ -1325,34 +1325,124 @@ class Decoder():
 
     @staticmethod
     def decodePowvideo(link):
+        domain = Decoder.extract("://","/",link)
         html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with streamcloud and others
         logger.debug(html)
-        try:
-            encodedMp4File = "eval(function(p,a,c,k,e,d)"+Decoder.extract(">eval(function(p,a,c,k,e,d)","</script>",html)
-        except:
-            pass
-        mp4File = jsunpackOld.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
-        magicCode = link[link.rfind("/")+1:]
-        if magicCode not in mp4File:
-            logger.debug("detected fake code, checking next...")
+        if ">eval(function(p,a,c,k,e,d)" in html:
             try:
-                encodedMp4File = "eval(function(p,a,c,k,e,d)" + Decoder.extract(">eval(function(p,a,c,k,e,d)","</script>", html[html.rfind(">eval(function(p,a,c,k,e,d)"):])
+                encodedMp4File = "eval(function(p,a,c,k,e,d)"+Decoder.extract(">eval(function(p,a,c,k,e,d)","</script>",html)
             except:
                 pass
-            mp4File = jsunpackOld.unpack(encodedMp4File)  # needs un-p,a,c,k,e,t|d
-        logger.debug(mp4File)
-        #rtmp method (needs rtmp headers patch)
-        mp4File = "rtmp://"+Decoder.extract("rtmp://","\\'",mp4File)
-        logger.info('found rtmp: '+mp4File)
-        rtmpUrl = mp4File[:mp4File.find("/vod")+len("/vod")]
-        playPath = mp4File[mp4File.find("/vod/")+len("/vod/"):]
-        #now change playpath with the correct one (there is a 'letter' here, and it should not be there...)
-        playPath2 = playPath[:playPath.find('=')+1]+playPath[(playPath.find('=')+2):]
-        logger.debug("new playpath is: "+playPath2+", old was: "+playPath)
-        finalLink = rtmpUrl+" playpath="+playPath2+" swfUrl=http://powvideo.net/player6/jwplayer.flash.swf pageUrl="+link+" flashver=WIN/2019,0,0,226 app=vod/ "
+            logger.debug("trying to decode: "+encodedMp4File)
+            try:
+                mp4File = jsunpackOld.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
+            except:
+                logger.debug("something goes wrong with old library, needs new one: ")
+                mp4File = jsunpack.unpack(encodedMp4File)  # needs un-p,a,c,k,e,t|d
+                pass
+
+            magicCode = link[link.rfind("/")+1:]
+            if magicCode not in mp4File:
+                logger.debug("detected fake code, checking next...")
+                try:
+                    encodedMp4File = "eval(function(p,a,c,k,e,d)" + Decoder.extract(">eval(function(p,a,c,k,e,d)","</script>", html[html.rfind(">eval(function(p,a,c,k,e,d)"):])
+                except:
+                    pass
+                mp4File = jsunpackOld.unpack(encodedMp4File)  # needs un-p,a,c,k,e,t|d
+            logger.debug(mp4File)
+            data = re.findall( "sources\s*=[^\[]*\[([^\]]+)\]",mp4File.replace('"', "'"), re.DOTALL | re.IGNORECASE)[0]
+            logger.debug("data with links is: " + data)
+
+            matches = re.findall( "[src|file]:'([^']+)'",data, re.DOTALL | re.IGNORECASE)
+
+            logger.debug("found links figured: "+str(len(matches)))
+            if len(matches) == 0:
+                matches = re.findall("[src|file]:'([^']+)'",data.replace('\\',''), re.DOTALL | re.IGNORECASE) #powvideo issues
+                logger.debug("found links figured: " + str(len(matches)))
+            jj_encode = re.findall("(\w+=~\[\];.*?\)\(\)\)\(\);)",html)[0]
+            jj_decode = Decoder.decodePowvideoScript(jj_encode)
+            logger.debug("powvideo script decoded content is: " + jj_decode)
+            #substring is not working all times, needs to be detected
+            substring = False
+            reverse = False
+            splice = False
+            if "x72x65x76x65x72x73x65" in jj_decode: reverse = True
+            if "x73x75x62x73x74x72x69x6Ex67" in jj_decode: substring = True
+            if "x73x70x6Cx69x63x65" in jj_decode: splice = True
+            rtmpUrl = ""
+            for videoUrl in matches:
+                logger.debug("videoUrl encoded: "+videoUrl)
+                _hash = re.findall('\w{40,}',videoUrl)[0]
+                if splice:
+                    splice = int(re.findall("\((\d),\d\);",jj_decode)[0])
+                    if reverse:
+                        h = list(_hash)
+                        h.pop(-splice - 1)
+                        _hash = "".join(h)
+                    else:
+                        h = list(_hash)
+                        h.pop(splice)
+                        _hash = "".join(h)
+                if substring:
+                    substring = int(re.findall("_\w+.\d...(\d)...;",jj_decode)[0])
+                    if reverse:
+                        _hash = _hash[:-substring]
+                    else:
+                        _hash = _hash[substring:]
+                if reverse:
+                    videoUrl = re.sub(r'\w{40,}', _hash[::-1], videoUrl)
+                filename = videoUrl[videoUrl.rfind('/')+1:][-4:]
+                if videoUrl.startswith("rtmp"):
+                    rtmp, playpath = videoUrl.split("vod/", 1)
+                    videoUrl = "%s playpath=%s swfUrl=%splayer6/jwplayer.flash.swf pageUrl=%s" % (rtmp + "vod/", playpath, "http://"+domain, link)
+                    rtmpUrl = videoUrl
+                elif videoUrl.endswith(".m3u8"):
+                    videoUrl += "|User-Agent=" + Downloader.USER_AGENT
+                elif videoUrl.endswith("/v.mp4"):
+                    videoUrl = re.sub(r'/v.mp4$', '/v.flv', videoUrl)
+
+                logger.debug("videoUrl encoded: " + videoUrl)
+
+            finalLink = rtmpUrl
+        else:
+            finalLink = "" # it's not possible to decode with the current way
         return finalLink
 
+    @staticmethod
+    def decodePowvideoScript(t):
+        x = '0123456789abcdef'
+        j = re.findall('^([^=]+)=',t)[0]
+        t = t.replace(j + '.', 'j.')
 
+        t = re.sub(r'^.*?"\\""\+(.*?)\+"\\"".*?$', r'\1', t.replace('\\\\', '\\')) + '+""'
+        t = re.sub('(\(!\[\]\+""\)\[j\._\$_\])', '"l"', t)
+        t = re.sub(r'j\._\$\+', '"o"+', t)
+        t = re.sub(r'j\.__\+', '"t"+', t)
+        t = re.sub(r'j\._\+', '"u"+', t)
+
+        p = re.findall('(j\.[^\+]+\+)',t)
+        for c in p:
+            t = t.replace(c, c.replace('_', '0').replace('$', '1'))
+
+        p = re.findall('j\.(\d{4})',t)
+        for c in p:
+            t = re.sub(r'j\.%s' % c, '"' + x[int(c, 2)] + '"', t)
+
+        p = re.findall('\\"\+j\.(001)\+j\.(\d{3})\+j\.(\d{3})\+',t)
+        for c in p:
+            t = re.sub(r'\\"\+j\.%s\+j\.%s\+j\.%s\+' % (c[0], c[1], c[2]), chr(int("".join(c), 2)) + '"+', t)
+
+        p = re.findall('\\"\+j\.(\d{3})\+j\.(\d{3})\+',t)
+        for c in p:
+            t = re.sub(r'\\"\+j\.%s\+j\.%s\+' % (c[0], c[1]), chr(int("".join(c), 2)) + '"+', t)
+
+        p = re.findall('j\.(\d{3})',t)
+        for c in p:
+            t = re.sub(r'j\.%s' % c, '"' + str(int(c, 2)) + '"', t)
+
+        r = re.sub(r'"\+"|\\\\', '', t[1:-1])
+
+        return r
 
     @staticmethod
     def decodeStreamcloud(link):

@@ -115,6 +115,7 @@ class Decoder():
         stream_map = info['url_encoded_fmt_stream_map'][0]
         video_info = stream_map.split(",")
         for video in video_info:
+            logger.debug("video splitted is: "+video)
             item = urlparse.parse_qs(video)
             # print item['quality'][0]
             # print item['type'][0]

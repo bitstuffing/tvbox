@@ -415,54 +415,103 @@ class Decoder():
 
     @staticmethod
     def decodeAAScript(script):
-        '''
-        see Aadecoder() from http://pastebin.com/cD0kT82B, which was the real first method
-        TODO: implement original javascript decoder
-        http://pastebin.com/CnMsw3xw
-        these links are the reference for the following code
-        http://pastebin.com/8HtaXMSg
-        http://pastebin.com/PcMyxtPX
-        '''
-        #replace all figures, math, symbols and other offuscated
-        script = script.replace("((ﾟｰﾟ) + (ﾟｰﾟ) + (ﾟΘﾟ))", "9")
-        script = script.replace("((ﾟｰﾟ) + (ﾟｰﾟ))","8")
-        script = script.replace("((ﾟｰﾟ) + (o^_^o))","7")
-        script = script.replace("((o^_^o) +(o^_^o))","6")
-        script = script.replace("((ﾟｰﾟ) + (ﾟΘﾟ))","5")
-        script = script.replace("(ﾟｰﾟ)","4")
-        script = script.replace("(o^_^o)","3")
-        script = script.replace("((o^_^o) - (ﾟΘﾟ))","2")
-        script = script.replace("(ﾟΘﾟ)","1")
-        script = script.replace("(+!+[])","1")
-        script = script.replace("(c^_^o)","0")
-        script = script.replace("(0+0)","0")
-        script = script.replace("(ﾟДﾟ)[ﾟεﾟ]","\\")
-        script = script.replace("(3 +3 +0)","6")
-        script = script.replace("(3 - 1 +0)","2")
-        script = script.replace("(!+[]+!+[])","2")
-        script = script.replace("(-~-~2)","4")
-        script = script.replace("(-~-~1)","3")
-        decodestring = re.search(r"\\\+([^(]+)", script, re.DOTALL | re.IGNORECASE).group(1)
-        decodestring = "\\+"+ decodestring
-        decodestring = decodestring.replace("+","")
-        decodestring = decodestring.replace(" ","")
-        for octc in (c for c in re.findall(r'\\(\d{2,3})', decodestring)):
-            decodestring = decodestring.replace(r'\%s' % octc, chr(int(octc, 8)))
-        decodestring = decodestring.replace("\\/","/")
-        url = re.search(r"vr\s?=\s?\"|'([^\"']+)", decodestring, re.DOTALL | re.IGNORECASE).group(1)
+        text = re.sub(r"\s+|/\*.*?\*/", "", script)
+        data = text.split("+(ﾟДﾟ)[ﾟoﾟ]")[1]
+        chars = data.split("+(ﾟДﾟ)[ﾟεﾟ]+")[1:]
+
+        txt = ""
+        for char in chars:
+            char = char \
+                .replace("(oﾟｰﾟo)","u") \
+                .replace("c", "0") \
+                .replace("(ﾟДﾟ)['0']", "c") \
+                .replace("ﾟΘﾟ", "1") \
+                .replace("!+[]", "1") \
+                .replace("-~", "1+") \
+                .replace("o", "3") \
+                .replace("_", "3") \
+                .replace("ﾟｰﾟ", "4") \
+                .replace("(+", "(")
+            char = re.sub(r'\((\d)\)', r'\1', char)
+
+            c = ""; subchar = ""
+            for v in char:
+                c+= v
+                try: x = c; subchar+= str(eval(x)); c = ""
+                except: pass
+            if subchar != '': txt+= subchar + "|"
+        txt = txt[:-1].replace('+','')
+
+        txt_result = "".join([ chr(int(n, 8)) for n in txt.split('|') ])
+        url = Decoder.toStringCases(txt_result)
+        logger.debug("final openload decoded string is: "+url)
         return url
+
+    @staticmethod
+    def toStringCases(txt_result):
+        sum_base = ""
+        m3 = False
+        if ".toString(" in txt_result:
+            if "+(" in txt_result:
+                m3 = True
+                sum_base = "+" + re.findall(".toString...(\d+).",txt_result,flags=re.DOTALL )[0]
+
+                txt_pre_temp = re.findall("..(\d),(\d+).",txt_result,re.DOTALL)
+                txt_temp = [(n, b) for b, n in txt_pre_temp]
+            else:
+                txt_temp = re.findall('(\d+)\.0.\w+.([^\)]+).',txt_result,re.DOTALL)
+            for numero, base in txt_temp:
+                code = Decoder.toString(int(numero), eval(base + sum_base))
+                if m3:
+                    txt_result = re.sub(r'"|\+', '', txt_result.replace("(" + base + "," + numero + ")", code))
+                else:
+                    txt_result = re.sub(r"'|\+", '', txt_result.replace(numero + ".0.toString(" + base + ")", code))
+        return txt_result
+
+    @staticmethod
+    def toString(number, base):
+        string = "0123456789abcdefghijklmnopqrstuvwxyz"
+        if number < base:
+            return string[number]
+        else:
+            return Decoder.toString(number // base, base) + string[number % base]
 
     @staticmethod
     def decodeOpenload(link): #decode javascript link like Firefox
         mediaId = Decoder.extract("/f/","/",link)
         logger.debug("mediaId is: "+mediaId)
         link = link.replace('/f/', '/embed/')
-        html = Downloader.getContentFromUrl(link,"data=data","","",False,True) #make post, with get there is an infinite loop
+        html = Downloader.getContentFromUrl(link) #make post, with get there is an infinite loop
+        logger.debug("html2 is: "+html)
         #extract script
-        script = re.search(r"<video(?:.|\s)*?<script\s[^>]*?>((?:.|\s)*?)</script", html, re.DOTALL | re.IGNORECASE).group(1)
-        url = Decoder.decodeAAScript(script)
-        logger.debug("decoded url is: "+url)
-        return url
+        script = re.search('(ﾟωﾟ.*?\(\'\_\'\));', html, re.DOTALL | re.IGNORECASE).group(0)
+        logger.debug("script is: "+script)
+        var = Decoder.decodeAAScript(script)
+        windowr = Decoder.extract("'","';",var)
+        encodes = re.findall('id="'+windowr+'[^"]+">([^<]+)<', html, re.DOTALL | re.IGNORECASE)
+        text_decode = ""
+        videourl = ""
+        for encode in encodes:
+            try:
+                value = int(encode[0:2])
+                index = 2
+                while index < len(encode):
+                    text_decode += chr(int(encode[index:index + 3]) - value * int(encode[index + 3:index + 3 + 2]))
+                    index += 5
+            except:
+                continue
+
+            videourl = "https://openload.co/stream/%s?mime=true" % text_decode
+            r = urllib2.urlopen(videourl)
+            extension = ""
+            for head, value in sorted(r.info().items()):
+                if head == "location":
+                    videourl = value.replace("https", "http").replace("?mime=true", "")
+                elif head == "content-type":
+                    extension = value
+            break
+        logger.debug("decoded url is: " + videourl)
+        return videourl
 
 
     @staticmethod

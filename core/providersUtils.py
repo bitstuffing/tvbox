@@ -14,6 +14,7 @@ from core.listsParsers import getListsUrls
 
 from providers.filmoncom import Filmoncom
 from providers.hdfulltv import HdfullTv
+from providers.peliculasbiz import Peliculasbiz
 from providers.vigoalnet import Vigoal
 from providers.cinestrenostv import Cineestrenostv
 from providers.cricfreetv import Cricfreetv
@@ -547,6 +548,18 @@ def drawFilmonLinks(url, page, provider=""):
 		add_dir(page+", "+finalUrl["name"],finalUrl["url"],2,provider,page)
 		#print("page: "+page+", url: "+finalUrl["url"])
 
+
+def drawPeliculasBiz(url,page):
+	finalUrls = Peliculasbiz.getChannels(page)
+	for element in finalUrls:
+		code = 4
+		if element.has_key("finalLink"):
+			code = 123
+		image = icon
+		if element.has_key("thumbnail"):
+			image = element["thumbnail"]
+		add_dir(element["title"], element["link"], code, image, "peliculasbiz", element["link"])
+
 def displayTeletext(url,page):
 	if "antena3.com" in url:
 		displayAntena3Teletext(url, page)
@@ -767,6 +780,12 @@ def openStreamgaroo(url, page):
 	logger.info("decoding streamgaroo link... " + url)
 	link = Streamgaroo.getChannels(url)[0]["link"]
 	logger.info("decoded streamgaroo link: " + link)
+	open(link, page)
+
+def openPeliculasbiz(url,page):
+	logger.info("decoding peliculasbiz link... " + url)
+	link = Peliculasbiz.getChannels(url)[0]["link"]
+	logger.info("decoded peliculasbiz link: " + link)
 	open(link, page)
 
 def openMobdro(url,page):

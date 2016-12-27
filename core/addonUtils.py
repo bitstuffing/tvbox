@@ -13,7 +13,7 @@ from providers.cinestrenostv import Cineestrenostv
 from providers.mamahdcom import Mamahdcom
 from providers.showsporttvcom import ShowsportTvCom
 
-MAX = 122
+MAX = 123
 
 def open(url,page):
 	if url.find("rtmp://")==-1 and url.find("|Referer=")==-1 and ( url.find("http://privatestream.tv/")>-1 or url.find("http://www.dinostream.pw/")>-1 or url.find("http://www.embeducaster.com/")>-1 or url.find("http://tv.verdirectotv.org/channel.php")>-1 or url.find("http://mamahd.com/")>-1):

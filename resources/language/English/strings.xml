@@ -15,6 +15,19 @@
     <string id="10012">Teletext</string>
     <string id="10013">Put a page number manually</string>
 
+    <string id="10014">PPV</string>
+    <string id="10015">Streaming Programs</string>
+    <string id="10016">Public popular websites</string>
+    <string id="10017">Films and Series</string>
+    <string id="10018">Acestream/Sopcast websites</string>
+    <string id="10019">User's based content websites</string>
+    <string id="10020">Sport's streaming websites</string>
+    <string id="10021">New's online websites</string>
+    <string id="10022">World's TV websites</string>
+    <string id="10023">List's online websites</string>
+    <string id="10024">Webcams's online websites</string>
+    <string id="10025">Others</string>
+
     <string id="11010">Yes</string>
     <string id="11011">No</string>
     <string id="11012">Confirm</string>

@@ -30,7 +30,7 @@ class Decoder():
             link = Decoder.decodePowvideo(link)
         elif link.find("://www.flashx.tv")>-1:
             link = Decoder.decodeFlashx(link)
-        elif link.find("://www.nowvideo.sx")>-1:
+        elif link.find(".nowvideo.sx/")>-1:
             link = Decoder.decodeNowvideo(link)
         elif link.find("://gamovideo.")>-1:
             link = Decoder.decodeGamovideo(link)
@@ -978,7 +978,14 @@ class Decoder():
                             playPath = base64.standard_b64decode(extracted)
                         else:
                             rtmpValue = base64.standard_b64decode(extracted)
-                        decodedAndExtracted = base64.standard_b64decode(extracted)
+                        decodedAndExtracted = extracted
+                        try:
+                            while decodedAndExtracted.endswith("="): #base64
+                                logger.debug("using decoder looper with: " + decodedAndExtracted)
+                                decodedAndExtracted = base64.standard_b64decode(decodedAndExtracted)
+                        except:
+                            logger.debug("stopped with: "+decodedAndExtracted)
+                            pass
                         logger.info("original: "+extracted+", extracted: "+decodedAndExtracted)
                         if decodedAndExtracted.find(".m3u8")>-1:
                             finalSimpleLink = decodedAndExtracted

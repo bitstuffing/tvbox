@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
-	<tag>0.1.6</tag>
-	<version>117</version>
-	<date>12/12/2016</date>
-	<changes>Added new functionality and new section</changes>
+	<tag>0.1.7</tag>
+	<version>118</version>
+	<date>27/12/2016</date>
+	<changes>New distribution to get more providers sorted</changes>
 </plugin>

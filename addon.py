@@ -60,6 +60,8 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 		if str(url)=='tvseriesonline':
 			add_dir("HDFull.tv", 'hdfulltv', 4, "http://hdfull.tv/templates/hdfull/images/logo.png", 'hdfulltv', 0)
 			add_dir("Peliculasid.biz", 'peliculasbiz', 4, "", 'peliculasbiz', 0)
+			if enablePlexus:
+				add_dir("[T] - Elitetorrent.net", 'elitetorrentnet', 4, "http://www.elitetorrent.net/images/logo_elite.png",'elitetorrentnet', 0)
 		elif str(url)=='popularonline':
 			add_dir("Youtube.com", 'youtube', 4,"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/YouTube_logo_2015.svg/120px-YouTube_logo_2015.svg.png",'youtube', 0)
 			add_dir("TuneIn.com", 'tunein', 4,"https://lh5.googleusercontent.com/-NsniPTwZFkc/AAAAAAAAAAI/AAAAAAAAOLE/qtdbWIxlF5M/s0-c-k-no-ns/photo.jpg",'tunein', 0)
@@ -155,6 +157,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawArenavisionin(page)
 	elif provider == 'acetvru':
 		drawAcetvru(page)
+	elif provider == 'elitetorrentnet':
+		drawElitetorrentnet(page)
 	elif provider == 'youtube':
 		drawYoutube(page)
 	elif provider == 'zonaappcom':
@@ -289,6 +293,8 @@ def init():
 			openMobdro(url,page)
 		elif mode == 123:
 			openPeliculasbiz(url,page)
+		elif mode == 124:
+			openElitetorrentnet(url,page)
 
 
 	except Exception as e:

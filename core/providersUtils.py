@@ -30,6 +30,7 @@ from providers.showsporttvcom import ShowsportTvCom
 from providers.mamahdcom import Mamahdcom
 from providers.arenavisionin import Arenavisionin
 from providers.acetvru import Acetvru
+from providers.elitetorrent import Elitetorrent
 from providers.youtube import Youtube
 from providers.zonaappcom import ZonaAppCom
 from providers.pastebin import Pastebin
@@ -346,6 +347,21 @@ def drawAcetvru(page):
 		else:
 			image = icon
 		add_dir(title,link,mode,image,"acetvru",link)
+
+def drawElitetorrentnet(page):
+	jsonChannels = Elitetorrent.getChannels(page)
+	for item in jsonChannels:
+		mode = 4
+		title = item["title"]
+		link = item["link"]
+		if '/torrent/' in link:
+			mode = 124
+		if item.has_key("thumbnail"):
+			image = item["thumbnail"]
+			logger.info("detected img: " + image)
+		else:
+			image = icon
+		add_dir(title, link, mode, image, "elitetorrentnet", link)
 
 def drawYoutube(url='0'): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	#static content
@@ -786,6 +802,12 @@ def openPeliculasbiz(url,page):
 	logger.info("decoding peliculasbiz link... " + url)
 	link = Peliculasbiz.getChannels(url)[0]["link"]
 	logger.info("decoded peliculasbiz link: " + link)
+	open(link, page)
+
+def openElitetorrentnet(url,page):
+	logger.info("decoding eliteetorrentnet link... " + url)
+	link = Elitetorrent.getChannels(url)[0]["link"]
+	logger.info("decoded eliteetorrentnet link: " + link)
 	open(link, page)
 
 def openMobdro(url,page):

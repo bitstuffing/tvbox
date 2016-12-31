@@ -1305,7 +1305,7 @@ class Decoder():
         mp4File = Decoder.extract("=","&",html)
 
         logger.info('found link: '+mp4File)
-        return mp4File
+        return mp4File+"|User-Agent="+Downloader.USER_AGENT
 
 
     @staticmethod

@@ -46,6 +46,7 @@ from providers.mobdro import Mobdro
 from providers.antena3 import Antena3
 from providers.lasexta import LaSexta
 from providers.rtve import RTVE
+from providers.pepecine import Pepecine
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -575,6 +576,17 @@ def drawPeliculasBiz(url,page):
 		if element.has_key("thumbnail"):
 			image = element["thumbnail"]
 		add_dir(element["title"], element["link"], code, image, "peliculasbiz", element["link"])
+
+def drawPepecine(url, page):
+	finalUrls = Pepecine.getChannels(page)
+	for element in finalUrls:
+		code = 4
+		if element.has_key("finalLink"):
+			code = 2
+		image = icon
+		if element.has_key("thumbnail"):
+			image = element["thumbnail"]
+		add_dir(element["title"], element["link"], code, image, "pepecine", element["link"])
 
 def displayTeletext(url,page):
 	if "antena3.com" in url:

@@ -54,7 +54,7 @@ class Downloader():
             logger.debug("launching GET for "+url+"...")
             req = urllib2.Request(url, headers=headers)
             try:
-                r = urllib2.urlopen(req)
+                r = urllib2.urlopen(req, timeout=10)
             except BaseException as e:
                 logger.error("Something went wrong with urllib :'(: "+str(e))
                 pass
@@ -116,7 +116,7 @@ class Downloader():
         else:
             logger.debug("launching POST...")
             req = urllib2.Request(url, data, headers)
-            r = urllib2.urlopen(req)
+            r = urllib2.urlopen(req, timeout=10)
             logger.debug(str(r.info()))
             logger.debug("reading...")
             html = r.read()

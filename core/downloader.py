@@ -4,7 +4,7 @@ import gzip
 from core import logger
 
 class Downloader():
-
+    TIMEOUT = 20
     cookie = ""
     USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"
 
@@ -54,7 +54,7 @@ class Downloader():
             logger.debug("launching GET for "+url+"...")
             req = urllib2.Request(url, headers=headers)
             try:
-                r = urllib2.urlopen(req, timeout=10)
+                r = urllib2.urlopen(req, timeout=Downloader.TIMEOUT)
             except BaseException as e:
                 logger.error("Something went wrong with urllib :'(: "+str(e))
                 pass
@@ -116,7 +116,7 @@ class Downloader():
         else:
             logger.debug("launching POST...")
             req = urllib2.Request(url, data, headers)
-            r = urllib2.urlopen(req, timeout=10)
+            r = urllib2.urlopen(req, timeout=Downloader.TIMEOUT)
             logger.debug(str(r.info()))
             logger.debug("reading...")
             html = r.read()

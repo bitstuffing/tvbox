@@ -262,13 +262,20 @@ class Decoder():
         finalText = ""
         while "<script" in body:
             replaceBy = Decoder.extractWithRegex("<script","</script>",body)
+            #logger.debug("removing: "+replaceBy)
             body = body.replace(replaceBy,"")
-        while "<" in body:
+        #logger.debug("scripts removed, now body is: "+body)
+        while "<" in body and ">" in body:
             index = body.find("<")
-            targetLine = body[:index]
-            finalText += targetLine.strip()
-            body = body[body.find(">")+1:]
-        body = body.strip()
+            if index > 0:
+                targetLine = body[:index]
+                #logger.debug("INDEX: "+str(index)+", appending target line to removed html: " + targetLine)
+                finalText += targetLine.strip()
+                body = body[body.find(">")+1:]
+            else:
+                body = body[body.find(">") + 1:]
+                #logger.debug("removed until '>' \n"+body)
+        #body = body.strip()
         return finalText
 
     @staticmethod

@@ -47,6 +47,7 @@ from providers.antena3 import Antena3
 from providers.lasexta import LaSexta
 from providers.rtve import RTVE
 from providers.pepecine import Pepecine
+from providers.cnn import CNN
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -516,12 +517,33 @@ def drawReutersNews(url): #from rss page
 	if str(url)=='0':
 		level = 4
 		for new in x:
-			img = ''
+			img = icon
 			if new.has_key("thumbnail"):
 				img = new["thumbnail"]
 			add_dir(new["title"], new["link"], level, img, "reuters", 1)
 	else:
 		body = x[0]["title"]
+		drawNew(textContent=(body))
+
+def drawCNNNews(url):
+	x = CNN.getChannels(url)
+	if str(url) == '0':
+		level = 4
+		for new in x:
+			img = icon
+			if new.has_key("thumbnail"):
+				img = new["thumbnail"]
+			add_dir(new["title"], new["link"], level, img, "editioncnn", new["link"])
+	else:
+		body = x[0]["title"]
+		logger.debug("body is: "+body)
+		#clean bad html
+		body = body.replace('<h4 class="video__end-slate__tertiary-title">MUST WATCH</h4>',"")
+		body = body.replace('<div class="video__end-slate__engage__more"><a href="/videos" class="video__end-slate__replay-text">More Videos ...</a></div>', "")
+		body = body.replace('<h4 class="video__end-slate__tertiary-title">MUST WATCH</h4>',"")
+		body = body.replace('<h3 class="cd__headline-title">JUST WATCHED</h3>', "")
+		body = body.replace(".",". \n")
+		logger.debug("drawing new...")
 		drawNew(textContent=(body))
 
 def drawBbcCoUkNew(url):

@@ -89,6 +89,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 			add_dir("Bbc.co.uk", 'bbccouk', 4, "", 'bbccouk', 'http://feeds.bbci.co.uk/news/rss.xml?edition=int')
 			add_dir("Reuters.com", 'reuters', 4, "http://www.thewrap.com/wp-content/uploads/2013/10/Reuters-Logo.jpg",'reuters', 0)
 			add_dir("CNN.com", 'editioncnn', 4, "http://i.cdn.cnn.com/cnn/.e1mo/img/4.0/logos/logo_cnn_badge_2up.png",'editioncnn', 0)
+			add_dir("ElMundo.es", 'editionelmundo', 4, "http://estaticos.elmundo.es/imagen/canalima144.gif",'editionelmundo', 0)
 		elif str(url)=='worldstvonlinewebsites':
 			add_dir("Filmon.com", 'filmon', 4, "http://static.filmon.com/theme/img/filmon_small_logo.png", 'filmoncom', 0)
 			add_dir("Streamgaroo.com", 'streamgaroo', 4, "http://www.streamgaroo.com/images/logo.png", 'streamgaroo', 0)
@@ -182,6 +183,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawReutersNews(url=page)
 	elif provider =='editioncnn':
 		drawCNNNews(url=page)
+	elif provider =='editionelmundo':
+		drawElMundoNews(url=page)
 	elif provider == "tunein":
 		drawTuneIn(page)
 	elif provider == 'youtvgratis':

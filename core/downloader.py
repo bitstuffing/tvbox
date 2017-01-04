@@ -68,9 +68,11 @@ class Downloader():
             html = r.read()
             headers = r.info()
             if ('Content-Encoding' in headers.keys() and headers['Content-Encoding'] == 'gzip') or ('content-encoding' in headers.keys() and headers['content-encoding'] == 'gzip'):
+                logger.debug("Uncompressing content...")
                 html = StringIO.StringIO(html)
                 gzipper = gzip.GzipFile(fileobj=html)
                 html = gzipper.read()
+                logger.debug("Done uncompressing content process.")
             logger.debug("cookies...")
             #update cookies
             for key1, value1 in sorted(r.info().items()):

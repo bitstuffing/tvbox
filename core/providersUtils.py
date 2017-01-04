@@ -49,6 +49,7 @@ from providers.rtve import RTVE
 from providers.pepecine import Pepecine
 from providers.cnn import CNN
 from providers.elmundo import ElMundo
+from providers.elpaises import ElPais
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -526,6 +527,23 @@ def drawReutersNews(url): #from rss page
 		body = x[0]["title"]
 		drawNew(textContent=(body))
 
+def drawElPaisNews(url):
+	x = ElPais.getChannels(url)
+	if str(url) == '0':
+		level = 4
+		for new in x:
+			img = icon
+			if new.has_key("thumbnail"):
+				img = new["thumbnail"]
+			add_dir(new["title"], new["link"], level, img, "editionelpais", new["link"])
+	else:
+		body = x[0]["title"]
+		logger.debug("body is: " + body)
+		# clean bad html
+
+		body = body.replace(". ", ". \n")
+		logger.debug("drawing new...")
+		drawNew(textContent=(body))
 def drawElMundoNews(url):
 	x = ElMundo.getChannels(url)
 	if str(url) == '0':
@@ -876,7 +894,8 @@ def isAnException(url,page,provider,mode):
 	state = False
 	if mode == 4 and (provider=="bbccouk" and str(page) == '0' and ".xml" not in url) \
 			or (str(page)=='1' and provider=='reuters')\
-			or (str(page)!='0' and provider=='editioncnn')\
+			or (str(page)!='0' and provider=='editioncnn') \
+			or (str(page) != '0' and provider == 'editionelpais') \
 			or (str(page)!='0' and provider=='editionelmundo'):
 		logger.debug("Order don't reload page -> provider: "+provider)
 		state = True

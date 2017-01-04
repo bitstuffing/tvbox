@@ -71,6 +71,13 @@ class Cricfreetv(Downloader):
             iframeUrl = Decoder.extract('<iframe frameborder="0" marginheight="0" marginwidth="0" height="490" src="','"',html)
         if "'" in iframeUrl:
             iframeUrl = iframeUrl[0:iframeUrl.find("'")]
+        if "/update/" in iframeUrl:
+            #get all urls and check if they hasn't /update/
+            for content in html.split(".php"):
+                link = content[content.rfind('"')+1:]+".php"
+                if "/update/" not in link and "/update/" in iframeUrl:
+                    logger.debug("link has been updated from: "+iframeUrl+", to: "+link)
+                    iframeUrl = link
         logger.debug("level 1, iframeUrl: "+iframeUrl+", cookie: "+Cricfreetv.cookie)
         if iframeUrl!='':
             html = Cricfreetv.getContentFromUrl(iframeUrl,"",Cricfreetv.cookie,referer)

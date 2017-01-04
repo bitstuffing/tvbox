@@ -49,15 +49,18 @@ class ElMundo(Downloader):
                 body = body.replace(replacedBy,"")
             logger.debug("removing html: "+body)
             body = Decoder.removeHTML(body)
+            if ' Twitter Facebook Enviar ' in body:
+                body = body.replace(" Twitter Facebook Enviar ","\n")
+            if ":" in body: #search by time
+                index = body.find(":")
+                try:
+                    figure = int(body[index+1]) #it's a number
+                except: #it's not a number, so needs next one
+                    body2 = body[index+1:]
+                    index += body2.find(":")+1
+                    pass
+                body = body[:index+3]+"\n\n"+body[index+3:]
             logger.debug("html has removed from body!")
-            if '|' in body:
-                body = body[body.find('|')+1:]
-            try:
-                lowerCaseIndex = int(re.search("[a-z]", body).start())
-                body = body[:lowerCaseIndex-1]+"\n"+body[lowerCaseIndex-1:]
-            except:
-                logger.error("No break for city was done. Something goes wrong")
-                pass
             element = {}
             element["link"] = page
             element["title"] = body

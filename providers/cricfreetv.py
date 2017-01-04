@@ -75,7 +75,7 @@ class Cricfreetv(Downloader):
             #get all urls and check if they hasn't /update/
             for content in html.split(".php"):
                 link = content[content.rfind('"')+1:]+".php"
-                if "/update/" not in link and "/update/" in iframeUrl:
+                if "http://" in link and "/update/" not in link and "/update/" in iframeUrl:
                     logger.debug("link has been updated from: "+iframeUrl+", to: "+link)
                     iframeUrl = link
         logger.debug("level 1, iframeUrl: "+iframeUrl+", cookie: "+Cricfreetv.cookie)
@@ -98,7 +98,7 @@ class Cricfreetv(Downloader):
         scriptUrl = Cricfreetv.extractScriptIframeUrl(html,firstScriptUrl,referer)
         logger.debug("level 2, scriptUrl: "+scriptUrl+", cookie: "+Cricfreetv.cookie)
         lastIframeHtml = Cricfreetv.getContentFromUrl(scriptUrl,"",Cricfreetv.cookie,iframeUrl)
-        #print lastIframeHtml
+        logger.debug("html in level2 is: "+lastIframeHtml)
         file = Cricfreetv.seekIframeScript(lastIframeHtml,iframeUrl,scriptUrl)
         logger.debug("script logic finished!")
         return file
@@ -156,15 +156,32 @@ class Cricfreetv(Downloader):
             if html2.find('file: "')>-1:
                 file = Decoder.extract('file: "','"',html2)
             logger.debug("obtained file: "+file)
+        elif 'file: "rtmp:' in html:  # found final link
+            logger.debug("detected rtmp link...")
+            rtmp = "rtmp:" + Decoder.extract('file: "rtmp:', '"', html)
+            swfJS = Decoder.extract('<script src="','"',html)
+            jsContent = Downloader.getContentFromUrl(url=swfJS,referer=referer)
+            swfUrl = Decoder.extract('"flashplayer": "','"',jsContent)
+            if "http:" not in swfUrl:
+                swfUrl = "http:"+swfUrl
+            logger.debug("swfUrl is: "+swfUrl)
+            logger.debug("iframeUrl is: "+iframeUrl)
+            logger.debug("referer is: " + referer)
+
+            link = rtmp+" swfUrl="+swfUrl+" pageUrl="+iframeUrl
+            logger.debug("final rtmp link built is: "+link)
+            file = link
+        elif 'file: "http' in html:  # found final link
+            logger.debug("using http file extractor...")
+            file = "http" + Decoder.extract('file: "http', '"', html)
+            file += "|" + Downloader.getHeaders(iframeUrl) #TODO review this part
+            logger.debug("found final link: " + file)
         elif html.find("http://www.filmon.com/tv/")>-1:
             url = Decoder.extractWithRegex("http://www.filmon.com/tv/",'"',html).replace('"',"")
             logger.debug("using first filmon.com url from provider, url: "+url+", r: "+referer)
             file = Filmoncom.launchScriptLogic(url,referer)[0]["url"]
-        elif html.find('file: "http')>-1: #found final link
-            file = Decoder.extract('file: "','"',html)
-            logger.debug("found final link: "+file)
         elif html.find('return(["r","t","m","p"')>-1: #changed order to build final url first
-
+            logger.debug("launching array logic for rtmp link...")
             swfUrl = "http://cdn.ibrod.tv/player/jwplayer.flash.swf"
             if 'cast4u.tv' in html:
                 swfUrl = "http://cast4u.tv/jwplayer/jwplayer.flash.swf"
@@ -251,8 +268,10 @@ class Cricfreetv(Downloader):
             logger.debug("found final link: "+rtmpUrl)
             file = rtmpUrl
         elif html.find("eval(unescape('")>-1:
+            logger.debug("eval unescape js logic...")
             html = Cricfreetv.decodeContent(html).lower()
         elif html.find('<a href="http://sports4u.tv/channel')>-1 or html.find('http://sports4u.tv/embed/')>-1:
+            logger.debug("embed link logic...")
             if html.find('http://sports4u.tv/embed/')>-1:
                 urlLink = Decoder.extractWithRegex('http://sports4u.tv/embed/','"',html).replace('"',"")
                 logger.debug("seek new iframe url with: "+urlLink)
@@ -274,6 +293,7 @@ class Cricfreetv(Downloader):
                         iframe = Decoder.extract('<iframe frameborder="0" marginheight="0" marginWidth="0" height="490" id="iframe" src="','" id="',html).replace('"',"")
                         file = Cricfreetv.extractIframeValue(iframe,html,referer)
         elif ' src="http://cricfree.sx/' in html:
+            logger.debug("native cricfree.sx logic")
             #it's a cricfree.sx native page, so launch this logic
             urlLink = Decoder.extractWithRegex('http://cricfree.sx/', '"', html).replace('"', "")
             logger.debug("seek new http://cricfree.sx/ iframe url with: " + urlLink)
@@ -287,18 +307,34 @@ class Cricfreetv(Downloader):
             logger.debug("html is: " + html2)
             file = Cricfreetv.seekIframeScript(html2, iframeUrl, newOldUrl)
         else:
-
-            if html.find('<iframe id="player" scrolling="no" width="620" height="490" allowtransparency="no" frameborder="0" src="')>-1:
-                iframe = Decoder.extract('<iframe id="player" scrolling="no" width="620" height="490" allowtransparency="no" frameborder="0" src="','"',html)
-                file = Cricfreetv.extractIframeValue(iframe,html,referer)
-            elif html.find('<iframe ')>-1: #brute method forced
+            logger.debug("enterring to ELSE logic")
+            if html.find('<iframe id="player" scrolling="no" width="620" height="490" allowtransparency="no" frameborder="0" src="') > -1:
+                iframe = Decoder.extract('<iframe id="player" scrolling="no" width="620" height="490" allowtransparency="no" frameborder="0" src="','"', html)
+                file = Cricfreetv.extractIframeValue(iframe, html, referer)
+            elif html.find('<iframe ') > -1:  # brute method forced
                 logger.debug("brute method launched...")
-                iframe = Decoder.rExtract('<iframe ','</iframe>',html)
-                iframe = Decoder.extract('src="','"',iframe)
-                file = Cricfreetv.extractIframeValue(iframe,html,referer)
+                logger.debug("referer is: "+referer)
+                logger.debug("iframeUrl is: " + iframeUrl)
+                iframe = Decoder.rExtract('<iframe ', '</iframe>', html)
+                iframe = Decoder.extract('src="', '"', iframe)
+                if iframe == referer or iframe == iframeUrl:
+                    logger.debug("is the same page so needs to be changed!")
+                    logger.debug("html is: " + html)
+                    for content in html.split(".php"):
+                        link = content[content.rfind('"') + 1:] + ".php"
+                        logger.debug("target ELSE link is: " + link)
+                        if "http://" in link and "/update/" not in link and "/update/" in iframeUrl:
+                            logger.debug("ELSE link has been updated from: " + iframeUrl + ", to: " + link)
+                            iframe = link
+                    if iframe != referer and iframe != iframeUrl:
+                        logger.debug("fixed the same url, continue...")
+                        file = Cricfreetv.extractIframeValue(iframe, html, referer)
+                    else:
+                        logger.debug("NOT fixed the same url, stopping...")
+                else:
+                    file = Cricfreetv.extractIframeValue(iframe, html, referer)
             else:
                 logger.debug(html)
-
         return file
 
     @staticmethod

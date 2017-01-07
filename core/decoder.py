@@ -1654,13 +1654,9 @@ class Decoder():
             tokenUrl = tokenUrl[:(len(tokenUrl) - 1)]
             token = Downloader.getContentFromUrl("http://" + tokenUrl, "", Downloader.cookie, page)
             token = Decoder.extract('{"token":"', '"}', token)
-            if token!='111':
-                token = "Ve5673e7a12f220e"
-            else:
-                token = "L4de70fb65bc9f1f"
             file = Decoder.extract('file: "', '",', html2).replace('.flv', '')
             streamer = Decoder.extract('streamer: "', '",', html2).replace("\\", "")
-            link = streamer + "./" + file + " playpath=" + file + " live=1 swfUrl=" + swfUrl + " token="+token+" flashver=WIN\\2024,0,0,186  pageUrl=http://www.streamlive.to" + (iframeUrl[iframeUrl.rfind("/"):])
+            link = streamer + "./" + file + " playpath=" + file + " live=1 swfUrl=" + swfUrl + " flashver=WIN\\2024,0,0,186  pageUrl=http://www.streamlive.to" + (iframeUrl[iframeUrl.rfind("/"):])
             logger.debug("built a link to be used: " + link)
         else:
             logger.debug("Nothing done: " + html2)

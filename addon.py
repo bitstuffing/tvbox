@@ -78,6 +78,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 		elif str(url)=='torrentwebsites'and enablePlexus == "true":
 			add_dir("Arenavision.in", 'arenavisionin', 4, "http://www.arenavision.in/sites/default/files/logo_av2015.png",'arenavisionin', 0)
 			add_dir("Ace-tv.ru", 'acetvru', 4, "http://ace-tv.eu/logo.png", 'acetvru', 0)
+			add_dir("Streamingsport365.com", 'streamingsport365', 4, "http://streamingsport365.com/en/wp-content/uploads/2016/02/logo-streamingsport365.png", 'streamingsport365', 0)
 		elif str(url)=='usersonlinewebsites':
 			add_dir("Tvshow.me", 'tvshowme', 4, "http://www.tvshow.me/wp-content/uploads/2016/09/Icon_.png", 'tvshowme', 0)
 		elif str(url)=='sportsonline':
@@ -164,6 +165,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawArenavisionin(page)
 	elif provider == 'acetvru':
 		drawAcetvru(page)
+	elif provider == 'streamingsport365':
+		drawStreamingsport365()
 	elif provider == 'elitetorrentnet':
 		drawElitetorrentnet(page)
 	elif provider == 'youtube':

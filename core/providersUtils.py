@@ -50,6 +50,7 @@ from providers.pepecine import Pepecine
 from providers.cnn import CNN
 from providers.elmundo import ElMundo
 from providers.elpaises import ElPais
+from providers.streamingsport365 import StreamingSports365
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -351,6 +352,14 @@ def drawAcetvru(page):
 		else:
 			image = icon
 		add_dir(title,link,mode,image,"acetvru",link)
+
+def drawStreamingsport365():
+	mode = 2
+	jsonChannels = StreamingSports365.getChannels()
+	for item in jsonChannels:
+		title = item["title"]
+		link = item["link"]
+		add_dir(title, link, mode, icon, "streamingsports365", link)
 
 def drawElitetorrentnet(page):
 	jsonChannels = Elitetorrent.getChannels(page)

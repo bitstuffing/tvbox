@@ -1656,7 +1656,8 @@ class Decoder():
             token = Decoder.extract('{"token":"', '"}', token)
             file = Decoder.extract('file: "', '",', html2).replace('.flv', '')
             streamer = Decoder.extract('streamer: "', '",', html2).replace("\\", "")
-            link = streamer + "./" + file + " playpath=" + file + " live=1 swfUrl=" + swfUrl + " flashver=WIN\\2024,0,0,186  pageUrl=http://www.streamlive.to" + (iframeUrl[iframeUrl.rfind("/"):])
+            link = streamer + "./" + file + " playpath=" + file + " live=1 timeout=10 swfUrl=" + swfUrl + " flashver=WIN\\2023,0,0,162  pageUrl=http://www.streamlive.to" + (iframeUrl[iframeUrl.rfind("/"):])
+            #link = Decoder.extract("'file': '","'",html2)+"|Referer=http://www.streamlive.to" + (iframeUrl[iframeUrl.rfind("/"):]) #m3u8
             logger.debug("built a link to be used: " + link)
         else:
             logger.debug("Nothing done: " + html2)

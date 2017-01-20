@@ -9,13 +9,19 @@ from core.downloader import Downloader
 class Arenavisionin(Downloader):
 
     MAIN_URL = "http://www.arenavision.in/schedule"
+    MAIN_URL_RU = "http://www.arenavision.ru/schedule"
 
     @staticmethod
     def getChannels(page):
         x = []
         if str(page) == '0':
-            page=Arenavisionin.MAIN_URL
-            html = Arenavisionin.getContentFromUrl(page,"",Arenavisionin.cookie,"")
+            try:
+                page=Arenavisionin.MAIN_URL
+                html = Arenavisionin.getContentFromUrl(page,"",'beget=begetok; has_js=1',Arenavisionin.MAIN_URL)
+            except:
+                page = Arenavisionin.MAIN_URL_RU
+                html = Arenavisionin.getContentFromUrl(page, "", 'beget=begetok; has_js=1', Arenavisionin.MAIN_URL_RU)
+                pass
             html = Decoder.extract('<table align="center" cellspacing="1" class="auto-style1" style="width: 100%; float: left"><tr><th class="auto-style4" style="width: 190px; height: 39px"><strong>DAY</strong></th>',"</tr></table></div></div></div>",html)
             x = Arenavisionin.extractElements(html)
         else:
@@ -30,13 +36,20 @@ class Arenavisionin(Downloader):
                 logger.debug("result was: "+str(result))
                 if result == None or result==-1:
                     target = page[:page.find("-")]
-                    link = "http://www.arenavision.in/"+target
+                    link = "http://www.arenavision.ru/"+target
                 else:
                     logger.debug("has choosed "+str(result)+": "+cmenu[result])
-                    link = "http://www.arenavision.in/"+(cmenu[result])
+                    link = "http://www.arenavision.ru/"+(cmenu[result])
             else:
+                if "av" not in page:
+                    page = "av"+page
                 link = "http://www.arenavision.in/"+page
-            html = Arenavisionin.getContentFromUrl(link,"",Arenavisionin.cookie,Arenavisionin.MAIN_URL)
+            try:
+                html = Arenavisionin.getContentFromUrl(link,"",'beget=begetok; has_js=1',Arenavisionin.MAIN_URL)
+            except:
+                link = "http://www.arenavision.ru/" + page
+                html = Arenavisionin.getContentFromUrl(link, "", 'beget=begetok; has_js=1', Arenavisionin.MAIN_URL_RU)
+                pass
             if html.find("acestream://")>-1:
                 link2 = Decoder.extractWithRegex("acestream://",'"',html).replace('"',"")
             else:

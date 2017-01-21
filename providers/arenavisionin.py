@@ -36,10 +36,11 @@ class Arenavisionin(Downloader):
                 logger.debug("result was: "+str(result))
                 if result == None or result==-1:
                     target = page[:page.find("-")]
-                    link = "http://www.arenavision.ru/"+target
+                    page = target
                 else:
                     logger.debug("has choosed "+str(result)+": "+cmenu[result])
-                    link = "http://www.arenavision.ru/"+(cmenu[result])
+                    page = (cmenu[result])
+                link = "http://www.arenavision.in/" + page
             else:
                 if "av" not in page:
                     page = "av"+page

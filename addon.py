@@ -82,6 +82,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 		elif str(url)=='usersonlinewebsites':
 			add_dir("Tvshow.me", 'tvshowme', 4, "http://www.tvshow.me/wp-content/uploads/2016/09/Icon_.png", 'tvshowme', 0)
 		elif str(url)=='sportsonline':
+			add_dir("Live9.co", 'live9', 4, "", 'live9', 0)
 			add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree', 0)
 			add_dir("Mamahd.com", 'mamahdcom', 4, "http://mamahd.com/images/logo.png", 'mamahdcom', 0)
 			add_dir("Vipracing.net", 'vipracinginfo', 4, "", 'vipracinginfo', 0)
@@ -111,7 +112,6 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 	#sports with event
 	#add_dir("Sportstream365.com", 'sportstream365com', 4, "http://sportstream365.com/img/logo.png", 'sportstream365com' , 0)
 
-	#add_dir("Live9.co", 'live9', 4, "", 'live9' , 0)
 	#world tv
 
 	#add_dir("Youtvgratis.com", 'youtvgratis', 4, "http://youtvgratis.com/themes/tutvplayer/img/logo.gif", 'youtvgratis', 0)

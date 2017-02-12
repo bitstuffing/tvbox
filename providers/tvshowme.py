@@ -17,7 +17,7 @@ class Tvshowme(Downloader):
         if str(page) == '0':
             page=Tvshowme.MAIN_URL
             html = Tvshowme.getContentFromUrl(page,"",Tvshowme.cookie,"")
-            table = Decoder.extract('<span class="yawp_wim_title">Latest 150 Posts</span> <ul>','</ul>',html)
+            table = Decoder.extract('<ul>','</ul>',html)
             x = Tvshowme.extractElements(table)
         elif page=="search":
             #display keyboard, it will wait for result
@@ -50,7 +50,10 @@ class Tvshowme(Downloader):
         for value in table.split('<li>'):
             if i>0:
                 element = {}
-                title = Decoder.extract('/">','</a>',value).replace("&#8211;","-")
+                if '' in value:
+                    title = Decoder.extract('/">','</a>',value).replace("&#8211;","-")
+                elif '" title="' in value:
+                    title = Decoder.extract('" title="', '"', value).replace("&#8211;", "-")
                 link = Decoder.extract('<a href="','"',value)
                 element["title"] = title
                 element["link"] = link

@@ -18,10 +18,12 @@ class Live9net(Downloader):
             x = Live9net.extractElements(table)
             logger.debug("live9 channels logic done!")
         else:
-            iframeUrl = Decoder.extract('src="','"></iframe>',html)
+            iframeUrl = Decoder.extract('src="','"',html)
+            logger.debug("iframe url is: "+iframeUrl)
             html2 = Live9net.getContentFromUrl(iframeUrl,"",Live9net.cookie,page)
-            #print html2
+            logger.debug("detecting sawlive links...")
             if html2.find('src="http://sawlive.tv/')>-1 or html2.find('src="http://www3.sawlive')>-1:
+                logger.debug("Detected sawlive link!")
                 if html2.find('src="http://sawlive.tv/')>-1:
                     scriptSrc = Decoder.extractWithRegex('http://sawlive','"></script>',html2).replace('"></script>',"")
                 else:

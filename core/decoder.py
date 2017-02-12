@@ -669,6 +669,14 @@ class Decoder():
         #update swf url
         swfUrl = flashContent[:flashContent.find("'")]
         logger.debug("updated swf player to: "+swfUrl)
+        logger.debug("file is: "+file)
+        if "==" not in file:
+            # extract from script
+            logger.debug("extracting content from script...")
+            varsJsContent = Decoder.extractWithRegex('http://sawlive.tv/emb.js', '"', html3).replace('"',"")
+            varsJsContent = Downloader.getContentFromUrl(url=varsJsContent,referer=iframeUrl,cookie=Downloader.cookie)
+            file = Decoder.extract("'file','", "'", varsJsContent)
+            rtmpUrl = Decoder.extract("'streamer','", "'", varsJsContent)
         if rtmpUrl=='' and "http://" in file and ".jpg" not in file:
             finalRtmpUrl = file #it's a redirect with an .m3u8, so it's used
         else:
@@ -677,7 +685,8 @@ class Decoder():
                 logger.debug(content2)
                 finalRtmpUrl = file+"|"+Downloader.getHeaders(swfUrl)
             else:
-                finalRtmpUrl = rtmpUrl+" playpath="+file+" swfUrl="+swfUrl+" live=1 conn=S:OK pageUrl="+decryptedUrl+" timeout=12"
+                finalRtmpUrl = rtmpUrl+" playpath="+file+" swfUrl="+swfUrl+" live=1 flashver=WIN/2019,0,0,226 pageUrl="+decryptedUrl+" timeout=12"
+        logger.debug("now rtmpUrl is: "+finalRtmpUrl)
         return finalRtmpUrl
 
     @staticmethod

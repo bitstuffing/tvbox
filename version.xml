@@ -3,6 +3,6 @@
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.1.7</tag>
 	<version>120</version>
-	<date>01/01/2017</date>
-	<changes>Added new provider - Happy new year!</changes>
+	<date>12/02/2017</date>
+	<changes>Fixes some providers.</changes>
 </plugin>

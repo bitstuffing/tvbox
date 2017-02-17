@@ -673,7 +673,7 @@ class Decoder():
         if "==" not in file:
             # extract from script
             logger.debug("extracting content from script...")
-            varsJsContent = Decoder.extractWithRegex('http://sawlive.tv/emb.js', '"', html3).replace('"',"")
+            varsJsContent = 'http://'+Decoder.extractWithRegex('sawlive.tv/emb.js', '"', html3).replace('"',"")
             varsJsContent = Downloader.getContentFromUrl(url=varsJsContent,referer=iframeUrl,cookie=Downloader.cookie)
             file = Decoder.extract("'file','", "'", varsJsContent)
             rtmpUrl = Decoder.extract("'streamer','", "'", varsJsContent)
@@ -1202,87 +1202,98 @@ class Decoder():
     @staticmethod
     def decodePowvideo(link):
         domain = Decoder.extract("://","/",link)
-        html = Decoder.getFinalHtmlFromLink(link) #has common attributes in form with streamcloud and others
-        logger.debug(html)
-        if ">eval(function(p,a,c,k,e,d)" in html:
+        data = Decoder.getFinalHtmlFromLink("http://powvideo.xyz/embed-"+link[link.rfind("/")+1:]+"-954x562.html") #has common attributes in form with streamcloud and others
+        logger.debug(data)
+
+        jj_encode = re.findall("(\w+=~\[\];.*?\)\(\)\)\(\);)",data)[0]
+        jj_decode = None
+        jj_patron = None
+        reverse = False
+        splice = False
+        logger.debug("decoding powvideo script...")
+        if jj_encode:
             try:
-                encodedMp4File = "eval(function(p,a,c,k,e,d)"+Decoder.extract(">eval(function(p,a,c,k,e,d)","</script>",html)
-            except:
-                pass
-            logger.debug("trying to decode: "+encodedMp4File)
+                jj_decode = Decoder.decodePowvideoScript(jj_encode)
+            except Exception as e:
+                logger.error("EXCEPTION: "+str(e))
+        logger.debug("trying to catch type...")
+        if jj_decode:
+            jj_patron = re.findall("/([^/]+)/",jj_decode)[0]
+            if "(" not in jj_patron: jj_patron = "(" + jj_patron
+            if ")" not in jj_patron: jj_patron += ")"
+            logger.debug("trying to decode with hex decoder...")
             try:
-                mp4File = jsunpackOld.unpack(encodedMp4File) #needs un-p,a,c,k,e,t|d
-            except:
-                logger.debug("something goes wrong with old library, needs new one: ")
-                mp4File = jsunpack.unpack(encodedMp4File)  # needs un-p,a,c,k,e,t|d
-                pass
+                jhex_decode = Decoder.decodePowvideoHexdecode(jj_decode)
+            except Exception as e:
+                logger.error("EXCEPTION2: "+str(e))
+            if "reverse" in jhex_decode: reverse = True
+            if "splice" in jhex_decode: splice = True
+        logger.debug("seeking for matches...")
+        matches = re.findall("<script type=[\"']text/javascript[\"']>(eval.*?)</script>",data)[0]
+        logger.debug("trying to decode match: "+matches)
+        data = jsunpack.unpack(matches).replace("\\", "")
 
-            magicCode = link[link.rfind("/")+1:]
-            if magicCode not in mp4File:
-                logger.debug("detected fake code, checking next...")
-                try:
-                    encodedMp4File = "eval(function(p,a,c,k,e,d)" + Decoder.extract(">eval(function(p,a,c,k,e,d)","</script>", html[html.rfind(">eval(function(p,a,c,k,e,d)"):])
-                except:
-                    pass
-                mp4File = jsunpackOld.unpack(encodedMp4File)  # needs un-p,a,c,k,e,t|d
-            logger.debug(mp4File)
-            data = re.findall( "sources\s*=[^\[]*\[([^\]]+)\]",mp4File.replace('"', "'"), re.DOTALL | re.IGNORECASE)[0]
-            logger.debug("data with links is: " + data)
-
-            matches = re.findall( "[src|file]:'([^']+)'",data, re.DOTALL | re.IGNORECASE)
-
-            logger.debug("found links figured: "+str(len(matches)))
-            if len(matches) == 0:
-                matches = re.findall("[src|file]:'([^']+)'",data.replace('\\',''), re.DOTALL | re.IGNORECASE) #powvideo issues
-                logger.debug("found links figured: " + str(len(matches)))
-            jj_encode = re.findall("(\w+=~\[\];.*?\)\(\)\)\(\);)",html)[0]
-            jj_decode = Decoder.decodePowvideoScript(jj_encode)
-            logger.debug("powvideo script decoded content is: " + jj_decode)
-            #substring is not working all times, needs to be detected
-            substring = False
-            reverse = False
-            splice = False
-            if "x72x65x76x65x72x73x65" in jj_decode: reverse = True
-            if "x73x75x62x73x74x72x69x6Ex67" in jj_decode: substring = True
-            if "x73x70x6Cx69x63x65" in jj_decode: splice = True
-            rtmpUrl = ""
-            for videoUrl in matches:
-                logger.debug("videoUrl encoded: "+videoUrl)
-                _hash = re.findall('\w{40,}',videoUrl)[0]
-                if splice:
-                    splice = int(re.findall("\((\d),\d\);",jj_decode)[0])
-                    if reverse:
-                        h = list(_hash)
-                        h.pop(-splice - 1)
-                        _hash = "".join(h)
-                    else:
-                        h = list(_hash)
-                        h.pop(splice)
-                        _hash = "".join(h)
-                if substring:
-                    substring = int(re.findall("_\w+.\d...(\d)...;",jj_decode)[0])
-                    if reverse:
-                        _hash = _hash[:-substring]
-                    else:
-                        _hash = _hash[substring:]
+        data = re.findall("sources\s*=[^\[]*\[([^\]]+)\]",data.replace('"', "'"))[0]
+        matches = re.findall("[src|file]:'([^']+)'",data)
+        video_urls = []
+        finalLink = ""
+        logger.debug("seeking for urls...")
+        for video_url in matches:
+            _hash = re.findall('\w{40,}',video_url)[0]
+            if splice:
+                splice = eval(re.findall("\((\d[^,]*),\d\);",jj_decode)[0])
                 if reverse:
-                    videoUrl = re.sub(r'\w{40,}', _hash[::-1], videoUrl)
-                filename = videoUrl[videoUrl.rfind('/')+1:][-4:]
-                if videoUrl.startswith("rtmp"):
-                    rtmp, playpath = videoUrl.split("vod/", 1)
-                    videoUrl = "%s playpath=%s swfUrl=%splayer6/jwplayer.flash.swf pageUrl=%s" % (rtmp + "vod/", playpath, "http://"+domain, link)
-                    rtmpUrl = videoUrl
-                elif videoUrl.endswith(".m3u8"):
-                    videoUrl += "|User-Agent=" + Downloader.USER_AGENT
-                elif videoUrl.endswith("/v.mp4"):
-                    videoUrl = re.sub(r'/v.mp4$', '/v.flv', videoUrl)
+                    h = list(_hash)
+                    h.pop(-splice - 1)
+                    _hash = "".join(h)
+                else:
+                    h = list(_hash)
+                    h.pop(splice)
+                    _hash = "".join(h)
 
-                logger.debug("videoUrl encoded: " + videoUrl)
+            if reverse:
+                video_url = re.sub(r'\w{40,}', _hash[::-1], video_url)
+            filename = "video"
+            if video_url.startswith("rtmp"):
+                rtmp, playpath = video_url.split("vod/", 1)
+                video_url = "%s playpath=%s swfUrl=%splayer6/jwplayer.flash.swf pageUrl=%s" % (rtmp + "vod/", playpath, "http://powvideo.net/", link)
+                filename = "RTMP"
+                finalLink = video_url
+                logger.debug("found rtmp url: "+video_url)
+            elif video_url.endswith(".m3u8"):
+                video_url += "|User-Agent=" + Downloader.USER_AGENT
+            elif video_url.endswith("/v.mp4"):
+                video_url_flv = re.sub(r'/v.mp4$', '/v.flv', video_url)
+                video_urls.append([".flv" + " [powvideo]", re.sub(r'%s' % jj_patron, r'\1', video_url_flv)])
+            logger.debug("trying to append to internal list the url: "+video_url)
+            video_urls.append([filename + " [powvideo]", re.sub(r'%s' % jj_patron, r'\1', video_url)])
 
-            finalLink = rtmpUrl
-        else:
-            finalLink = "" # it's not possible to decode with the current way
+        video_urls.sort(key=lambda x: x[0], reverse=True)
+        for video_url in video_urls:
+            logger.info("%s - %s" % (video_url[0], video_url[1]))
+
         return finalLink
+
+    @staticmethod
+    def decodePowvideoHexdecode(t):
+        r = re.sub(r'_\d+x\w+x(\d+)', 'var_' + r'\1', t)
+        r = re.sub(r'_\d+x\w+', 'var_0', r)
+
+        def to_hx(c):
+            h = int("%s" % c.groups(0), 16)
+            if 19 < h < 160:
+                return chr(h)
+            else:
+                return ""
+
+        r = re.sub(r'(?:\\|)x(\w{2})', to_hx, r).replace('var ', '')
+
+        f = eval(re.findall('\s*var_0\s*=\s*([^;]+);',r)[0])
+        for i, v in enumerate(f):
+            r = r.replace('[var_0[%s]]' % i, "." + f[i])
+            if v == "": r = r.replace('var_0[%s]' % i, '""')
+
+        return r
 
     @staticmethod
     def decodePowvideoScript(t):

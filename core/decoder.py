@@ -673,10 +673,15 @@ class Decoder():
         if "==" not in file:
             # extract from script
             logger.debug("extracting content from script...")
-            varsJsContent = 'http://'+Decoder.extractWithRegex('sawlive.tv/emb.js', '"', html3).replace('"',"")
-            varsJsContent = Downloader.getContentFromUrl(url=varsJsContent,referer=iframeUrl,cookie=Downloader.cookie)
+            varsJsUrl = 'http://'+Decoder.extractWithRegex('sawlive.tv/emb.js', '"', html3).replace('"',"")
+            varsJsContent = Downloader.getContentFromUrl(url=varsJsUrl,referer=iframeUrl,cookie=Downloader.cookie)
             file = Decoder.extract("'file','", "'", varsJsContent)
-            rtmpUrl = Decoder.extract("'streamer','", "'", varsJsContent)
+            #try:
+            #    rtmpUrl = Decoder.extract("'streamer','", "'", varsJsContent)
+            #except:
+            rtmpUrl = varsJsUrl[varsJsUrl.rfind("rtmp://"):]
+            logger.debug("rmtp: "+rtmpUrl)
+            #pass
         if rtmpUrl=='' and "http://" in file and ".jpg" not in file:
             finalRtmpUrl = file #it's a redirect with an .m3u8, so it's used
         else:

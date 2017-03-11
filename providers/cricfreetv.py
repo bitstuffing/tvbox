@@ -159,7 +159,7 @@ class Cricfreetv(Downloader):
         elif 'file: "rtmp:' in html:  # found final link
             logger.debug("detected rtmp link...")
             rtmp = "rtmp:" + Decoder.extract('file: "rtmp:', '"', html)
-            swfJS = Decoder.extract('<script src="','"',html)
+            swfJS = Decoder.extract('<script src="','"',html[html.find('<div id="myElement">'):])
             jsContent = Downloader.getContentFromUrl(url=swfJS,referer=referer)
             swfUrl = Decoder.extract('"flashplayer": "','"',jsContent)
             if "http:" not in swfUrl:

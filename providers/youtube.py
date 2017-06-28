@@ -163,7 +163,7 @@ class Youtube(Downloader):
                 if 'youtube.com' not in link:
                     link = Youtube.MAIN_URL+link
                 logger.debug("link: " + link + ", title is: " + title)
-                image = Decoder.extractWithRegex('https://i.ytimg.com/','"',rowHtml).replace('"','')
+                image = Decoder.extractWithRegex('https://i.ytimg.com/','"',rowHtml).replace('"','').replace("&amp;","&")
                 element["title"] = title
                 element["page"] = link
                 if '&amp;list=' not in link:

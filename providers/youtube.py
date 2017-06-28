@@ -218,8 +218,8 @@ class Youtube(Downloader):
                 link = Youtube.MAIN_URL+Decoder.extract('href="','"',value)
                 element["title"] = title
                 element["page"] = link
-                if value.find('<img src="')>-1:
-                    element["thumbnail"] = Decoder.extract('<img src="','"',value)
+                if value.find('<img ')>-1:
+                    element["thumbnail"] = 'https://'+Decoder.extractWithRegex('i.ytimg.com','"',value).replace('"','')
                     logger.debug("thumbnail: "+element["thumbnail"])
                 logger.debug("append: "+title+", link: "+element["page"])
                 if "Home" not in title and "Movies" not in title:

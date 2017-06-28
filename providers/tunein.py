@@ -40,7 +40,7 @@ class TuneIn(Downloader):
                         i+=1
         else:
             logger.debug("extracting stream for: "+page)
-            content = TuneIn.getContentFromUrl(url=page,referer=TuneIn.MAIN_URL)
+            content = TuneIn.getContentFromUrl(url=page,referer=TuneIn.MAIN_URL,launchLocation=True)
             logger.debug("list content is: " + content)
             url = "http://"+Decoder.extract('"StreamUrl":"//','"',content)
             title = Decoder.extract('"Title": "','"',content)

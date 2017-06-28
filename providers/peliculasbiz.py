@@ -13,9 +13,9 @@ except:
 
 class Peliculasbiz(Downloader):
 
-    MAIN_URL = 'http://peliculasid.biz/'
-    SEARCH = "http://peliculasid.biz/ajax/autocomplete.php?search="
-    GOTO = "http://peliculasid.biz/goto/"
+    MAIN_URL = 'http://peliculasid.cc/'
+    SEARCH = "http://peliculasid.cc/ajax/autocomplete.php?search="
+    GOTO = "http://peliculasid.cc/goto/"
 
     @staticmethod
     def search(text):

@@ -65,16 +65,14 @@ class Youtube(Downloader):
     @staticmethod
     def decodeKeepVid(link):
         html = Downloader.getContentFromUrl("http://keepvid.com/?url="+urllib.quote_plus(link))
-        tableHtml = Decoder.extract('<div class="d-info2">',"</dl>",html)
+        tableHtml = Decoder.extract('<table class="result-table" cellspacing="0" cellpadding="0" border="0">',"</table>",html)
         logger.debug("extracting from html: "+tableHtml)
         links = []
         selectedLink = ""
-        for liHtml in tableHtml.split('</dd>'):
+        for liHtml in tableHtml.split('<tr>'):
             link = Decoder.extract('a href="','"',liHtml)
-            title = Decoder.extract('alt="', '"', liHtml)
-            if "1080p" in title and '(Video Only)' not in title:
-                selectedLink = link
-            elif len(selectedLink)==0 and "720p" in title and '(Video Only)' not in title:
+            title = Decoder.extract('<td class="al" width="25%">', '</', liHtml)
+            if ("1080P" in title and '(Pro Version)' not in title) or "1080p" not in title:
                 selectedLink = link
             else:
                 logger.debug("No link selected with title: "+title)

@@ -59,7 +59,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 
 		if str(url)=='tvseriesonline':
 			add_dir("HDFull.tv", 'hdfulltv', 4, "http://hdfull.tv/templates/hdfull/images/logo.png", 'hdfulltv', 0)
-			add_dir("Peliculasid.biz", 'peliculasbiz', 4, "", 'peliculasbiz', 0)
+			add_dir("Peliculasid.cc", 'peliculasbiz', 4, "", 'peliculasbiz', 0)
 			add_dir("Pepecine.com", 'pepecine', 4, "http://pepecine.net/assets/images/logo.png", 'pepecine', 0)
 			if enablePlexus:
 				add_dir("[T] - Elitetorrent.net", 'elitetorrentnet', 4, "http://www.elitetorrent.net/images/logo_elite.png",'elitetorrentnet', 0)

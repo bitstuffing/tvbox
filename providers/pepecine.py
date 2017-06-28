@@ -14,8 +14,8 @@ except:
 
 class Pepecine(Downloader):
 
-    MAIN_URL = 'http://pepecine.net'
-    SEARCH = "http://pepecine.net/ver-online?q=%s"
+    MAIN_URL = 'https://pepecine.online'
+    SEARCH = "https://pepecine.online/ver-online?q=%s"
 
     @staticmethod
     def search(text):
@@ -48,7 +48,10 @@ class Pepecine(Downloader):
         token = Pepecine.getValidToken()
         logger.debug("TOKEN is: "+token)
         page2 = page % token
+        oldTimeout = Downloader.TIMEOUT
+        Downloader.TIMEOUT = 40 #needs more because response has too weight
         bruteJson = Pepecine.getContentFromUrl(url=page2,cookie=Pepecine.cookie,referer=Pepecine.MAIN_URL)
+        Downloader.TIMEOUT = oldTimeout
         #logger.debug("BruteJSON is: "+bruteJson)
         totalJson = json.loads(bruteJson)
         if not providers:
@@ -59,9 +62,9 @@ class Pepecine(Downloader):
                 element["title"] = elementJson["title"].encode("utf-8")
                 try:
                     #element["link"] = base64.encodestring(element["title"].encode("utf-8"))
-                    connector = "/episodio-online/"
+                    connector = "/ver-serie/"
                     if elementJson["type"]=='movie':
-                        connector = "/ver-pelicula-online/"
+                        connector = "/ver-online-pelicula/"
                     element["link"] = Pepecine.MAIN_URL+connector+str(elementJson["id"])
                     x.append(element)
                 except:
@@ -94,19 +97,19 @@ class Pepecine(Downloader):
         if(str(page)=="0"):
             element = {}
             element["title"] = "Películas"
-            element["link"] = 'http://pepecine.net/titles/paginate?_token=%s&perPage=50&page=1&order=mc_num_of_votesDesc&type='+movie+'&minRating=&maxRating=&availToStream=true'
+            element["link"] = 'https://pepecine.online/titles/paginate?_token=%s&perPage=50&page=1&order=mc_num_of_votesDesc&type='+movie+'&minRating=&maxRating=&availToStream=1'
             x.append(element)
             element = {}
             element["title"] = "Series"
-            element["link"] = 'http://pepecine.net/titles/paginate?_token=%s&perPage=50&page=1&order=mc_num_of_votesDesc&type=' + serie + '&minRating=&maxRating=&availToStream=true'
+            element["link"] = 'https://pepecine.online/titles/paginate?_token=%s&perPage=50&page=1&order=mc_num_of_votesDesc&type=' + serie + '&minRating=&maxRating=&availToStream=1'
             x.append(element)
             last = {}
             last["title"] = "Últimas películas publicadas"
-            last["link"] = "http://pepecine.net/plugins/ultimas-peliculas-online.php"
+            last["link"] = "https://pepecine.online/plugins/estrenos-peliculas-online.php"
             x.append(last)
             last = {}
             last["title"] = "Últimas series actualizadas"
-            last["link"] = "http://pepecine.net/plugins/series-episodios-online.php"
+            last["link"] = "https://pepecine.online/plugins/estrenos-episodios-online.php"
             x.append(last)
             search = {}
             search["title"] = XBMCUtils.getString(11018)
@@ -130,13 +133,13 @@ class Pepecine(Downloader):
                 page+="=" #base64 could be missed
             title = base64.decodestring(page)
             logger.debug("trying to query by title: "+title)
-            searchByTitle = "http://pepecine.net/titles/paginate?_token=%s&perPage=24&page=1&order=mc_num_of_votesDesc&type=series&minRating=&maxRating=&query="+urllib.quote_plus(title)+"&availToStream=true"
+            searchByTitle = "https://pepecine.online/titles/paginate?_token=%s&perPage=24&page=1&order=mc_num_of_votesDesc&type=series&minRating=&maxRating=&query="+urllib.quote_plus(title)+"&availToStream=true"
             #x = Pepecine.extractProvidersFromLink(searchByTitle,True)
             x = Pepecine.searchItemByTitle(title)
-        elif '/ver-pelicula-online/' in page:
+        elif '/ver-online-pelicula/' in page:
             #extract links from html
             x = Pepecine.extractLinksFromPage(page)
-        elif '/episodio-online/' in page: #serie
+        elif '/ver-serie/' in page: #serie
             if '/seasons/' in page:
                 if '/episodes/' in page: #draw links
                     x = Pepecine.extractLinksFromPage(page)
@@ -157,12 +160,12 @@ class Pepecine(Downloader):
                         i+=1
             else: #draw seasons
                 html = Pepecine.getContentFromUrl(url=page, referer=Pepecine.MAIN_URL)
-                seasonsHtml = Decoder.extract('<strong>Temporadas: </strong>','<br>',html)
+                seasonsHtml = Decoder.extract('<div class="heading bord" style="margin:0 -15px;">','<br>',html)
                 i=0
                 for seasonHtml in seasonsHtml.split('<a '):
                     if i>0:
                         link = Decoder.extract('href="','"',seasonHtml)
-                        title = "Temporada "+Decoder.extract('class="sezon">',"<",seasonHtml)
+                        title = Decoder.extract('class="sezon">',"<",seasonHtml)
                         element = {}
                         element["title"] = title
                         element["link"] = link
@@ -175,7 +178,7 @@ class Pepecine(Downloader):
                 if i>0:
                     link = Pepecine.MAIN_URL+Decoder.extract('href='," ",line)
                     title = Decoder.extract(' alt="','"',line)
-                    img = Pepecine.MAIN_URL + Decoder.extract('<img src=', ' ', line)
+                    img = Decoder.extract('<img src=', ' ', line)
                     element = {}
                     element["title"] = title
                     element["link"] = link
@@ -208,7 +211,7 @@ class Pepecine(Downloader):
     @staticmethod
     def searchItemByTitle(title):
         x = []
-        searchByTitle = 'http://pepecine.net/typeahead/' + urllib.quote_plus(title)
+        searchByTitle = 'https://pepecine.online/typeahead/' + urllib.quote_plus(title)
         jsonContent = Pepecine.getContentFromUrl(url=searchByTitle, cookie=Pepecine.cookie, referer=Pepecine.MAIN_URL,ajax=True)
         logger.debug("jsonContent is: "+jsonContent)
         jsonContentParsed = json.loads(jsonContent)

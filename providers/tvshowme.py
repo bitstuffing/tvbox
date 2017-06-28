@@ -8,7 +8,7 @@ import urllib
 
 class Tvshowme(Downloader):
 
-    MAIN_URL = "http://www.tvshow.me/"
+    MAIN_URL = "http://tvshow.me/"
 
     @staticmethod
     def getChannels(page):
@@ -50,10 +50,8 @@ class Tvshowme(Downloader):
         for value in table.split('<li>'):
             if i>0:
                 element = {}
-                if '' in value:
-                    title = Decoder.extract('/">','</a>',value).replace("&#8211;","-")
-                elif '" title="' in value:
-                    title = Decoder.extract('" title="', '"', value).replace("&#8211;", "-")
+                if 'title">' in value:
+                    title = Decoder.extract('title">','</span>',value).replace("&#8211;","-")
                 link = Decoder.extract('<a href="','"',value)
                 element["title"] = title
                 element["link"] = link

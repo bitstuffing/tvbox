@@ -42,7 +42,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 		add_dir(XBMCUtils.getString(10016), 'popularonline', 3, "", 'popularonline', 0)
 		add_dir(XBMCUtils.getString(10017), 'tvseriesonline', 3, "", 'tvseriesonline', 0)
 		add_dir(XBMCUtils.getString(10018), 'torrentwebsites', 3, "", 'torrentwebsites', 0)
-		add_dir(XBMCUtils.getString(10019), 'usersonlinewebsites', 3, "", 'usersonlinewebsites', 0)
+		#add_dir(XBMCUtils.getString(10019), 'usersonlinewebsites', 3, "", 'usersonlinewebsites', 0)
 		add_dir(XBMCUtils.getString(10020), 'sportsonline', 3, "", 'sportsonline', 0)
 		add_dir(XBMCUtils.getString(10021), 'newsonlinewebsites', 3, "", 'newsonlinewebsites', 0)
 		add_dir(XBMCUtils.getString(10022), 'worldstvonlinewebsites', 3, "", 'worldstvonlinewebsites', 0)
@@ -78,9 +78,8 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 		elif str(url)=='torrentwebsites'and enablePlexus == "true":
 			add_dir("Arenavision.in", 'arenavisionin', 4, "http://www.arenavision.in/sites/default/files/logo_av2015.png",'arenavisionin', 0)
 			add_dir("Ace-tv.ru", 'acetvru', 4, "http://ace-tv.eu/logo.png", 'acetvru', 0)
-			add_dir("Streamingsport365.com", 'streamingsport365', 4, "http://streamingsport365.com/en/wp-content/uploads/2016/02/logo-streamingsport365.png", 'streamingsport365', 0)
-		elif str(url)=='usersonlinewebsites':
-			add_dir("Tvshow.me", 'tvshowme', 4, "http://www.tvshow.me/wp-content/uploads/2016/09/Icon_.png", 'tvshowme', 0)
+		#elif str(url)=='usersonlinewebsites':
+			#add_dir("Tvshow.me", 'tvshowme', 4, "http://www.tvshow.me/wp-content/uploads/2016/09/Icon_.png", 'tvshowme', 0)
 		elif str(url)=='sportsonline':
 			add_dir("Live9.co", 'live9', 4, "", 'live9', 0)
 			add_dir("Cricfree.tv", 'cricfree', 4, "http://cricfree.tv/images/logosimg.png", 'cricfree', 0)

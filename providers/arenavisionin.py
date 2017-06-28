@@ -8,8 +8,8 @@ from core.downloader import Downloader
 
 class Arenavisionin(Downloader):
 
-    MAIN_URL = "http://www.arenavision.in/schedule"
-    MAIN_URL_RU = "http://www.arenavision.ru/schedule"
+    MAIN_URL = "http://www.arenavision.in/guide"
+    MAIN_URL_RU = "http://www.arenavision.ru/guide"
 
     @staticmethod
     def getChannels(page):

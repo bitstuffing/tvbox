@@ -31,7 +31,7 @@ class Arenavisionin(Downloader):
                 cmenu = []
                 for contextItem in page.split("-"):
                     #if len(contextItem)>0:
-                    cmenu.append("av"+contextItem)
+                    cmenu.append(contextItem)
                 result = dialog.select(XBMCUtils.getString(11016), cmenu) #choose
                 logger.debug("result was: "+str(result))
                 if result == None or result==-1:

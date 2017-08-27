@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.1.7</tag>
-	<version>124</version>
+	<version>125</version>
 	<date>28/06/2017</date>
-	<changes>Fixes some providers. Not all providers. Needs some work.</changes>
+	<changes>Little fix for arenavision</changes>
 </plugin>

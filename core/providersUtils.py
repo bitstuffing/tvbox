@@ -51,6 +51,7 @@ from providers.cnn import CNN
 from providers.elmundo import ElMundo
 from providers.elpaises import ElPais
 from providers.streamingsport365 import StreamingSports365
+from providers.clan import Clan
 
 try:
 	from providers.spliveappcom import Spliveappcom
@@ -674,6 +675,17 @@ def displayTeletext(url,page):
 		add_dir("BBC1 - ceefax.tv", "bbc1", 4, "bbc1", "teletext", 0)
 		add_dir("BBC2 - ceefax.tv", "bbc2", 4, "bbc2", "teletext", 0)
 
+def displayClan(url,page):
+	finalUrls = Clan.getChannels(page)
+	for element in finalUrls:
+		code = 4
+		if element.has_key("finalLink"):
+			code = 125
+		image = icon
+		if element.has_key("thumbnail"):
+			image = element["thumbnail"]
+		add_dir(element["title"], element["link"], code, image, "clan", element["link"])
+
 def displayRTVETeletext(url,page):
 	logger.debug("displaying teletext for LaSextaText provider")
 	imgPath = 'http://www.rtve.com/television/teletexto/100/100_0001.png' #first
@@ -888,6 +900,12 @@ def openElitetorrentnet(url,page):
 	logger.info("decoding eliteetorrentnet link... " + url)
 	link = Elitetorrent.getChannels(url)[0]["link"]
 	logger.info("decoded eliteetorrentnet link: " + link)
+	open(link, page)
+
+def openClan(url,page):
+	logger.info("decoding Clan link... " + url)
+	link = Clan.getChannels(url)[0]["link"]
+	logger.info("decoded Clan link: " + link)
 	open(link, page)
 
 def openMobdro(url,page):

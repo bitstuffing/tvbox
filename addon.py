@@ -65,6 +65,7 @@ def browse_channels(url,page): #BROWSES ALL PROVIDERS (it has been re-sorted)
 				add_dir("[T] - Elitetorrent.net", 'elitetorrentnet', 4, "http://www.elitetorrent.net/images/logo_elite.png",'elitetorrentnet', 0)
 		elif str(url)=='popularonline':
 			add_dir("Youtube.com", 'youtube', 4,"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/YouTube_logo_2015.svg/120px-YouTube_logo_2015.svg.png",'youtube', 0)
+			add_dir("CLAN (rtve)", 'clan', 4,"https://upload.wikimedia.org/wikipedia/en/thumb/4/47/TVEClan_logo.png/150px-TVEClan_logo.png",'clan', 0)
 			add_dir("TuneIn.com", 'tunein', 4,"https://lh5.googleusercontent.com/-NsniPTwZFkc/AAAAAAAAAAI/AAAAAAAAOLE/qtdbWIxlF5M/s0-c-k-no-ns/photo.jpg",'tunein', 0)
 		elif str(url)=='paidonline':
 			enableYomvi = XBMCUtils.getSettingFromContext(int(sys.argv[1]), "enable_yomvi")
@@ -207,6 +208,8 @@ def browse_channel(url,page,provider): #MAIN TREE BROWSER IS HERE!
 		drawMobdro(page)
 	elif provider == 'teletext':
 		displayTeletext(url, page)
+	elif provider == 'clan':
+		displayClan(url, page)
 
 	logger.info(provider)
 
@@ -310,6 +313,8 @@ def init():
 			openPeliculasbiz(url,page)
 		elif mode == 124:
 			openElitetorrentnet(url,page)
+		elif mode == 125:
+			openClan(url,page)
 
 
 	except Exception as e:

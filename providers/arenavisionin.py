@@ -28,6 +28,8 @@ class Arenavisionin(Downloader):
             x = Arenavisionin.extractElements(html)
         else:
             if page.find("-")>-1:
+                if len(page)== 1:
+                    page = "0"+str(page)
                 #put a context menu and the user should decice, if not use the first one (default action)
                 dialog = XBMCUtils.getDialog()
                 cmenu = []

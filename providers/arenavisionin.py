@@ -28,8 +28,6 @@ class Arenavisionin(Downloader):
             x = Arenavisionin.extractElements(html)
         else:
             if page.find("-")>-1:
-                if len(page)== 1:
-                    page = "0"+str(page)
                 #put a context menu and the user should decice, if not use the first one (default action)
                 dialog = XBMCUtils.getDialog()
                 cmenu = []
@@ -44,6 +42,8 @@ class Arenavisionin(Downloader):
                 else:
                     logger.debug("has choosed "+str(result)+": "+cmenu[result])
                     page = (cmenu[result])
+                if len(page)== 1:
+                    page = "0"+str(page)
                 link = "http://www.arenavision.us/" + page
             else:
                 if "av" not in page:
@@ -52,6 +52,8 @@ class Arenavisionin(Downloader):
             try:
                 html = Arenavisionin.getContentFromUrl(link,"",Arenavisionin.COOKIE,Arenavisionin.MAIN_URL)
             except:
+                if len(page)== 1:
+                    page = "0"+str(page)
                 link = "http://www.arenavision.ru/" + page
                 html = Arenavisionin.getContentFromUrl(link, "", Arenavisionin.COOKIE, Arenavisionin.MAIN_URL_RU)
                 pass

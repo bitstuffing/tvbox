@@ -11,6 +11,8 @@ class Arenavisionin(Downloader):
     MAIN_URL = "http://www.arenavision.us/iguide"
     MAIN_URL_RU = "http://www.arenavision.ru/iguide"
 
+    COOKIE = "has_js=1; POPARENArhpmax=3|Sat%2C%2014%20Oct%202017%2018%3A26%3A06%20GMT; ads_smrt_popunder=2%7CSun%2C%2015%20Oct%202017%2017%3A26%3A02%20GMT; POPARENArhpmin=yes"
+
     @staticmethod
     def getChannels(page):
         x = []
@@ -40,16 +42,20 @@ class Arenavisionin(Downloader):
                 else:
                     logger.debug("has choosed "+str(result)+": "+cmenu[result])
                     page = (cmenu[result])
+                if len(page)== 1:
+                    page = "0"+str(page)
                 link = "http://www.arenavision.us/" + page
             else:
                 if "av" not in page:
                     page = "av"+page
                 link = "http://www.arenavision.us/"+page
             try:
-                html = Arenavisionin.getContentFromUrl(link,"",'beget=begetok; has_js=1',Arenavisionin.MAIN_URL)
+                html = Arenavisionin.getContentFromUrl(link,"",Arenavisionin.COOKIE,Arenavisionin.MAIN_URL)
             except:
+                if len(page)== 1:
+                    page = "0"+str(page)
                 link = "http://www.arenavision.ru/" + page
-                html = Arenavisionin.getContentFromUrl(link, "", 'beget=begetok; has_js=1', Arenavisionin.MAIN_URL_RU)
+                html = Arenavisionin.getContentFromUrl(link, "", Arenavisionin.COOKIE, Arenavisionin.MAIN_URL_RU)
                 pass
             if html.find("acestream://")>-1:
                 link2 = Decoder.extractWithRegex("acestream://",'"',html).replace('"',"")

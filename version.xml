@@ -2,7 +2,7 @@
 <plugin>
 	<file>https://github.com/harddevelop/tvbox/archive/master.zip</file>
 	<tag>0.1.7</tag>
-	<version>126</version>
-	<date>16/09/2017</date>
-	<changes>Added rtve clan provider for childrens and improves related to debugger</changes>
+	<version>127</version>
+	<date>14/10/2017</date>
+	<changes>Changes for arenavision provider</changes>
 </plugin>

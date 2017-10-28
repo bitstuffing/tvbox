@@ -8,8 +8,8 @@ from core.downloader import Downloader
 
 class Arenavisionin(Downloader):
 
-    MAIN_URL = "http://www.arenavision.in/guide"
-    MAIN_URL_RU = "http://www.arenavision.ru/guide"
+    MAIN_URL = "http://www.arenavision.us/iguide"
+    MAIN_URL_RU = "http://www.arenavision.ru/iguide"
 
     @staticmethod
     def getChannels(page):
@@ -40,11 +40,11 @@ class Arenavisionin(Downloader):
                 else:
                     logger.debug("has choosed "+str(result)+": "+cmenu[result])
                     page = (cmenu[result])
-                link = "http://www.arenavision.in/" + page
+                link = "http://www.arenavision.us/" + page
             else:
                 if "av" not in page:
                     page = "av"+page
-                link = "http://www.arenavision.in/"+page
+                link = "http://www.arenavision.us/"+page
             try:
                 html = Arenavisionin.getContentFromUrl(link,"",'beget=begetok; has_js=1',Arenavisionin.MAIN_URL)
             except:
